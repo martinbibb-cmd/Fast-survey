@@ -83,6 +83,81 @@ const NEW_FLUE_DIRECTIONS = [
     label: 'Turret forward',
     description: 'Flue routes forward from a turret outlet.',
     icon: createFlueDirectionIcon('turret-forward')
+  },
+  {
+    id: 'new-flue-vertical',
+    label: 'Vertical',
+    description: 'Flue rises vertically above the boiler.',
+    icon: createFlueDirectionIcon('vertical')
+  }
+];
+
+const CONDENSATE_OPTIONS = [
+  {
+    id: 'CD01',
+    code: 'CD01',
+    label: 'Connection',
+    description: 'Internal waste – P-trap present'
+  },
+  {
+    id: 'CD02',
+    code: 'CD02',
+    label: 'Connection',
+    description: 'Internal waste – new trap required'
+  },
+  {
+    id: 'CD03',
+    code: 'CD03',
+    label: 'External run',
+    description: 'Insulate (42 mm MI)'
+  },
+  {
+    id: 'CD04',
+    code: 'CD04',
+    label: 'External run',
+    description: 'Replace with 42 mm (MI compliant)'
+  },
+  {
+    id: 'CD05',
+    code: 'CD05',
+    label: 'Pump',
+    description: 'Condensate pump required'
+  },
+  {
+    id: 'CD06',
+    code: 'CD06',
+    label: 'Soakaway',
+    description: '42 mm pipe'
+  },
+  {
+    id: 'CD07',
+    code: 'CD07',
+    label: 'Soakaway',
+    description: 'Gravel trap'
+  },
+  {
+    id: 'CD08',
+    code: 'CD08',
+    label: 'Gradient',
+    description: 'Fall correction required'
+  },
+  {
+    id: 'CD09',
+    code: 'CD09',
+    label: 'Upgrade',
+    description: '32 mm → 42 mm (MI compliant)'
+  },
+  {
+    id: 'CD10',
+    code: 'CD10',
+    label: 'Discharge',
+    description: 'External soil stack – termination check'
+  },
+  {
+    id: 'CD11',
+    code: 'CD11',
+    label: 'Neutraliser',
+    description: 'Fitted (where required)'
   }
 ];
 
@@ -127,6 +202,7 @@ const state = {
   newBoilerLocation: '',
   newBoilerType: '',
   newFlueDirection: '',
+  condensateRoute: '',
   flueRoute: []
 };
 
@@ -137,7 +213,8 @@ const labelLookup = new Map([
   ...FLUE_TYPES.map(option => [option.id, option.label]),
   ...FLUE_EXIT_POINTS.map(option => [option.id, option.label]),
   ...NEW_FLUE_DIRECTIONS.map(option => [option.id, option.label]),
-  ...LOCATION_SPOTS.map(option => [option.id, option.label])
+  ...LOCATION_SPOTS.map(option => [option.id, option.label]),
+  ...CONDENSATE_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}: ${option.description}`])
 ]);
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -148,6 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderHotspotGroup('newHouseHotspots', 'newBoilerLocation');
   renderNewBoilerOptions();
   renderNewFlueDirections();
+  renderCondensateOptions();
   initFlueBuilder();
   updateSummary();
   document.getElementById('resetSelections').addEventListener('click', resetSurvey);
@@ -243,6 +321,21 @@ function renderNewFlueDirections() {
   syncChoiceTiles(container, state.newFlueDirection);
 }
 
+function renderCondensateOptions() {
+  const container = document.getElementById('condensateChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  CONDENSATE_OPTIONS.forEach(option => {
+    const tile = createRadioTile('condensate-route', option, selectedId => {
+      state.condensateRoute = selectedId;
+      syncChoiceTiles(container, selectedId);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+  syncChoiceTiles(container, state.condensateRoute);
+}
+
 function renderHotspotGroup(containerId, stateKey) {
   const container = document.getElementById(containerId);
   if (!container) return;
@@ -276,6 +369,7 @@ function createRadioTile(groupName, option, onSelect) {
   tile.innerHTML = `
     <input type="radio" name="${groupName}" id="${inputId}" value="${option.id}">
     <label for="${inputId}">
+      ${option.code ? `<span class="tile-badge">${option.code}</span>` : ''}
       ${option.icon ? `<span class="tile-icon">${option.icon}</span>` : ''}
       <span class="tile-copy">
         <strong>${option.label}</strong>
@@ -332,7 +426,10 @@ function syncHotspots(container, selectedId) {
 function updateSummary() {
   const summaryList = document.getElementById('summaryList');
   const accessList = Array.from(state.access).map(id => labelLookup.get(id));
-  const routeList = state.flueRoute.map(id => FLUE_COMPONENT_MAP.get(id)?.label || id);
+  const routeList = state.flueRoute.map(id => {
+    const component = FLUE_COMPONENT_MAP.get(id);
+    return component ? component.label : id;
+  });
   summaryList.innerHTML = '';
 
   const summaryItems = [
@@ -369,6 +466,10 @@ function updateSummary() {
       value: state.newFlueDirection ? labelLookup.get(state.newFlueDirection) : 'Not recorded'
     },
     {
+      label: 'Condensate route',
+      value: state.condensateRoute ? labelLookup.get(state.condensateRoute) : 'Not recorded'
+    },
+    {
       label: 'Flue route fittings',
       value: routeList.length ? routeList.join(' → ') : 'None added'
     }
@@ -390,6 +491,7 @@ function resetSurvey() {
   state.newBoilerLocation = '';
   state.newBoilerType = '';
   state.newFlueDirection = '';
+  state.condensateRoute = '';
   state.flueRoute = [];
   document.querySelectorAll('input[type="radio"]').forEach(input => {
     input.checked = false;
@@ -408,7 +510,7 @@ function initFlueBuilder() {
     const componentId = button.dataset.component;
     const component = FLUE_COMPONENT_MAP.get(componentId);
     const icon = button.querySelector('.chip-icon');
-    if (icon && component?.icon) {
+    if (icon && component && component.icon) {
       icon.innerHTML = component.icon;
     }
     button.addEventListener('click', () => {
@@ -457,7 +559,7 @@ function updateFlueBuilder() {
     const component = FLUE_COMPONENT_MAP.get(componentId);
     const segment = document.createElement('div');
     segment.className = `preview-segment ${componentId}`;
-    segment.innerHTML = component?.icon || '';
+    segment.innerHTML = component && component.icon ? component.icon : '';
     preview.appendChild(segment);
   });
 
@@ -475,7 +577,7 @@ function updateFlueBuilder() {
       const item = document.createElement('li');
       item.innerHTML = `
         <span class="order-badge">${index + 1}</span>
-        <span>${component?.label || componentId}</span>
+        <span>${component && component.label ? component.label : componentId}</span>
       `;
       list.appendChild(item);
     });
@@ -514,6 +616,11 @@ function createFlueDirectionIcon(direction) {
     case 'turret-forward':
       elements += turret;
       elements += '<path d="M40 52 V68" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="40" cy="68" r="4" fill="currentColor"/>';
+      break;
+    case 'vertical':
+      elements += '<path d="M40 52 V20" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>';
+      elements += '<circle cx="40" cy="20" r="4" fill="currentColor"/>';
+      elements += '<path d="M40 20 V8" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="40" cy="8" r="4" fill="currentColor"/>';
       break;
     default:
       break;
