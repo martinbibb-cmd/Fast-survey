@@ -3,131 +3,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Depot Notes Picker – Field UI</title>
+  <title>Heating Survey Planner</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="app-container">
-    <header class="app-header">
-      <div class="title-group">
-        <h1>Depot Notes Picker – Field UI</h1>
+  <div class="app-shell">
+    <header class="top-bar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">🔥</span>
+        <h1>Heating Survey Planner</h1>
       </div>
-      <div class="header-actions">
-        <button class="pill" id="resetButton" type="button">🔄 Reset</button>
-        <button class="pill" id="configButton" type="button">⚙️ Config</button>
-        <button class="pill" id="gptSummaryButton" type="button">🧠 GPT Summary</button>
-      </div>
+      <button class="ghost" id="resetSelections" type="button">Reset survey</button>
     </header>
-    <section class="customer-summary" id="customerSummarySection">
-      <h2>Customer Summary</h2>
-      <textarea id="customerSummaryBox" readonly placeholder="GPT summary will appear here once available."></textarea>
-    </section>
-    <main class="workspace">
-      <aside class="wizard-panel" id="wizardPanel">
-        <div class="wizard-scroll" id="wizardSteps"></div>
-      </aside>
-      <section class="outputs-panel">
-        <div class="outputs-tabs" id="outputsTabs"></div>
-        <div class="outputs-content" id="outputsContent"></div>
+
+    <main class="content">
+      <section class="panel" aria-labelledby="accessHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 1</p>
+            <h2 id="accessHeading">Access equipment required</h2>
+          </div>
+          <p class="panel-hint">Tap all that apply for this property.</p>
+        </div>
+        <div class="card-grid" id="accessGrid" role="group" aria-describedby="accessHeading"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="boilerHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 2</p>
+            <h2 id="boilerHeading">Existing boiler type</h2>
+          </div>
+          <p class="panel-hint">Choose the boiler type currently installed.</p>
+        </div>
+        <div class="choice-group" id="boilerChoices" role="radiogroup" aria-labelledby="boilerHeading"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="flueHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 3</p>
+            <h2 id="flueHeading">Flue type &amp; exit point</h2>
+          </div>
+          <p class="panel-hint">Select one option for each question.</p>
+        </div>
+        <div class="flue-grid">
+          <fieldset class="fieldset" id="flueTypeGroup">
+            <legend>Flue type</legend>
+            <div class="choice-group" role="radiogroup" aria-labelledby="flueTypeGroup"></div>
+          </fieldset>
+          <fieldset class="fieldset" id="flueExitGroup">
+            <legend>Exit point</legend>
+            <div class="choice-group" role="radiogroup" aria-labelledby="flueExitGroup"></div>
+          </fieldset>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="locationHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 4</p>
+            <h2 id="locationHeading">Boiler location</h2>
+          </div>
+          <p class="panel-hint">Tap a hotspot to note the room for the existing boiler.</p>
+        </div>
+        <div class="house-scene">
+          <div class="house-illustration" id="houseHotspots" role="listbox" aria-labelledby="locationHeading"></div>
+        </div>
       </section>
     </main>
-    <footer class="app-footer">
-      <div class="footer-left">
-        <label class="address-field">
-          <span>Job reference</span>
-          <input type="text" id="jobReferenceInput" placeholder="Optional reference or address">
-        </label>
-      </div>
-      <div class="footer-actions">
-        <button class="primary" id="exportZipButton" type="button">Export ZIP</button>
-        <button class="primary" id="exportPdfButton" type="button">Export PDF Summary</button>
-      </div>
-    </footer>
+
+    <aside class="summary" aria-live="polite">
+      <h2>Survey summary</h2>
+      <ul id="summaryList"></ul>
+    </aside>
   </div>
 
-  <div class="modal" id="configModal" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="modal-content">
-      <header class="modal-header">
-        <h2>Configuration &amp; Data Health</h2>
-        <button class="pill" type="button" id="closeConfig">Close</button>
-      </header>
-      <div class="modal-body">
-        <section>
-          <h3>Data files</h3>
-          <ul class="status-list" id="dataStatusList"></ul>
-        </section>
-        <section>
-          <h3>Unmapped option codes</h3>
-          <p id="unmappedCodesMessage" class="hint"></p>
-          <ul class="status-list" id="unmappedCodesList"></ul>
-        </section>
-        <section>
-          <h3>Arrow style</h3>
-          <label class="toggle">
-            <input type="checkbox" id="arrowToggle">
-            <span>Use dash instead of ↘️</span>
-          </label>
-        </section>
-        <section id="componentsPanel" class="components-panel">
-          <header class="components-header">
-            <h3>Components (pricebook)</h3>
-            <input type="search" id="componentSearch" placeholder="Search pricebook">
-          </header>
-          <div class="components-results" id="componentResults"></div>
-          <div class="components-selected">
-            <h4>Selected components</h4>
-            <ul id="selectedComponentsList"></ul>
-          </div>
-        </section>
-      </div>
-    </div>
-  </div>
-
-  <template id="wizardCardTemplate">
-    <section class="wizard-card">
-      <header class="wizard-card-header">
-        <h2 class="wizard-card-title"></h2>
-      </header>
-      <div class="wizard-card-body"></div>
-    </section>
-  </template>
-
-  <template id="optionRowTemplate">
-    <label class="option-row">
-      <input type="checkbox">
-      <span class="option-code"></span>
-      <span class="option-specific"></span>
-    </label>
-  </template>
-
-  <template id="outputTabTemplate">
-    <button type="button" class="output-tab"></button>
-  </template>
-
-  <template id="outputPanelTemplate">
-    <div class="output-panel">
-      <div class="output-preview" aria-live="polite"></div>
-      <div class="copy-box">
-        <textarea class="output-text" rows="6"></textarea>
-        <div class="copy-actions">
-          <button type="button" class="pill copy-btn">Copy Section</button>
-          <button type="button" class="pill clear-btn">Clear</button>
-          <button type="button" class="pill note-btn">Insert Manual Note</button>
-          <button type="button" class="pill rebuild-btn">Rebuild From Selections</button>
-        </div>
-      </div>
-    </div>
-  </template>
-
-  <template id="photoTemplate">
-    <div class="photo-thumb">
-      <img alt="Survey photo">
-      <button type="button" class="pill remove-photo">Remove</button>
-    </div>
-  </template>
-
-  <script src="lib/jszip.min.js"></script>
-  <script src="lib/jspdf.umd.min.js"></script>
   <script src="app.js" type="module"></script>
 </body>
 </html>
