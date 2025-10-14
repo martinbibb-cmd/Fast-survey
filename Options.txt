@@ -103,6 +103,17 @@ ARS30 | Flue | Brickwork and render made good to reasonable standard, not decora
 ARS31 | Flue | Flue sealing and flashings weatherproof only — not decorative
 ARS32 | Flue | Existing holes or redundant flues made safe and sealed where practical
 
+[Flue_notes]
+# Before condensate at a step to cover making good able to choose multiple
+FN01 | New flue | Use same hole – minor change
+FN02 | New flue | New hole – same wall
+FN03 | New flue | New hole – alternative wall
+FN04 | Orientation | Horizontal
+FN05 | Orientation | Vertical
+FN06 | Sealing | Seal brickwork to flue
+FN07 | Sealing | Vertical flashing kit
+FN08 | Sealing | Flat roof flashing by specialist builder
+
 ARS33 | Access | Safe access provided for installation only — permanent access is customer responsibility
 ARS34 | Access | Loft must be boarded, lit, and safe before works commence
 ARS35 | Access | Working at height precautions apply — scaffold or tower may be required
@@ -347,6 +358,7 @@ DI02 | Disruption | Moderate – carpets lifted
 DI03 | Disruption | High – floors lifted
 DI04 | Preparation | Customer to clear areas/routes
 DI05 | Protection | Dust protection required
+DI06 | Disruption | Show the rooms heat map – works including floor boards being lifted
 
 [Customer actions]
 CA01 | Customer | Clear working areas
@@ -356,3 +368,21 @@ CA04 | Customer | Remove cupboard
 CA05 | Customer | Rebuild cupboard
 CA06 | Customer | Remove old flue & weather seal
 CA07 | Customer | Supply specified items
+
+[Cylinders]
+# Choice multiple
+CY01 | Cylinder | Replace
+CY02 | Cylinder | Retain
+CY03 | Cylinder | Remove
+CY04 | Cylinder | Unvented
+CY05 | Cylinder | Open vented
+CY06 | Cylinder | Mixergy
+
+[Customer controls]
+# Choose multiple
+CC01 | Control | Hive
+CC02 | Control | Hive Mini
+CC03 | Control | Wireless room stat
+CC04 | Control | Wired stat
+CC05 | Control | Programmer
+CC06 | Control | Cylinder stat
