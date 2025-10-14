@@ -59,11 +59,70 @@
         </div>
       </section>
 
-      <section class="panel" aria-labelledby="locationHeading">
+      <section class="panel" aria-labelledby="newSetupHeading">
         <div class="panel-head">
           <div>
             <p class="step-count">Step 4</p>
-            <h2 id="locationHeading">Boiler location</h2>
+            <h2 id="newSetupHeading">New boiler setup</h2>
+          </div>
+          <p class="panel-hint">Plan the proposed location, type and flue route for the replacement boiler.</p>
+        </div>
+
+        <div class="new-setup">
+          <div>
+            <h3>New boiler location</h3>
+            <p class="panel-subhint">Tap a hotspot to choose where the new boiler will be fitted.</p>
+            <div class="house-scene">
+              <div class="house-illustration compact" id="newHouseHotspots" role="listbox" aria-labelledby="newSetupHeading"></div>
+            </div>
+          </div>
+
+          <div class="new-setup-controls">
+            <fieldset class="fieldset" id="newBoilerTypeGroup">
+              <legend>New boiler type</legend>
+              <div class="choice-group" id="newBoilerChoices" role="radiogroup" aria-labelledby="newBoilerTypeGroup"></div>
+            </fieldset>
+
+            <fieldset class="fieldset" id="newFlueDirectionGroup">
+              <legend>New flue direction</legend>
+              <div class="choice-group" id="newFlueDirectionChoices" role="radiogroup" aria-labelledby="newFlueDirectionGroup"></div>
+            </fieldset>
+
+            <section class="flue-builder" aria-labelledby="flueBuilderHeading">
+              <div class="builder-head">
+                <h3 id="flueBuilderHeading">Bends &amp; extensions</h3>
+                <p class="panel-subhint">Add 45° or 90° bends and 1&nbsp;m extensions in the order required. The flue route updates as you add components.</p>
+              </div>
+              <div class="builder-controls" role="group" aria-label="Add fittings to the flue route">
+                <button type="button" class="chip-button" data-component="extension">
+                  <span class="chip-icon" aria-hidden="true"></span>
+                  1&nbsp;m extension
+                </button>
+                <button type="button" class="chip-button" data-component="bend45">
+                  <span class="chip-icon" aria-hidden="true"></span>
+                  45° bend
+                </button>
+                <button type="button" class="chip-button" data-component="bend90">
+                  <span class="chip-icon" aria-hidden="true"></span>
+                  90° bend
+                </button>
+              </div>
+              <div class="flue-preview" id="fluePathPreview" aria-hidden="true"></div>
+              <ol class="component-list" id="flueComponentList" aria-live="polite"></ol>
+              <div class="builder-actions">
+                <button type="button" class="chip-button primary" id="undoFlueComponent">Undo last</button>
+                <button type="button" class="chip-button secondary" id="clearFlueComponents">Clear all</button>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="locationHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 5</p>
+            <h2 id="locationHeading">Existing boiler location</h2>
           </div>
           <p class="panel-hint">Tap a hotspot to note the room for the existing boiler.</p>
         </div>
