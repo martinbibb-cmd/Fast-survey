@@ -54,10 +54,36 @@ const FLUE_EXIT_POINTS = [
 ];
 
 const NEW_FLUE_DIRECTIONS = [
-  { id: 'new-flue-left', label: 'Left run', description: 'Flue routed towards the left elevation.', icon: createFlueDirectionIcon('left') },
-  { id: 'new-flue-right', label: 'Right run', description: 'Flue routed towards the right elevation.', icon: createFlueDirectionIcon('right') },
-  { id: 'new-flue-up', label: 'Upward run', description: 'Flue rises vertically from the boiler.', icon: createFlueDirectionIcon('up') },
-  { id: 'new-flue-down', label: 'Downward run', description: 'Flue drops to reach the terminal.', icon: createFlueDirectionIcon('down') }
+  {
+    id: 'new-flue-direct-rear',
+    label: 'Direct rear',
+    description: 'Flue exits directly through the rear wall.',
+    icon: createFlueDirectionIcon('direct-rear')
+  },
+  {
+    id: 'new-flue-turret-lift',
+    label: 'Turret lift',
+    description: 'Flue rises vertically via a roof turret.',
+    icon: createFlueDirectionIcon('turret-lift')
+  },
+  {
+    id: 'new-flue-turret-rear',
+    label: 'Turret rear',
+    description: 'Flue routes rearwards from a turret outlet.',
+    icon: createFlueDirectionIcon('turret-rear')
+  },
+  {
+    id: 'new-flue-turret-right',
+    label: 'Turret right',
+    description: 'Flue routes to the right from a turret outlet.',
+    icon: createFlueDirectionIcon('turret-right')
+  },
+  {
+    id: 'new-flue-turret-forward',
+    label: 'Turret forward',
+    description: 'Flue routes forward from a turret outlet.',
+    icon: createFlueDirectionIcon('turret-forward')
+  }
 ];
 
 const LOCATION_SPOTS = [
@@ -467,22 +493,30 @@ function updateFlueBuilder() {
 
 function createFlueDirectionIcon(direction) {
   const box = '<rect x="28" y="28" width="24" height="24" rx="6" fill="none" stroke="currentColor" stroke-width="4"/>';
-  let path = '';
+  const turret = '<path d="M32 28 V20 L40 12 L48 20 V28" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>';
+  let elements = box;
   switch (direction) {
-    case 'left':
-      path = '<path d="M28 40 H12" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="12" cy="40" r="4" fill="currentColor"/>';
+    case 'direct-rear':
+      elements += '<path d="M28 40 H12" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="12" cy="40" r="4" fill="currentColor"/>';
       break;
-    case 'right':
-      path = '<path d="M52 40 H68" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="68" cy="40" r="4" fill="currentColor"/>';
+    case 'turret-lift':
+      elements += turret;
+      elements += '<path d="M40 20 V8" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="40" cy="8" r="4" fill="currentColor"/>';
       break;
-    case 'up':
-      path = '<path d="M40 28 V12" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="40" cy="12" r="4" fill="currentColor"/>';
+    case 'turret-rear':
+      elements += turret;
+      elements += '<path d="M28 40 H12" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="12" cy="40" r="4" fill="currentColor"/>';
       break;
-    case 'down':
-      path = '<path d="M40 52 V68" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="40" cy="68" r="4" fill="currentColor"/>';
+    case 'turret-right':
+      elements += turret;
+      elements += '<path d="M52 40 H68" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="68" cy="40" r="4" fill="currentColor"/>';
+      break;
+    case 'turret-forward':
+      elements += turret;
+      elements += '<path d="M40 52 V68" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="40" cy="68" r="4" fill="currentColor"/>';
       break;
     default:
       break;
   }
-  return `<svg viewBox="0 0 80 80" role="img" aria-hidden="true">${box}${path}</svg>`;
+  return `<svg viewBox="0 0 80 80" role="img" aria-hidden="true">${elements}</svg>`;
 }
