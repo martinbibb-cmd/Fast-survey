@@ -135,6 +135,12 @@ button {
   gap: 1.25rem;
 }
 
+.upgrade-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+}
+
 .option-card {
   border: 1px solid var(--border);
   border-radius: 20px;
@@ -264,6 +270,63 @@ button {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   flex-shrink: 0;
+}
+
+.option-card.upgrade-card {
+  justify-content: space-between;
+  align-items: flex-start;
+  min-height: 140px;
+}
+
+.option-card.upgrade-card strong {
+  font-size: 1.05rem;
+}
+
+.option-card.upgrade-card .upgrade-hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.option-card.upgrade-card.quantity {
+  gap: 1.1rem;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: auto;
+}
+
+.quantity-button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+  color: var(--text);
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.quantity-button:hover,
+.quantity-button:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+  outline: none;
+}
+
+.quantity-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.quantity-value {
+  min-width: 1.75rem;
+  text-align: center;
+  font-weight: 600;
 }
 
 .new-setup {

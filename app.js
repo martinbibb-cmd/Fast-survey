@@ -161,6 +161,22 @@ const CONDENSATE_OPTIONS = [
   }
 ];
 
+const SYSTEM_UPGRADE_OPTIONS = [
+  { id: 'pump', label: 'Pump', type: 'toggle' },
+  { id: 'pump-valves', label: 'Pump valves', type: 'toggle' },
+  { id: 'three-port-valve', label: '3 port valve', type: 'toggle' },
+  { id: 'two-port-22', label: '2 port valve 22mm', type: 'quantity' },
+  { id: 'two-port-28', label: '2 port valve 28mm', type: 'quantity' },
+  { id: 'wiring-centre', label: 'Wiring centre', type: 'toggle' },
+  { id: 'reconfigure-y-plan', label: 'Reconfigure Y plan', type: 'toggle' },
+  { id: 'reconfigure-s-plan', label: 'Reconfigure S plan', type: 'toggle' },
+  { id: 'convert-fully-pumped', label: 'Convert to fully pumped', type: 'toggle' },
+  { id: 'replace-open-vent', label: 'Replace open vent cold feed', type: 'toggle' },
+  { id: 'replace-hw-expansion', label: 'Replace hot water expansion vessel', type: 'toggle' }
+];
+
+const SYSTEM_UPGRADE_MAP = new Map(SYSTEM_UPGRADE_OPTIONS.map(option => [option.id, option]));
+
 const LOCATION_SPOTS = [
   { id: 'kitchen', label: 'Kitchen', top: 62, left: 32 },
   { id: 'garage', label: 'Garage', top: 70, left: 16 },
@@ -202,7 +218,8 @@ const state = {
   newBoilerLocation: '',
   newBoilerType: '',
   newFlueDirection: '',
-  condensateRoute: '',
+  condensateRoutes: new Set(),
+  systemUpgrades: new Map(),
   flueRoute: []
 };
 
@@ -214,7 +231,8 @@ const labelLookup = new Map([
   ...FLUE_EXIT_POINTS.map(option => [option.id, option.label]),
   ...NEW_FLUE_DIRECTIONS.map(option => [option.id, option.label]),
   ...LOCATION_SPOTS.map(option => [option.id, option.label]),
-  ...CONDENSATE_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}: ${option.description}`])
+  ...CONDENSATE_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}: ${option.description}`]),
+  ...SYSTEM_UPGRADE_OPTIONS.map(option => [option.id, option.label])
 ]);
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -226,6 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderNewBoilerOptions();
   renderNewFlueDirections();
   renderCondensateOptions();
+  renderSystemUpgradeOptions();
   initFlueBuilder();
   updateSummary();
   document.getElementById('resetSelections').addEventListener('click', resetSurvey);
@@ -326,14 +345,107 @@ function renderCondensateOptions() {
   if (!container) return;
   container.innerHTML = '';
   CONDENSATE_OPTIONS.forEach(option => {
-    const tile = createRadioTile('condensate-route', option, selectedId => {
-      state.condensateRoute = selectedId;
-      syncChoiceTiles(container, selectedId);
+    const tile = createCheckboxTile('condensate-route', option, (optionId, isSelected) => {
+      if (isSelected) {
+        state.condensateRoutes.add(optionId);
+      } else {
+        state.condensateRoutes.delete(optionId);
+      }
+      syncCheckboxTiles(container, state.condensateRoutes);
       updateSummary();
     });
     container.appendChild(tile);
   });
-  syncChoiceTiles(container, state.condensateRoute);
+  syncCheckboxTiles(container, state.condensateRoutes);
+}
+
+function renderSystemUpgradeOptions() {
+  const container = document.getElementById('systemUpgradeGrid');
+  if (!container) return;
+  container.innerHTML = '';
+
+  SYSTEM_UPGRADE_OPTIONS.forEach(option => {
+    if (option.type === 'quantity') {
+      const card = document.createElement('div');
+      card.className = 'option-card upgrade-card quantity';
+      card.dataset.optionId = option.id;
+      card.innerHTML = `
+        <strong>${option.label}</strong>
+        <div class="quantity-controls" role="group" aria-label="Adjust quantity for ${option.label}">
+          <button type="button" class="quantity-button" data-action="decrement" aria-label="Remove ${option.label}">−</button>
+          <span class="quantity-value" aria-live="polite">0</span>
+          <button type="button" class="quantity-button" data-action="increment" aria-label="Add ${option.label}">+</button>
+        </div>
+      `;
+      const decrementButton = card.querySelector('.quantity-button[data-action="decrement"]');
+      const incrementButton = card.querySelector('.quantity-button[data-action="increment"]');
+      if (decrementButton) {
+        decrementButton.addEventListener('click', () => {
+          const current = state.systemUpgrades.get(option.id) || 0;
+          if (current === 0) return;
+          state.systemUpgrades.set(option.id, current - 1);
+          syncSystemUpgradeCards();
+          updateSummary();
+        });
+      }
+      if (incrementButton) {
+        incrementButton.addEventListener('click', () => {
+          const current = state.systemUpgrades.get(option.id) || 0;
+          state.systemUpgrades.set(option.id, current + 1);
+          syncSystemUpgradeCards();
+          updateSummary();
+        });
+      }
+      container.appendChild(card);
+    } else {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'option-card upgrade-card';
+      button.dataset.optionId = option.id;
+      button.innerHTML = `
+        <strong>${option.label}</strong>
+        <span class="upgrade-hint">Tap to include</span>
+      `;
+      button.setAttribute('aria-pressed', 'false');
+      button.addEventListener('click', () => {
+        const current = state.systemUpgrades.get(option.id) || 0;
+        const next = current > 0 ? 0 : 1;
+        state.systemUpgrades.set(option.id, next);
+        syncSystemUpgradeCards();
+        updateSummary();
+      });
+      container.appendChild(button);
+    }
+  });
+
+  syncSystemUpgradeCards();
+}
+
+function syncSystemUpgradeCards() {
+  const container = document.getElementById('systemUpgradeGrid');
+  if (!container) return;
+
+  container.querySelectorAll('[data-option-id]').forEach(card => {
+    const optionId = card.dataset.optionId;
+    const option = SYSTEM_UPGRADE_MAP.get(optionId);
+    if (!option) return;
+    const count = state.systemUpgrades.get(optionId) || 0;
+
+    if (option.type === 'quantity') {
+      card.classList.toggle('selected', count > 0);
+      const valueEl = card.querySelector('.quantity-value');
+      if (valueEl) {
+        valueEl.textContent = count;
+      }
+      const decrementButton = card.querySelector('.quantity-button[data-action="decrement"]');
+      if (decrementButton) {
+        decrementButton.disabled = count === 0;
+      }
+    } else {
+      card.classList.toggle('selected', count > 0);
+      card.setAttribute('aria-pressed', count > 0 ? 'true' : 'false');
+    }
+  });
 }
 
 function renderHotspotGroup(containerId, stateKey) {
@@ -384,6 +496,28 @@ function createRadioTile(groupName, option, onSelect) {
   return tile;
 }
 
+function createCheckboxTile(groupName, option, onToggle) {
+  const tile = document.createElement('div');
+  tile.className = 'choice-tile';
+  const inputId = `${groupName}-${option.id}`;
+  tile.innerHTML = `
+    <input type="checkbox" name="${groupName}" id="${inputId}" value="${option.id}">
+    <label for="${inputId}">
+      ${option.code ? `<span class="tile-badge">${option.code}</span>` : ''}
+      ${option.icon ? `<span class="tile-icon">${option.icon}</span>` : ''}
+      <span class="tile-copy">
+        <strong>${option.label}</strong>
+        ${option.description ? `<span>${option.description}</span>` : ''}
+      </span>
+    </label>
+  `;
+  const input = tile.querySelector('input');
+  input.addEventListener('change', () => {
+    onToggle(option.id, input.checked);
+  });
+  return tile;
+}
+
 function toggleAccessOption(optionId) {
   if (state.access.has(optionId)) {
     state.access.delete(optionId);
@@ -414,6 +548,16 @@ function syncChoiceTiles(container, selectedId) {
   });
 }
 
+function syncCheckboxTiles(container, selectedSet) {
+  const tiles = container.querySelectorAll('.choice-tile');
+  tiles.forEach(tile => {
+    const input = tile.querySelector('input');
+    const isSelected = selectedSet.has(input.value);
+    tile.classList.toggle('selected', isSelected);
+    input.checked = isSelected;
+  });
+}
+
 function syncHotspots(container, selectedId) {
   if (!container) return;
   container.querySelectorAll('.hotspot').forEach(button => {
@@ -430,6 +574,18 @@ function updateSummary() {
     const component = FLUE_COMPONENT_MAP.get(id);
     return component ? component.label : id;
   });
+  const condensateList = CONDENSATE_OPTIONS.filter(option => state.condensateRoutes.has(option.id)).map(option => labelLookup.get(option.id));
+  const upgradeList = SYSTEM_UPGRADE_OPTIONS.reduce((list, option) => {
+    const count = state.systemUpgrades.get(option.id) || 0;
+    if (count > 0) {
+      if (option.type === 'quantity') {
+        list.push(`${option.label} × ${count}`);
+      } else {
+        list.push(option.label);
+      }
+    }
+    return list;
+  }, []);
   summaryList.innerHTML = '';
 
   const summaryItems = [
@@ -466,8 +622,12 @@ function updateSummary() {
       value: state.newFlueDirection ? labelLookup.get(state.newFlueDirection) : 'Not recorded'
     },
     {
-      label: 'Condensate route',
-      value: state.condensateRoute ? labelLookup.get(state.condensateRoute) : 'Not recorded'
+      label: 'Condensate works',
+      value: condensateList.length ? condensateList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'System upgrade works',
+      value: upgradeList.length ? upgradeList.join(', ') : 'Not recorded'
     },
     {
       label: 'Flue route fittings',
@@ -491,15 +651,18 @@ function resetSurvey() {
   state.newBoilerLocation = '';
   state.newBoilerType = '';
   state.newFlueDirection = '';
-  state.condensateRoute = '';
+  state.condensateRoutes.clear();
+  state.systemUpgrades.clear();
   state.flueRoute = [];
-  document.querySelectorAll('input[type="radio"]').forEach(input => {
+  document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
     input.checked = false;
   });
   syncAccessCards();
   syncHotspots(document.getElementById('houseHotspots'), state.location);
   syncHotspots(document.getElementById('newHouseHotspots'), state.newBoilerLocation);
   document.querySelectorAll('.choice-group').forEach(group => syncChoiceTiles(group, ''));
+  syncCheckboxTiles(document.getElementById('condensateChoices'), state.condensateRoutes);
+  syncSystemUpgradeCards();
   updateFlueBuilder();
   updateSummary();
 }
