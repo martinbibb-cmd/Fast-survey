@@ -161,6 +161,75 @@ const CONDENSATE_OPTIONS = [
   }
 ];
 
+const MAKING_GOOD_OPTIONS = [
+  {
+    id: 'FN01',
+    code: 'FN01',
+    label: 'New flue',
+    description: 'Use same hole – minor change'
+  },
+  {
+    id: 'FN02',
+    code: 'FN02',
+    label: 'New flue',
+    description: 'New hole – same wall'
+  },
+  {
+    id: 'FN03',
+    code: 'FN03',
+    label: 'New flue',
+    description: 'New hole – alternative wall'
+  },
+  {
+    id: 'FN04',
+    code: 'FN04',
+    label: 'Orientation',
+    description: 'Horizontal'
+  },
+  {
+    id: 'FN05',
+    code: 'FN05',
+    label: 'Orientation',
+    description: 'Vertical'
+  },
+  {
+    id: 'FN06',
+    code: 'FN06',
+    label: 'Sealing',
+    description: 'Seal brickwork to flue'
+  },
+  {
+    id: 'FN07',
+    code: 'FN07',
+    label: 'Sealing',
+    description: 'Vertical flashing kit'
+  },
+  {
+    id: 'FN08',
+    code: 'FN08',
+    label: 'Sealing',
+    description: 'Flat roof flashing by specialist builder'
+  }
+];
+
+const CYLINDER_OPTIONS = [
+  { id: 'CY01', code: 'CY01', label: 'Replace', description: 'Cylinder to be replaced' },
+  { id: 'CY02', code: 'CY02', label: 'Retain', description: 'Retain existing cylinder' },
+  { id: 'CY03', code: 'CY03', label: 'Remove', description: 'Cylinder to be removed' },
+  { id: 'CY04', code: 'CY04', label: 'Unvented', description: 'Specify an unvented cylinder' },
+  { id: 'CY05', code: 'CY05', label: 'Open vented', description: 'Specify an open vented cylinder' },
+  { id: 'CY06', code: 'CY06', label: 'Mixergy', description: 'Install a Mixergy cylinder' }
+];
+
+const CONTROL_OPTIONS = [
+  { id: 'CC01', code: 'CC01', label: 'Hive', description: 'Hive smart controls' },
+  { id: 'CC02', code: 'CC02', label: 'Hive Mini', description: 'Hive Mini smart controls' },
+  { id: 'CC03', code: 'CC03', label: 'Wireless room stat', description: 'Wireless room thermostat' },
+  { id: 'CC04', code: 'CC04', label: 'Wired stat', description: 'Wired room thermostat' },
+  { id: 'CC05', code: 'CC05', label: 'Programmer', description: 'Heating programmer' },
+  { id: 'CC06', code: 'CC06', label: 'Cylinder stat', description: 'Cylinder thermostat' }
+];
+
 const SYSTEM_UPGRADE_OPTIONS = [
   { id: 'pump', label: 'Pump', type: 'toggle' },
   { id: 'pump-valves', label: 'Pump valves', type: 'toggle' },
@@ -218,8 +287,12 @@ const state = {
   newBoilerLocation: '',
   newBoilerType: '',
   newFlueDirection: '',
+  makingGood: new Set(),
   condensateRoutes: new Set(),
   systemUpgrades: new Map(),
+  cylinderSelections: new Set(),
+  customerControls: new Set(),
+  disruptionRooms: new Set(),
   flueRoute: []
 };
 
@@ -231,8 +304,11 @@ const labelLookup = new Map([
   ...FLUE_EXIT_POINTS.map(option => [option.id, option.label]),
   ...NEW_FLUE_DIRECTIONS.map(option => [option.id, option.label]),
   ...LOCATION_SPOTS.map(option => [option.id, option.label]),
+  ...MAKING_GOOD_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}: ${option.description}`]),
   ...CONDENSATE_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}: ${option.description}`]),
-  ...SYSTEM_UPGRADE_OPTIONS.map(option => [option.id, option.label])
+  ...SYSTEM_UPGRADE_OPTIONS.map(option => [option.id, option.label]),
+  ...CYLINDER_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}`]),
+  ...CONTROL_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}`])
 ]);
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -243,8 +319,12 @@ document.addEventListener('DOMContentLoaded', () => {
   renderHotspotGroup('newHouseHotspots', 'newBoilerLocation');
   renderNewBoilerOptions();
   renderNewFlueDirections();
+  renderMakingGoodOptions();
   renderCondensateOptions();
   renderSystemUpgradeOptions();
+  renderCylinderOptions();
+  renderControlOptions();
+  renderDisruptionHotspots('disruptionHotspots', 'disruptionRooms');
   initFlueBuilder();
   updateSummary();
   document.getElementById('resetSelections').addEventListener('click', resetSurvey);
@@ -310,6 +390,25 @@ function renderFlueOptions() {
   syncChoiceTiles(exitGroup, state.flueExit);
 }
 
+function renderMakingGoodOptions() {
+  const container = document.getElementById('makingGoodChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  MAKING_GOOD_OPTIONS.forEach(option => {
+    const tile = createCheckboxTile('making-good', option, (optionId, checked) => {
+      if (checked) {
+        state.makingGood.add(optionId);
+      } else {
+        state.makingGood.delete(optionId);
+      }
+      syncCheckboxTiles(container, state.makingGood);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+  syncCheckboxTiles(container, state.makingGood);
+}
+
 function renderNewBoilerOptions() {
   const container = document.getElementById('newBoilerChoices');
   if (!container) return;
@@ -357,6 +456,44 @@ function renderCondensateOptions() {
     container.appendChild(tile);
   });
   syncCheckboxTiles(container, state.condensateRoutes);
+}
+
+function renderCylinderOptions() {
+  const container = document.getElementById('cylinderChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  CYLINDER_OPTIONS.forEach(option => {
+    const tile = createCheckboxTile('cylinder', option, (optionId, checked) => {
+      if (checked) {
+        state.cylinderSelections.add(optionId);
+      } else {
+        state.cylinderSelections.delete(optionId);
+      }
+      syncCheckboxTiles(container, state.cylinderSelections);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+  syncCheckboxTiles(container, state.cylinderSelections);
+}
+
+function renderControlOptions() {
+  const container = document.getElementById('controlChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  CONTROL_OPTIONS.forEach(option => {
+    const tile = createCheckboxTile('controls', option, (optionId, checked) => {
+      if (checked) {
+        state.customerControls.add(optionId);
+      } else {
+        state.customerControls.delete(optionId);
+      }
+      syncCheckboxTiles(container, state.customerControls);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+  syncCheckboxTiles(container, state.customerControls);
 }
 
 function renderSystemUpgradeOptions() {
@@ -474,6 +611,33 @@ function renderHotspotGroup(containerId, stateKey) {
   syncHotspots(container, state[stateKey]);
 }
 
+function renderDisruptionHotspots(containerId, stateKey) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  LOCATION_SPOTS.forEach(spot => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'hotspot';
+    button.textContent = spot.label;
+    button.style.top = `${spot.top}%`;
+    button.style.left = `${spot.left}%`;
+    button.dataset.locationId = spot.id;
+    button.setAttribute('aria-pressed', 'false');
+    button.addEventListener('click', () => {
+      if (state[stateKey].has(spot.id)) {
+        state[stateKey].delete(spot.id);
+      } else {
+        state[stateKey].add(spot.id);
+      }
+      syncHotspotMulti(container, state[stateKey]);
+      updateSummary();
+    });
+    container.appendChild(button);
+  });
+  syncHotspotMulti(container, state[stateKey]);
+}
+
 function createRadioTile(groupName, option, onSelect) {
   const tile = document.createElement('div');
   tile.className = 'choice-tile';
@@ -567,6 +731,15 @@ function syncHotspots(container, selectedId) {
   });
 }
 
+function syncHotspotMulti(container, selectedSet) {
+  if (!container) return;
+  container.querySelectorAll('.hotspot').forEach(button => {
+    const selected = selectedSet.has(button.dataset.locationId);
+    button.classList.toggle('selected', selected);
+    button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+  });
+}
+
 function updateSummary() {
   const summaryList = document.getElementById('summaryList');
   const accessList = Array.from(state.access).map(id => labelLookup.get(id));
@@ -574,6 +747,7 @@ function updateSummary() {
     const component = FLUE_COMPONENT_MAP.get(id);
     return component ? component.label : id;
   });
+  const makingGoodList = MAKING_GOOD_OPTIONS.filter(option => state.makingGood.has(option.id)).map(option => labelLookup.get(option.id));
   const condensateList = CONDENSATE_OPTIONS.filter(option => state.condensateRoutes.has(option.id)).map(option => labelLookup.get(option.id));
   const upgradeList = SYSTEM_UPGRADE_OPTIONS.reduce((list, option) => {
     const count = state.systemUpgrades.get(option.id) || 0;
@@ -586,6 +760,9 @@ function updateSummary() {
     }
     return list;
   }, []);
+  const cylinderList = CYLINDER_OPTIONS.filter(option => state.cylinderSelections.has(option.id)).map(option => labelLookup.get(option.id));
+  const controlList = CONTROL_OPTIONS.filter(option => state.customerControls.has(option.id)).map(option => labelLookup.get(option.id));
+  const disruptionList = Array.from(state.disruptionRooms).map(id => labelLookup.get(id));
   summaryList.innerHTML = '';
 
   const summaryItems = [
@@ -622,6 +799,10 @@ function updateSummary() {
       value: state.newFlueDirection ? labelLookup.get(state.newFlueDirection) : 'Not recorded'
     },
     {
+      label: 'Making good',
+      value: makingGoodList.length ? makingGoodList.join(', ') : 'Not recorded'
+    },
+    {
       label: 'Condensate works',
       value: condensateList.length ? condensateList.join(', ') : 'Not recorded'
     },
@@ -630,8 +811,20 @@ function updateSummary() {
       value: upgradeList.length ? upgradeList.join(', ') : 'Not recorded'
     },
     {
+      label: 'Cylinder works',
+      value: cylinderList.length ? cylinderList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Customer controls',
+      value: controlList.length ? controlList.join(', ') : 'Not recorded'
+    },
+    {
       label: 'Flue route fittings',
       value: routeList.length ? routeList.join(' → ') : 'None added'
+    },
+    {
+      label: 'Disruption zones',
+      value: disruptionList.length ? disruptionList.join(', ') : 'Not recorded'
     }
   ];
 
@@ -651,8 +844,12 @@ function resetSurvey() {
   state.newBoilerLocation = '';
   state.newBoilerType = '';
   state.newFlueDirection = '';
+  state.makingGood.clear();
   state.condensateRoutes.clear();
   state.systemUpgrades.clear();
+  state.cylinderSelections.clear();
+  state.customerControls.clear();
+  state.disruptionRooms.clear();
   state.flueRoute = [];
   document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
     input.checked = false;
@@ -660,8 +857,12 @@ function resetSurvey() {
   syncAccessCards();
   syncHotspots(document.getElementById('houseHotspots'), state.location);
   syncHotspots(document.getElementById('newHouseHotspots'), state.newBoilerLocation);
+  syncHotspotMulti(document.getElementById('disruptionHotspots'), state.disruptionRooms);
   document.querySelectorAll('.choice-group').forEach(group => syncChoiceTiles(group, ''));
   syncCheckboxTiles(document.getElementById('condensateChoices'), state.condensateRoutes);
+  syncCheckboxTiles(document.getElementById('makingGoodChoices'), state.makingGood);
+  syncCheckboxTiles(document.getElementById('cylinderChoices'), state.cylinderSelections);
+  syncCheckboxTiles(document.getElementById('controlChoices'), state.customerControls);
   syncSystemUpgradeCards();
   updateFlueBuilder();
   updateSummary();
