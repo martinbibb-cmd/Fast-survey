@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Depot Notes Picker – Field UI</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="title-group">
+        <h1>Depot Notes Picker – Field UI</h1>
+      </div>
+      <div class="header-actions">
+        <button class="pill" id="resetButton" type="button">🔄 Reset</button>
+        <button class="pill" id="configButton" type="button">⚙️ Config</button>
+        <button class="pill" id="gptSummaryButton" type="button">🧠 GPT Summary</button>
+      </div>
+    </header>
+    <section class="customer-summary" id="customerSummarySection">
+      <h2>Customer Summary</h2>
+      <textarea id="customerSummaryBox" readonly placeholder="GPT summary will appear here once available."></textarea>
+    </section>
+    <main class="workspace">
+      <aside class="wizard-panel" id="wizardPanel">
+        <div class="wizard-scroll" id="wizardSteps"></div>
+      </aside>
+      <section class="outputs-panel">
+        <div class="outputs-tabs" id="outputsTabs"></div>
+        <div class="outputs-content" id="outputsContent"></div>
+      </section>
+    </main>
+    <footer class="app-footer">
+      <div class="footer-left">
+        <label class="address-field">
+          <span>Job reference</span>
+          <input type="text" id="jobReferenceInput" placeholder="Optional reference or address">
+        </label>
+      </div>
+      <div class="footer-actions">
+        <button class="primary" id="exportZipButton" type="button">Export ZIP</button>
+        <button class="primary" id="exportPdfButton" type="button">Export PDF Summary</button>
+      </div>
+    </footer>
+  </div>
+
+  <div class="modal" id="configModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal-content">
+      <header class="modal-header">
+        <h2>Configuration &amp; Data Health</h2>
+        <button class="pill" type="button" id="closeConfig">Close</button>
+      </header>
+      <div class="modal-body">
+        <section>
+          <h3>Data files</h3>
+          <ul class="status-list" id="dataStatusList"></ul>
+        </section>
+        <section>
+          <h3>Unmapped option codes</h3>
+          <p id="unmappedCodesMessage" class="hint"></p>
+          <ul class="status-list" id="unmappedCodesList"></ul>
+        </section>
+        <section>
+          <h3>Arrow style</h3>
+          <label class="toggle">
+            <input type="checkbox" id="arrowToggle">
+            <span>Use dash instead of ↘️</span>
+          </label>
+        </section>
+        <section id="componentsPanel" class="components-panel">
+          <header class="components-header">
+            <h3>Components (pricebook)</h3>
+            <input type="search" id="componentSearch" placeholder="Search pricebook">
+          </header>
+          <div class="components-results" id="componentResults"></div>
+          <div class="components-selected">
+            <h4>Selected components</h4>
+            <ul id="selectedComponentsList"></ul>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <template id="wizardCardTemplate">
+    <section class="wizard-card">
+      <header class="wizard-card-header">
+        <h2 class="wizard-card-title"></h2>
+      </header>
+      <div class="wizard-card-body"></div>
+    </section>
+  </template>
+
+  <template id="optionRowTemplate">
+    <label class="option-row">
+      <input type="checkbox">
+      <span class="option-code"></span>
+      <span class="option-specific"></span>
+    </label>
+  </template>
+
+  <template id="outputTabTemplate">
+    <button type="button" class="output-tab"></button>
+  </template>
+
+  <template id="outputPanelTemplate">
+    <div class="output-panel">
+      <div class="output-preview" aria-live="polite"></div>
+      <div class="copy-box">
+        <textarea class="output-text" rows="6"></textarea>
+        <div class="copy-actions">
+          <button type="button" class="pill copy-btn">Copy Section</button>
+          <button type="button" class="pill clear-btn">Clear</button>
+          <button type="button" class="pill note-btn">Insert Manual Note</button>
+          <button type="button" class="pill rebuild-btn">Rebuild From Selections</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="photoTemplate">
+    <div class="photo-thumb">
+      <img alt="Survey photo">
+      <button type="button" class="pill remove-photo">Remove</button>
+    </div>
+  </template>
+
+  <script src="lib/jszip.min.js"></script>
+  <script src="lib/jspdf.umd.min.js"></script>
+  <script src="app.js" type="module"></script>
+</body>
+</html>
