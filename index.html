@@ -142,10 +142,24 @@
         </div>
       </section>
 
-      <section class="panel" aria-labelledby="condensateHeading">
+      <section class="panel" aria-labelledby="makingGoodHeading">
         <div class="panel-head">
           <div>
             <p class="step-count">Step 8</p>
+            <h2 id="makingGoodHeading">Making good to flue penetrations</h2>
+          </div>
+          <p class="panel-hint">Select all making good items required for the flue installation.</p>
+        </div>
+        <fieldset class="fieldset" id="makingGoodGroup">
+          <legend>Flue making good</legend>
+          <div class="choice-group" id="makingGoodChoices" role="group" aria-labelledby="makingGoodGroup"></div>
+        </fieldset>
+      </section>
+
+      <section class="panel" aria-labelledby="condensateHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 9</p>
             <h2 id="condensateHeading">Condensate route</h2>
           </div>
           <p class="panel-hint">Select all condensate discharge arrangements required.</p>
@@ -159,12 +173,53 @@
       <section class="panel" aria-labelledby="systemUpgradesHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 9</p>
+            <p class="step-count">Step 10</p>
             <h2 id="systemUpgradesHeading">Heating system works</h2>
           </div>
           <p class="panel-hint">Select all upgrade items required. Use the + or − controls for multiples.</p>
         </div>
         <div class="upgrade-grid" id="systemUpgradeGrid" role="group" aria-labelledby="systemUpgradesHeading"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="cylinderHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 11</p>
+            <h2 id="cylinderHeading">Cylinder works</h2>
+          </div>
+          <p class="panel-hint">Select all cylinder requirements for the installation.</p>
+        </div>
+        <fieldset class="fieldset" id="cylinderGroup">
+          <legend>Cylinder requirements</legend>
+          <div class="choice-group" id="cylinderChoices" role="group" aria-labelledby="cylinderGroup"></div>
+        </fieldset>
+      </section>
+
+      <section class="panel" aria-labelledby="controlHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 12</p>
+            <h2 id="controlHeading">Customer controls</h2>
+          </div>
+          <p class="panel-hint">Select all control packages to be provided.</p>
+        </div>
+        <fieldset class="fieldset" id="controlGroup">
+          <legend>Controls supplied</legend>
+          <div class="choice-group" id="controlChoices" role="group" aria-labelledby="controlGroup"></div>
+        </fieldset>
+      </section>
+
+      <section class="panel" aria-labelledby="disruptionHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 13</p>
+            <h2 id="disruptionHeading">Disruption areas</h2>
+          </div>
+          <p class="panel-hint">Tap all rooms where works will cause disruption such as lifted floorboards.</p>
+        </div>
+        <div class="house-scene">
+          <div class="house-illustration" id="disruptionHotspots" role="group" aria-labelledby="disruptionHeading"></div>
+        </div>
       </section>
     </main>
 
