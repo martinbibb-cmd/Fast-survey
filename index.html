@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Depot Notes Picker – Field UI</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-title">Depot Notes Picker – Field UI</div>
+    <div class="header-actions">
+      <button id="resetBtn" class="secondary">🔄 Reset</button>
+      <button id="configBtn" class="secondary">⚙️ Config</button>
+      <button id="gptSummaryBtn" class="primary">🧠 GPT Summary</button>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <section class="wizard" id="wizardPanel">
+      <!-- Wizard cards inserted here -->
+    </section>
+    <section class="outputs" id="outputsPanel">
+      <div class="tabs" id="outputTabs"></div>
+      <div class="tab-content" id="outputContent"></div>
+      <div class="customer-summary" id="customerSummary">
+        <h3>Customer Summary</h3>
+        <textarea id="customerSummaryBox" readonly></textarea>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-actions">
+      <button id="exportZipBtn" class="primary">Export ZIP</button>
+      <button id="exportPdfBtn" class="primary">Export PDF Summary</button>
+    </div>
+  </footer>
+
+  <div class="modal" id="configModal" aria-hidden="true">
+    <div class="modal-content">
+      <header>
+        <h2>Configuration & Status</h2>
+        <button id="closeConfigBtn" class="secondary" aria-label="Close">×</button>
+      </header>
+      <div class="modal-body">
+        <section>
+          <h3>Data Files</h3>
+          <ul class="status-list">
+            <li id="optionsStatus">Options file: <span class="status-text">Loading…</span></li>
+            <li id="mappingStatus">Mapping file: <span class="status-text">Loading…</span></li>
+            <li id="pricebookStatus">Pricebook file: <span class="status-text">Loading…</span></li>
+          </ul>
+        </section>
+        <section>
+          <h3>Unmapped Codes</h3>
+          <div id="unmappedCodes" class="badge-list">None selected.</div>
+        </section>
+        <section>
+          <h3>Output Settings</h3>
+          <label class="toggle">
+            <input type="checkbox" id="dashToggle">
+            <span>Use dash "-" instead of ↘️ arrow</span>
+          </label>
+        </section>
+        <section class="components-panel" id="componentsPanel">
+          <h3>Components</h3>
+          <div class="components-controls">
+            <input type="text" id="componentSearch" placeholder="Search pricebook" aria-label="Search pricebook">
+            <button id="componentSearchBtn" class="secondary">Search</button>
+          </div>
+          <div id="componentResults" class="component-results" role="listbox" aria-label="Component results"></div>
+          <div class="components-selected">
+            <h4>Selected Components</h4>
+            <ul id="selectedComponents"></ul>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <template id="outputTemplate">
+    <div class="output-section" data-section="">
+      <div class="output-preview">
+        <h3 class="output-title"></h3>
+        <div class="preview-lines" aria-live="polite"></div>
+      </div>
+      <div class="copy-box">
+        <label>Copy Box</label>
+        <textarea readonly></textarea>
+        <div class="copy-actions">
+          <button class="primary copy-btn">Copy Section</button>
+          <button class="secondary clear-btn">Clear</button>
+          <button class="secondary insert-manual-btn">Insert Manual Note</button>
+          <button class="secondary rebuild-btn">Rebuild From Selections</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="wizardCardTemplate">
+    <article class="wizard-card" data-section="">
+      <header>
+        <h2></h2>
+        <p class="card-description"></p>
+      </header>
+      <div class="card-body">
+        <div class="options-list"></div>
+        <div class="manual-note">
+          <textarea rows="2" placeholder="Add manual note"></textarea>
+          <div class="manual-note-actions">
+            <select class="manual-note-target"></select>
+            <button class="secondary add-manual-note">Add Note</button>
+          </div>
+          <ul class="manual-note-list"></ul>
+        </div>
+        <div class="photo-uploader">
+          <label class="file-button">
+            <span>Attach photo</span>
+            <input type="file" accept="image/*" capture="environment">
+          </label>
+          <div class="photo-list"></div>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <script src="lib/jszip.min.js"></script>
+  <script src="lib/jspdf.umd.min.js"></script>
+  <script src="app.js" type="module"></script>
+</body>
+</html>

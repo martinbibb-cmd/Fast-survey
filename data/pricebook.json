@@ -1,0 +1,17 @@
+[
+  {
+    "sku": "PB-001",
+    "name": "Magnetic Filter Pro",
+    "price": "£120.00"
+  },
+  {
+    "sku": "PB-002",
+    "name": "Condensate Pump Kit",
+    "price": "£95.00"
+  },
+  {
+    "sku": "PB-003",
+    "name": "System Cleanse Chemical",
+    "price": "£32.50"
+  }
+]

@@ -1,0 +1,79 @@
+# Sample options for Depot Notes Picker
+[safety_access]
+SA01 | Access | Ladder access required
+SA02 | Parking | No on-site parking
+SA03 | Delivery | Restricted delivery hours (08:00-12:00)
+
+[existing_system]
+ES01 | Boiler | Existing boiler is combi
+ES02 | Boiler | Existing boiler is system with hot water cylinder
+ES03 | Checklist | Photos taken of boiler casing
+
+[house_locations]
+HL01 | Location | Existing boiler in kitchen
+HL02 | Location | Proposed boiler in loft
+HL03 | Room | Cylinder cupboard tight access
+
+[cupboard]
+CB01 | Cylinder | Unvented cylinder present
+CB02 | Controls | Wiring centre in cupboard
+
+[controls]
+CT01 | Controls | Hive active on site
+CT02 | Controls | Vaillant VRC controls present
+CT03 | Thermostat | Manual thermostat in lounge
+
+[radiators_system]
+RS01 | System | TRVs missing in bedrooms
+RS02 | Condition | Evidence of sludge in system water
+RS03 | Cleaning | Recommend powerflush prior to install
+
+[new_system_choice]
+NS01 | Boiler | Recommended new combi boiler
+NS02 | Boiler | Recommended new system boiler
+NS03 | Model | Shortlist created in Config tab
+
+[flue]
+FL01 | Flue | Existing horizontal flue
+FL02 | Flue | Proposed plume kit required
+
+[extras]
+EX01 | Base Pack | Base Pack A included
+EX02 | Base Pack | Base Pack B required
+EX03 | Component | Magnetic filter included
+
+[working_at_heights]
+WAH01 | Access | Ladder access required
+WAH02 | Access | Scaffold tower required
+
+[needs]
+NE01 | Need | Better water pressure
+NE02 | Need | Faster hot water delivery
+
+[hazards]
+HZ01 | Hazard | Asbestos survey required
+HZ02 | Hazard | Live electrics exposed
+
+[delivery]
+DL01 | Delivery | Deliveries before 10am only
+DL02 | Delivery | Site contact required on arrival
+
+[office]
+OF01 | Office | Notify office of parking restrictions
+OF02 | Office | Customer requires confirmation call
+
+[boiler_controls]
+BC01 | Boiler | Vaillant ecoTEC Plus 832 preferred
+BC02 | Controls | Controls to be relocated to hallway
+
+[pipe]
+PP01 | Pipe | Main gas run in 22mm copper
+PP02 | Pipe | Condensate requires trace heating
+
+[restrictions]
+RE01 | Restriction | Neighbours share access path
+RE02 | Restriction | Quiet hours 12:00-14:00
+
+[components_assistance]
+CA01 | Component | Lifting assistance required for cylinder
+
