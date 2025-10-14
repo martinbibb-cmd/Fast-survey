@@ -327,6 +327,10 @@ function updateSummary() {
       value: state.flueExit ? labelLookup.get(state.flueExit) : 'Not recorded'
     },
     {
+      label: 'Existing boiler location',
+      value: state.location ? labelLookup.get(state.location) : 'Not recorded'
+    },
+    {
       label: 'New boiler location',
       value: state.newBoilerLocation ? labelLookup.get(state.newBoilerLocation) : 'Not recorded'
     },
@@ -341,10 +345,6 @@ function updateSummary() {
     {
       label: 'Flue route fittings',
       value: routeList.length ? routeList.join(' → ') : 'None added'
-    },
-    {
-      label: 'Existing boiler location',
-      value: state.location ? labelLookup.get(state.location) : 'Not recorded'
     }
   ];
 
