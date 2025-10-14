@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "code": "PB1001",
+      "name": "Adey MagnaClean Filter",
+      "category": "Filter",
+      "price": "120.00"
+    },
+    {
+      "code": "PB2002",
+      "name": "Wireless Room Thermostat",
+      "category": "Control",
+      "price": "95.00"
+    },
+    {
+      "code": "PB3003",
+      "name": "Condensate Pump",
+      "category": "Condensate",
+      "price": "150.00"
+    }
+  ]
+}

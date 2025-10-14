@@ -1,0 +1,41 @@
+# Sample options for Depot Notes Picker
+[needs]
+NE01 | Need | Better water pressure
+NE02 | Need | Faster hot water delivery
+NE03 | Need | Simpler controls for occupants
+
+[working_at_heights]
+WAH01 | Access | Ladder access required
+WAH02 | Access | Scaffolding already in place
+
+[system_characteristics]
+SC01 | System | Existing boiler is a combi
+SC02 | System | Existing system requires flush
+
+[hazards]
+HZ01 | Hazard | Evidence of asbestos - report to office
+HZ02 | Hazard | Trip hazards present in work area
+
+[delivery]
+DL01 | Delivery | Restricted parking - permit required
+DL02 | Delivery | Large vehicle access available
+
+[office]
+OF01 | Office | Customer prefers Monday installs
+OF02 | Office | Key collection from neighbour
+
+[boiler_and_controls]
+BC01 | Boiler | Current controls: Hive active heating
+BC02 | Boiler | Wired room thermostat in lounge
+
+[flue]
+FL01 | Flue | Existing flue horizontal through rear wall
+FL02 | Flue | Proposed flue vertical through roof
+
+[pipe]
+PP01 | Pipe | Gas run requires upsizing to 28mm
+PP02 | Pipe | Condensate to be rerouted internally
+
+[extras]
+EX01 | Extra | Base pack A required
+EX02 | Extra | Magnetic filter upgrade offered
