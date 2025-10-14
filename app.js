@@ -34,6 +34,12 @@ const BOILER_OPTIONS = [
   { id: 'none', label: 'None', description: 'No boiler currently installed.' }
 ];
 
+const NEW_BOILER_OPTIONS = [
+  { id: 'new-regular', label: 'Regular', description: 'Traditional open vented boiler.' },
+  { id: 'new-system', label: 'System', description: 'Pressurised system with separate cylinder.' },
+  { id: 'new-combi', label: 'Combi', description: 'Combination boiler for instant hot water.' }
+];
+
 const FLUE_TYPES = [
   { id: 'balanced', label: 'Balanced', description: 'Twin wall with natural draft.' },
   { id: 'fanned', label: 'Fanned', description: 'Room sealed with fan assisted exhaust.' },
@@ -47,6 +53,13 @@ const FLUE_EXIT_POINTS = [
   { id: 'roof-pitched', label: 'Pitched roof', description: 'Exits vertically through a pitched roof.' }
 ];
 
+const NEW_FLUE_DIRECTIONS = [
+  { id: 'new-flue-left', label: 'Left run', description: 'Flue routed towards the left elevation.', icon: createFlueDirectionIcon('left') },
+  { id: 'new-flue-right', label: 'Right run', description: 'Flue routed towards the right elevation.', icon: createFlueDirectionIcon('right') },
+  { id: 'new-flue-up', label: 'Upward run', description: 'Flue rises vertically from the boiler.', icon: createFlueDirectionIcon('up') },
+  { id: 'new-flue-down', label: 'Downward run', description: 'Flue drops to reach the terminal.', icon: createFlueDirectionIcon('down') }
+];
+
 const LOCATION_SPOTS = [
   { id: 'kitchen', label: 'Kitchen', top: 62, left: 32 },
   { id: 'garage', label: 'Garage', top: 70, left: 16 },
@@ -58,19 +71,46 @@ const LOCATION_SPOTS = [
   { id: 'lounge', label: 'Lounge', top: 62, left: 90 }
 ];
 
+const FLUE_COMPONENT_LIBRARY = [
+  {
+    id: 'extension',
+    label: '1 m extension',
+    icon: `<svg viewBox="0 0 80 32" role="img" aria-hidden="true"><rect x="12" y="14" width="56" height="4" rx="2" fill="currentColor"/></svg>`
+  },
+  {
+    id: 'bend45',
+    label: '45° bend',
+    icon: `<svg viewBox="0 0 80 80" role="img" aria-hidden="true"><path d="M22 58 L58 22" stroke="currentColor" stroke-width="6" stroke-linecap="round"/></svg>`
+  },
+  {
+    id: 'bend90',
+    label: '90° bend',
+    icon: `<svg viewBox="0 0 80 80" role="img" aria-hidden="true"><path d="M24 56 L24 28 L52 28" stroke="currentColor" stroke-width="6" stroke-linecap="round" fill="none"/></svg>`
+  }
+];
+
+const FLUE_COMPONENT_MAP = new Map(FLUE_COMPONENT_LIBRARY.map(component => [component.id, component]));
+const FLUE_START_ICON = `<svg viewBox="0 0 80 80" role="img" aria-hidden="true"><rect x="26" y="26" width="28" height="28" rx="6" fill="none" stroke="currentColor" stroke-width="4"/><path d="M40 26 V12" stroke="currentColor" stroke-width="6" stroke-linecap="round"/></svg>`;
+
 const state = {
   access: new Set(),
   boilerType: '',
   flueType: '',
   flueExit: '',
-  location: ''
+  location: '',
+  newBoilerLocation: '',
+  newBoilerType: '',
+  newFlueDirection: '',
+  flueRoute: []
 };
 
 const labelLookup = new Map([
   ...ACCESS_OPTIONS.map(option => [option.id, option.label]),
   ...BOILER_OPTIONS.map(option => [option.id, option.label]),
+  ...NEW_BOILER_OPTIONS.map(option => [option.id, option.label]),
   ...FLUE_TYPES.map(option => [option.id, option.label]),
   ...FLUE_EXIT_POINTS.map(option => [option.id, option.label]),
+  ...NEW_FLUE_DIRECTIONS.map(option => [option.id, option.label]),
   ...LOCATION_SPOTS.map(option => [option.id, option.label])
 ]);
 
@@ -78,7 +118,11 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAccessOptions();
   renderBoilerOptions();
   renderFlueOptions();
-  renderLocationHotspots();
+  renderHotspotGroup('houseHotspots', 'location');
+  renderHotspotGroup('newHouseHotspots', 'newBoilerLocation');
+  renderNewBoilerOptions();
+  renderNewFlueDirections();
+  initFlueBuilder();
   updateSummary();
   document.getElementById('resetSelections').addEventListener('click', resetSurvey);
 });
@@ -106,24 +150,14 @@ function renderBoilerOptions() {
   const container = document.getElementById('boilerChoices');
   container.innerHTML = '';
   BOILER_OPTIONS.forEach(option => {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'choice-tile';
-    const inputId = `boiler-${option.id}`;
-    wrapper.innerHTML = `
-      <input type="radio" name="boiler" id="${inputId}" value="${option.id}">
-      <label for="${inputId}">
-        <strong>${option.label}</strong>
-        <span>${option.description}</span>
-      </label>
-    `;
-    const input = wrapper.querySelector('input');
-    input.addEventListener('change', () => {
-      state.boilerType = option.id;
-      syncChoiceTiles(container, option.id);
+    const tile = createRadioTile('boiler', option, selectedId => {
+      state.boilerType = selectedId;
+      syncChoiceTiles(container, selectedId);
       updateSummary();
     });
-    container.appendChild(wrapper);
+    container.appendChild(tile);
   });
+  syncChoiceTiles(container, state.boilerType);
 }
 
 function renderFlueOptions() {
@@ -140,6 +174,7 @@ function renderFlueOptions() {
     });
     typeGroup.appendChild(tile);
   });
+  syncChoiceTiles(typeGroup, state.flueType);
 
   FLUE_EXIT_POINTS.forEach(option => {
     const tile = createRadioTile('flue-exit', option, selectedId => {
@@ -149,10 +184,42 @@ function renderFlueOptions() {
     });
     exitGroup.appendChild(tile);
   });
+  syncChoiceTiles(exitGroup, state.flueExit);
 }
 
-function renderLocationHotspots() {
-  const container = document.getElementById('houseHotspots');
+function renderNewBoilerOptions() {
+  const container = document.getElementById('newBoilerChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  NEW_BOILER_OPTIONS.forEach(option => {
+    const tile = createRadioTile('new-boiler', option, selectedId => {
+      state.newBoilerType = selectedId;
+      syncChoiceTiles(container, selectedId);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+  syncChoiceTiles(container, state.newBoilerType);
+}
+
+function renderNewFlueDirections() {
+  const container = document.getElementById('newFlueDirectionChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  NEW_FLUE_DIRECTIONS.forEach(option => {
+    const tile = createRadioTile('new-flue-direction', option, selectedId => {
+      state.newFlueDirection = selectedId;
+      syncChoiceTiles(container, selectedId);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+  syncChoiceTiles(container, state.newFlueDirection);
+}
+
+function renderHotspotGroup(containerId, stateKey) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
   container.innerHTML = '';
   LOCATION_SPOTS.forEach(spot => {
     const button = document.createElement('button');
@@ -163,17 +230,17 @@ function renderLocationHotspots() {
     button.style.left = `${spot.left}%`;
     button.dataset.locationId = spot.id;
     button.addEventListener('click', () => {
-      if (state.location === spot.id) {
-        state.location = '';
+      if (state[stateKey] === spot.id) {
+        state[stateKey] = '';
       } else {
-        state.location = spot.id;
+        state[stateKey] = spot.id;
       }
-      syncHotspots(container);
+      syncHotspots(container, state[stateKey]);
       updateSummary();
     });
     container.appendChild(button);
   });
-  syncHotspots(container);
+  syncHotspots(container, state[stateKey]);
 }
 
 function createRadioTile(groupName, option, onSelect) {
@@ -183,8 +250,11 @@ function createRadioTile(groupName, option, onSelect) {
   tile.innerHTML = `
     <input type="radio" name="${groupName}" id="${inputId}" value="${option.id}">
     <label for="${inputId}">
-      <strong>${option.label}</strong>
-      <span>${option.description}</span>
+      ${option.icon ? `<span class="tile-icon">${option.icon}</span>` : ''}
+      <span class="tile-copy">
+        <strong>${option.label}</strong>
+        ${option.description ? `<span>${option.description}</span>` : ''}
+      </span>
     </label>
   `;
   const input = tile.querySelector('input');
@@ -224,9 +294,10 @@ function syncChoiceTiles(container, selectedId) {
   });
 }
 
-function syncHotspots(container) {
+function syncHotspots(container, selectedId) {
+  if (!container) return;
   container.querySelectorAll('.hotspot').forEach(button => {
-    const selected = button.dataset.locationId === state.location;
+    const selected = button.dataset.locationId === selectedId;
     button.classList.toggle('selected', selected);
     button.setAttribute('aria-selected', selected ? 'true' : 'false');
   });
@@ -235,6 +306,7 @@ function syncHotspots(container) {
 function updateSummary() {
   const summaryList = document.getElementById('summaryList');
   const accessList = Array.from(state.access).map(id => labelLookup.get(id));
+  const routeList = state.flueRoute.map(id => FLUE_COMPONENT_MAP.get(id)?.label || id);
   summaryList.innerHTML = '';
 
   const summaryItems = [
@@ -255,7 +327,23 @@ function updateSummary() {
       value: state.flueExit ? labelLookup.get(state.flueExit) : 'Not recorded'
     },
     {
-      label: 'Boiler location',
+      label: 'New boiler location',
+      value: state.newBoilerLocation ? labelLookup.get(state.newBoilerLocation) : 'Not recorded'
+    },
+    {
+      label: 'New boiler type',
+      value: state.newBoilerType ? labelLookup.get(state.newBoilerType) : 'Not recorded'
+    },
+    {
+      label: 'New flue direction',
+      value: state.newFlueDirection ? labelLookup.get(state.newFlueDirection) : 'Not recorded'
+    },
+    {
+      label: 'Flue route fittings',
+      value: routeList.length ? routeList.join(' → ') : 'None added'
+    },
+    {
+      label: 'Existing boiler location',
       value: state.location ? labelLookup.get(state.location) : 'Not recorded'
     }
   ];
@@ -273,11 +361,128 @@ function resetSurvey() {
   state.flueType = '';
   state.flueExit = '';
   state.location = '';
+  state.newBoilerLocation = '';
+  state.newBoilerType = '';
+  state.newFlueDirection = '';
+  state.flueRoute = [];
   document.querySelectorAll('input[type="radio"]').forEach(input => {
     input.checked = false;
   });
   syncAccessCards();
-  syncHotspots(document.getElementById('houseHotspots'));
+  syncHotspots(document.getElementById('houseHotspots'), state.location);
+  syncHotspots(document.getElementById('newHouseHotspots'), state.newBoilerLocation);
   document.querySelectorAll('.choice-group').forEach(group => syncChoiceTiles(group, ''));
+  updateFlueBuilder();
   updateSummary();
+}
+
+function initFlueBuilder() {
+  const controls = document.querySelectorAll('.builder-controls .chip-button');
+  controls.forEach(button => {
+    const componentId = button.dataset.component;
+    const component = FLUE_COMPONENT_MAP.get(componentId);
+    const icon = button.querySelector('.chip-icon');
+    if (icon && component?.icon) {
+      icon.innerHTML = component.icon;
+    }
+    button.addEventListener('click', () => {
+      state.flueRoute.push(componentId);
+      updateFlueBuilder();
+      updateSummary();
+    });
+  });
+
+  const undoButton = document.getElementById('undoFlueComponent');
+  const clearButton = document.getElementById('clearFlueComponents');
+
+  if (undoButton) {
+    undoButton.addEventListener('click', () => {
+      if (!state.flueRoute.length) return;
+      state.flueRoute.pop();
+      updateFlueBuilder();
+      updateSummary();
+    });
+  }
+
+  if (clearButton) {
+    clearButton.addEventListener('click', () => {
+      if (!state.flueRoute.length) return;
+      state.flueRoute = [];
+      updateFlueBuilder();
+      updateSummary();
+    });
+  }
+
+  updateFlueBuilder();
+}
+
+function updateFlueBuilder() {
+  const preview = document.getElementById('fluePathPreview');
+  const list = document.getElementById('flueComponentList');
+  if (!preview || !list) return;
+
+  preview.innerHTML = '';
+  const startSegment = document.createElement('div');
+  startSegment.className = 'preview-segment start';
+  startSegment.innerHTML = FLUE_START_ICON;
+  preview.appendChild(startSegment);
+
+  state.flueRoute.forEach(componentId => {
+    const component = FLUE_COMPONENT_MAP.get(componentId);
+    const segment = document.createElement('div');
+    segment.className = `preview-segment ${componentId}`;
+    segment.innerHTML = component?.icon || '';
+    preview.appendChild(segment);
+  });
+
+  preview.classList.toggle('empty', state.flueRoute.length === 0);
+
+  list.innerHTML = '';
+  if (!state.flueRoute.length) {
+    const emptyItem = document.createElement('li');
+    emptyItem.className = 'empty';
+    emptyItem.textContent = 'No fittings added yet.';
+    list.appendChild(emptyItem);
+  } else {
+    state.flueRoute.forEach((componentId, index) => {
+      const component = FLUE_COMPONENT_MAP.get(componentId);
+      const item = document.createElement('li');
+      item.innerHTML = `
+        <span class="order-badge">${index + 1}</span>
+        <span>${component?.label || componentId}</span>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  const undoButton = document.getElementById('undoFlueComponent');
+  const clearButton = document.getElementById('clearFlueComponents');
+  if (undoButton) {
+    undoButton.disabled = state.flueRoute.length === 0;
+  }
+  if (clearButton) {
+    clearButton.disabled = state.flueRoute.length === 0;
+  }
+}
+
+function createFlueDirectionIcon(direction) {
+  const box = '<rect x="28" y="28" width="24" height="24" rx="6" fill="none" stroke="currentColor" stroke-width="4"/>';
+  let path = '';
+  switch (direction) {
+    case 'left':
+      path = '<path d="M28 40 H12" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="12" cy="40" r="4" fill="currentColor"/>';
+      break;
+    case 'right':
+      path = '<path d="M52 40 H68" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="68" cy="40" r="4" fill="currentColor"/>';
+      break;
+    case 'up':
+      path = '<path d="M40 28 V12" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="40" cy="12" r="4" fill="currentColor"/>';
+      break;
+    case 'down':
+      path = '<path d="M40 52 V68" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="40" cy="68" r="4" fill="currentColor"/>';
+      break;
+    default:
+      break;
+  }
+  return `<svg viewBox="0 0 80 80" role="img" aria-hidden="true">${box}${path}</svg>`;
 }
