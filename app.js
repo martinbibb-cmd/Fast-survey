@@ -401,6 +401,14 @@ const DISRUPTION_CODES = [
   { id: 'DI05', code: 'DI05', label: 'Protection', description: 'Dust protection required' }
 ];
 
+const POWERFLUSH_OPTIONS = [
+  { id: 'PF01', code: 'PF01', label: 'Customer declined' },
+  { id: 'PF02', code: 'PF02', label: 'Cleanse and powerflush system' },
+  { id: 'PF03', code: 'PF03', label: 'Cleanse only' },
+  { id: 'PF04', code: 'PF04', label: 'System unsuitable for powerflush' },
+  { id: 'PF05', code: 'PF05', label: 'Manual disconnection and flush' }
+];
+
 const CUSTOMER_ACTIONS = [
   { id: 'CA01', code: 'CA01', label: 'Customer', description: 'Clear working areas' },
   { id: 'CA02', code: 'CA02', label: 'Customer', description: 'Gain permission where required' },
@@ -590,6 +598,7 @@ const state = {
   hazards: new Set(),
   pipework: new Map(PIPEWORK_SECTIONS.map(section => [section.id, new Set()])),
   disruptionNotes: new Set(),
+  powerflushSelection: '',
   customerActions: new Set(),
   awarenessSelections: new Map(AWARENESS_SECTIONS.map(section => [section.id, new Set()])),
   flueRoute: []
@@ -614,6 +623,7 @@ const labelLookup = new Map([
   ...HAZARD_OPTIONS.map(option => [option.id, option.label]),
   ...PIPEWORK_OPTION_DETAILS.map(option => [option.id, `${option.code} – ${option.section}: ${option.label}`]),
   ...DISRUPTION_CODES.map(option => [option.id, `${option.code} – ${option.label}: ${option.description}`]),
+  ...POWERFLUSH_OPTIONS.map(option => [option.id, option.code ? `${option.code} – ${option.label}` : option.label]),
   ...CUSTOMER_ACTIONS.map(option => [option.id, `${option.code} – ${option.description}`]),
   ...AWARENESS_OPTION_DETAILS.map(option => [option.id, `${option.code} – ${option.section}: ${option.label}`])
 ]);
@@ -641,6 +651,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderHazardOptions();
   renderPipeworkOptions();
   renderDisruptionCodeOptions();
+  renderPowerflushOptions();
   renderCustomerActionOptions();
   renderAwarenessOptions();
   renderDisruptionHotspots('disruptionHotspots', 'disruptionRooms');
@@ -1001,6 +1012,21 @@ function renderDisruptionCodeOptions() {
     container.appendChild(tile);
   });
   syncCheckboxTiles(container, state.disruptionNotes);
+}
+
+function renderPowerflushOptions() {
+  const container = document.getElementById('powerflushChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  POWERFLUSH_OPTIONS.forEach(option => {
+    const tile = createRadioTile('powerflush', option, selectedId => {
+      state.powerflushSelection = selectedId;
+      syncChoiceTiles(container, selectedId);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+  syncChoiceTiles(container, state.powerflushSelection);
 }
 
 function renderCustomerActionOptions() {
@@ -1455,6 +1481,7 @@ function updateSummary() {
   }).filter(Boolean);
   const pipeworkSummaryList = pipeworkSections.flatMap(section => section.items.map(item => `${section.heading}: ${item}`));
   const disruptionCodeList = Array.from(state.disruptionNotes).map(id => labelLookup.get(id));
+  const powerflushSelection = state.powerflushSelection ? labelLookup.get(state.powerflushSelection) : 'Not recorded';
   const customerActionList = Array.from(state.customerActions).map(id => labelLookup.get(id));
   const awarenessSections = AWARENESS_SECTIONS.map(section => {
     const selected = Array.from(state.awarenessSelections.get(section.id) || []);
@@ -1547,6 +1574,10 @@ function updateSummary() {
       value: disruptionCodeList.length ? disruptionCodeList.join(', ') : 'Not recorded'
     },
     {
+      label: 'Powerflushing requirements',
+      value: powerflushSelection
+    },
+    {
       label: 'Customer actions',
       value: customerActionList.length ? customerActionList.join(', ') : 'Not recorded'
     },
@@ -1584,6 +1615,9 @@ function updateSummary() {
   const disruptionSections = [];
   if (disruptionCodeList.length) {
     disruptionSections.push({ heading: 'Requirements', items: disruptionCodeList });
+  }
+  if (state.powerflushSelection) {
+    disruptionSections.push({ heading: 'Powerflushing', items: [powerflushSelection] });
   }
   if (disruptionList.length) {
     disruptionSections.push({ heading: 'Rooms affected', items: disruptionList });
@@ -1629,6 +1663,7 @@ function resetSurvey() {
   state.hazards.clear();
   state.pipework.forEach(set => set.clear());
   state.disruptionNotes.clear();
+  state.powerflushSelection = '';
   state.customerActions.clear();
   state.awarenessSelections.forEach(set => set.clear());
   state.flueRoute = [];
@@ -1649,6 +1684,7 @@ function resetSurvey() {
   syncCheckboxTiles(document.getElementById('permissionChoices'), state.permissions);
   syncCheckboxTiles(document.getElementById('hazardChoices'), state.hazards);
   syncCheckboxTiles(document.getElementById('disruptionCodeChoices'), state.disruptionNotes);
+  syncChoiceTiles(document.getElementById('powerflushChoices'), state.powerflushSelection);
   syncCheckboxTiles(document.getElementById('customerActionChoices'), state.customerActions);
   document.querySelectorAll('[data-pipework-group]').forEach(group => {
     const sectionId = group.dataset.pipeworkGroup;
