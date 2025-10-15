@@ -107,6 +107,79 @@ button {
   gap: 1.75rem;
 }
 
+.step-nav {
+  background: var(--panel-bg);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: 1.25rem 1.5rem;
+  position: sticky;
+  top: 1.5rem;
+  z-index: 2;
+}
+
+.step-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.step-nav-button {
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, var(--panel-bg), #eef2ff);
+  color: var(--muted);
+  padding: 0.65rem 0.9rem;
+  border-radius: 16px;
+  min-width: min(200px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.step-nav-button:hover,
+.step-nav-button:focus-visible {
+  border-color: var(--accent);
+  color: var(--text);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.18);
+  transform: translateY(-2px);
+}
+
+.step-nav-number {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.step-nav-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.step-nav-button.is-active {
+  border-color: var(--accent);
+  color: var(--text);
+  box-shadow: 0 16px 36px rgba(37, 99, 235, 0.2);
+  transform: translateY(-2px);
+}
+
+.step-nav-button.is-active .step-nav-number {
+  color: var(--accent-strong);
+}
+
+.step-nav-button.is-active .step-nav-title {
+  color: var(--text);
+}
+
+.step-nav-button[aria-current="page"] {
+  cursor: default;
+}
+
 .panel {
   background: var(--panel-bg);
   border-radius: 24px;
