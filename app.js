@@ -1417,7 +1417,6 @@ function persistOutputState(payload) {
 }
 
 function updateSummary() {
-  const summaryList = document.getElementById('summaryList');
   const accessList = Array.from(state.access).map(id => labelLookup.get(id));
   const routeList = state.flueRoute.map(id => {
     const component = FLUE_COMPONENT_MAP.get(id);
@@ -1469,7 +1468,6 @@ function updateSummary() {
     return { heading: section.label, items };
   }).filter(Boolean);
   const awarenessSummaryList = awarenessSections.flatMap(section => section.items.map(item => `${section.heading}: ${item}`));
-  summaryList.innerHTML = '';
 
   const summaryItems = [
     {
@@ -1565,12 +1563,6 @@ function updateSummary() {
       value: disruptionList.length ? disruptionList.join(', ') : 'Not recorded'
     }
   ];
-
-  summaryItems.forEach(item => {
-    const li = document.createElement('li');
-    li.innerHTML = `<strong>${item.label}</strong><span>${item.value}</span>`;
-    summaryList.appendChild(li);
-  });
 
   const newBoilerLines = [
     `Existing boiler location: ${state.location ? labelLookup.get(state.location) : 'Not recorded'}`,
