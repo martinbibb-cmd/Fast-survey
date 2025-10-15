@@ -618,6 +618,10 @@ const labelLookup = new Map([
   ...AWARENESS_OPTION_DETAILS.map(option => [option.id, `${option.code} – ${option.section}: ${option.label}`])
 ]);
 
+let stepSections = [];
+let stepNavButtons = [];
+let currentStepIndex = 0;
+
 document.addEventListener('DOMContentLoaded', () => {
   renderAccessOptions();
   renderBoilerOptions();
@@ -641,6 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAwarenessOptions();
   renderDisruptionHotspots('disruptionHotspots', 'disruptionRooms');
   initFlueBuilder();
+  initStepNavigation();
   updateSummary();
   document.getElementById('resetSelections').addEventListener('click', resetSurvey);
 });
@@ -1253,31 +1258,154 @@ function syncHotspotMulti(container, selectedSet) {
   });
 }
 
+function ensureSemicolons(text) {
+  if (text == null) {
+    return '';
+  }
+
+  return String(text)
+    .split('\n')
+    .map(line => {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        return line;
+      }
+      if (trimmed.endsWith(';') || trimmed.endsWith(':')) {
+        return line;
+      }
+      const leadingWhitespace = (line.match(/^\s*/) || [''])[0];
+      const withoutTrailing = trimmed.replace(/;+$/, '');
+      return `${leadingWhitespace}${withoutTrailing};`;
+    })
+    .join('\n');
+}
+
 function formatBulletList(items) {
   if (!items.length) {
     return '';
   }
-  return items.map(item => `• ${item}`).join('\n');
+  return items
+    .map(item => ensureSemicolons(`• ${item}`))
+    .join('\n');
 }
 
 function formatSectionedList(sections) {
   if (!sections.length) {
     return '';
   }
-  return sections
+  const content = sections
     .map(section => {
       const bulletText = formatBulletList(section.items || []);
-      if (!bulletText) {
+      if (!bulletText.trim().length) {
         return '';
       }
-      return `${section.heading}:\n${bulletText}`;
+      const headingLine = ensureSemicolons(`${section.heading}:`);
+      return `${headingLine}\n${bulletText}`;
     })
     .filter(Boolean)
     .join('\n\n');
+  return ensureSemicolons(content);
 }
 
 function fallbackText(text, fallback) {
   return text && text.trim().length ? text : fallback;
+}
+
+function buildOutputText(value, fallback) {
+  return ensureSemicolons(fallbackText(value, fallback));
+}
+
+function initStepNavigation() {
+  const shortcutList = document.getElementById('stepShortcuts');
+  if (!shortcutList) {
+    return;
+  }
+
+  stepSections = Array.from(document.querySelectorAll('.content .panel'));
+  if (!stepSections.length) {
+    shortcutList.innerHTML = '';
+    return;
+  }
+
+  shortcutList.innerHTML = '';
+  stepNavButtons = stepSections.map((section, index) => {
+    const listItem = document.createElement('li');
+    const stepLabelElement = section.querySelector('.step-count');
+    const headingElement = section.querySelector('h2');
+    const stepLabel = stepLabelElement ? stepLabelElement.textContent.trim() : `Step ${index + 1}`;
+    const titleLabel = headingElement ? headingElement.textContent.trim() : '';
+    if (!section.id) {
+      section.id = `step-section-${index + 1}`;
+    }
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'step-nav-button';
+    button.innerHTML = `
+      <span class="step-nav-number">${stepLabel}</span>
+      <span class="step-nav-title">${titleLabel}</span>
+    `;
+    button.setAttribute('aria-controls', section.id);
+    button.addEventListener('click', () => showStep(index));
+    listItem.appendChild(button);
+    shortcutList.appendChild(listItem);
+    return button;
+  });
+
+  showStep(currentStepIndex, { scroll: false, focus: false });
+}
+
+function showStep(index, options = {}) {
+  if (!stepSections.length) {
+    return;
+  }
+
+  const { scroll = true, focus = true, smooth = true } = options;
+  currentStepIndex = Math.max(0, Math.min(index, stepSections.length - 1));
+
+  stepSections.forEach((section, idx) => {
+    const isActive = idx === currentStepIndex;
+    section.hidden = !isActive;
+    section.classList.toggle('is-active', isActive);
+    const heading = section.querySelector('h2');
+    if (heading) {
+      if (isActive) {
+        heading.setAttribute('tabindex', '-1');
+      } else if (heading.hasAttribute('tabindex')) {
+        heading.removeAttribute('tabindex');
+      }
+    }
+  });
+
+  stepNavButtons.forEach((button, idx) => {
+    if (!button) {
+      return;
+    }
+    const isActive = idx === currentStepIndex;
+    button.classList.toggle('is-active', isActive);
+    if (isActive) {
+      button.setAttribute('aria-current', 'page');
+      button.setAttribute('aria-pressed', 'true');
+    } else {
+      button.removeAttribute('aria-current');
+      button.setAttribute('aria-pressed', 'false');
+    }
+  });
+
+  const activeSection = stepSections[currentStepIndex];
+  if (!activeSection) {
+    return;
+  }
+
+  if (scroll) {
+    activeSection.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+  }
+
+  if (focus) {
+    const heading = activeSection.querySelector('h2');
+    if (heading && typeof heading.focus === 'function') {
+      heading.focus();
+    }
+  }
 }
 
 function persistOutputState(payload) {
@@ -1471,20 +1599,18 @@ function updateSummary() {
 
   const systemCharacteristicsLines = summaryItems.map(item => `${item.label}: ${item.value}`);
 
+  const restrictionsLines = [...permissionList, 'It is the customers responsibility to ensure these permissions are granted.'];
+
   const outputPayload = {
-    workingAtHeights: fallbackText(formatBulletList(accessList), 'No items recorded.'),
-    systemCharacteristics: fallbackText(formatBulletList(systemCharacteristicsLines), 'No items recorded.'),
-    assistanceComponents: fallbackText(formatBulletList(doubleLiftList), 'No items recorded.'),
-    restrictions: (() => {
-      const bulletLines = permissionList.map(item => `• ${item}`);
-      bulletLines.push('• It is the customers responsibility to ensure these permissions are granted');
-      return bulletLines.join('\n');
-    })(),
-    externalHazards: fallbackText(formatBulletList(hazardList), 'No items recorded.'),
-    newBoilerAndControls: fallbackText(formatBulletList(newBoilerLines), 'No items recorded.'),
-    flue: fallbackText(formatBulletList(flueLines), 'No items recorded.'),
-    pipework: fallbackText(formatSectionedList(pipeworkSections), 'No items recorded.'),
-    disruption: fallbackText(formatSectionedList(disruptionSections), 'No items recorded.')
+    workingAtHeights: buildOutputText(formatBulletList(accessList), 'No items recorded.'),
+    systemCharacteristics: buildOutputText(formatBulletList(systemCharacteristicsLines), 'No items recorded.'),
+    assistanceComponents: buildOutputText(formatBulletList(doubleLiftList), 'No items recorded.'),
+    restrictions: buildOutputText(formatBulletList(restrictionsLines), 'It is the customers responsibility to ensure these permissions are granted.'),
+    externalHazards: buildOutputText(formatBulletList(hazardList), 'No items recorded.'),
+    newBoilerAndControls: buildOutputText(formatBulletList(newBoilerLines), 'No items recorded.'),
+    flue: buildOutputText(formatBulletList(flueLines), 'No items recorded.'),
+    pipework: buildOutputText(formatSectionedList(pipeworkSections), 'No items recorded.'),
+    disruption: buildOutputText(formatSectionedList(disruptionSections), 'No items recorded.')
   };
 
   persistOutputState(outputPayload);
@@ -1544,6 +1670,9 @@ function resetSurvey() {
   });
   syncSystemUpgradeCards();
   updateFlueBuilder();
+  if (stepSections.length) {
+    showStep(0, { scroll: true, smooth: false, focus: false });
+  }
   updateSummary();
 }
 
