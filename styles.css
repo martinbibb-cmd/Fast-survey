@@ -58,6 +58,12 @@ button {
   box-shadow: var(--shadow);
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -139,6 +145,18 @@ button {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.25rem;
+}
+
+.pipework-sections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.awareness-sections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
 }
 
 .option-card {
@@ -605,6 +623,99 @@ button {
 
 .summary span {
   font-size: 1rem;
+}
+
+.output-page {
+  padding: 2.5rem 1.5rem;
+}
+
+.output-shell {
+  width: min(960px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.output-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--panel-bg);
+  padding: 1.25rem 1.75rem;
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  gap: 1rem;
+}
+
+.output-subtitle {
+  color: var(--muted);
+  margin-top: 0.35rem;
+}
+
+.output-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.copy-card {
+  background: var(--panel-bg);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+}
+
+.copy-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem 0.75rem;
+}
+
+.copy-card__body {
+  padding: 0 1.5rem 1.5rem;
+  flex: 1;
+}
+
+.copy-card__content {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: var(--text);
+}
+
+.copy-button {
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.copy-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(249, 115, 22, 0.25);
+}
+
+.copy-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.output-empty {
+  background: var(--panel-bg);
+  border-radius: 20px;
+  padding: 1.75rem;
+  box-shadow: var(--shadow);
+  color: var(--muted);
+  text-align: center;
 }
 
 @media (max-width: 960px) {

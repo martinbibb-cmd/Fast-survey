@@ -13,7 +13,10 @@
         <span class="brand-mark" aria-hidden="true">🔥</span>
         <h1>Heating Survey Planner</h1>
       </div>
-      <button class="ghost" id="resetSelections" type="button">Reset survey</button>
+      <div class="header-actions">
+        <a class="ghost" id="openOutputView" href="output.html">Output view</a>
+        <button class="ghost" id="resetSelections" type="button">Reset survey</button>
+      </div>
     </header>
 
     <main class="content">
@@ -156,18 +159,15 @@
         </fieldset>
       </section>
 
-      <section class="panel" aria-labelledby="condensateHeading">
+      <section class="panel" aria-labelledby="pipeworkHeading">
         <div class="panel-head">
           <div>
             <p class="step-count">Step 9</p>
-            <h2 id="condensateHeading">Condensate route</h2>
+            <h2 id="pipeworkHeading">Pipework requirements</h2>
           </div>
-          <p class="panel-hint">Select all condensate discharge arrangements required.</p>
+          <p class="panel-hint">Select all works required for gas, condensate, discharge and water services.</p>
         </div>
-        <fieldset class="fieldset" id="condensateRouteGroup">
-          <legend>Condensate discharge</legend>
-          <div class="choice-group" id="condensateChoices" role="group" aria-labelledby="condensateRouteGroup"></div>
-        </fieldset>
+        <div class="pipework-sections" id="pipeworkSections" role="group" aria-labelledby="pipeworkHeading"></div>
       </section>
 
       <section class="panel" aria-labelledby="systemUpgradesHeading">
@@ -220,6 +220,87 @@
         <div class="house-scene">
           <div class="house-illustration" id="disruptionHotspots" role="group" aria-labelledby="disruptionHeading"></div>
         </div>
+      </section>
+
+      <section class="panel" aria-labelledby="liftHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 14</p>
+            <h2 id="liftHeading">Double handed lift items</h2>
+          </div>
+          <p class="panel-hint">Select all items that will require a double-handed lift.</p>
+        </div>
+        <fieldset class="fieldset" id="liftGroup">
+          <legend>Lift requirements</legend>
+          <div class="choice-group" id="liftChoices" role="group" aria-labelledby="liftGroup"></div>
+        </fieldset>
+      </section>
+
+      <section class="panel" aria-labelledby="permissionHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 15</p>
+            <h2 id="permissionHeading">Permissions</h2>
+          </div>
+          <p class="panel-hint">Select all permissions that must be granted before works begin.</p>
+        </div>
+        <fieldset class="fieldset" id="permissionGroup">
+          <legend>Permission requirements</legend>
+          <div class="choice-group" id="permissionChoices" role="group" aria-labelledby="permissionGroup"></div>
+        </fieldset>
+      </section>
+
+      <section class="panel" aria-labelledby="hazardHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 16</p>
+            <h2 id="hazardHeading">Site hazards</h2>
+          </div>
+          <p class="panel-hint">Select all hazards observed during the survey.</p>
+        </div>
+        <fieldset class="fieldset" id="hazardGroup">
+          <legend>Hazard checklist</legend>
+          <div class="choice-group" id="hazardChoices" role="group" aria-labelledby="hazardGroup"></div>
+        </fieldset>
+      </section>
+
+      <section class="panel" aria-labelledby="disruptionLevelHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 17</p>
+            <h2 id="disruptionLevelHeading">Disruption level</h2>
+          </div>
+          <p class="panel-hint">Select all disruption notes that apply to this installation.</p>
+        </div>
+        <fieldset class="fieldset" id="disruptionLevelGroup">
+          <legend>Disruption notes</legend>
+          <div class="choice-group" id="disruptionLevelChoices" role="group" aria-labelledby="disruptionLevelGroup"></div>
+        </fieldset>
+      </section>
+
+      <section class="panel" aria-labelledby="customerActionHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 18</p>
+            <h2 id="customerActionHeading">Customer actions</h2>
+          </div>
+          <p class="panel-hint">Select all actions that the customer must complete.</p>
+        </div>
+        <fieldset class="fieldset" id="customerActionGroup">
+          <legend>Customer responsibilities</legend>
+          <div class="choice-group" id="customerActionChoices" role="group" aria-labelledby="customerActionGroup"></div>
+        </fieldset>
+      </section>
+
+      <section class="panel" aria-labelledby="awarenessHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 19</p>
+            <h2 id="awarenessHeading">Things to be aware of</h2>
+          </div>
+          <p class="panel-hint">Select all advisory notes that should be communicated to the customer.</p>
+        </div>
+        <div class="awareness-sections" id="awarenessSections" role="group" aria-labelledby="awarenessHeading"></div>
       </section>
     </main>
 

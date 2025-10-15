@@ -92,72 +92,253 @@ const NEW_FLUE_DIRECTIONS = [
   }
 ];
 
-const CONDENSATE_OPTIONS = [
+const LIFT_OPTIONS = [
+  { id: 'lift-none', label: 'None', description: 'No double-handed lifts required.' },
+  { id: 'lift-old-boiler', label: 'Old boiler', description: 'Existing boiler removal requires two people.' },
+  { id: 'lift-new-boiler', label: 'New boiler', description: 'Replacement boiler lift requires two people.' },
+  { id: 'lift-cylinder', label: 'Cylinder', description: 'Cylinder handling requires two people.' },
+  { id: 'lift-heavy-rads', label: 'Heavy rads', description: 'Heavy radiators require two-person lift.' },
+  { id: 'lift-boiler-loft', label: 'Boiler in loft', description: 'Loft boiler install needs two-person lift.' }
+];
+
+const PERMISSION_OPTIONS = [
+  { id: 'perm-none', label: 'None', description: 'No special permissions required.' },
+  { id: 'perm-flat', label: 'Flat', description: 'Flat – permissions from building management required.' },
+  { id: 'perm-listed', label: 'Listed', description: 'Listed building consent required.' },
+  { id: 'perm-conservation', label: 'Conservation area', description: 'Conservation area consent required.' },
+  { id: 'perm-gated', label: 'Gated community', description: 'Access arrangements needed for gated community.' }
+];
+
+const HAZARD_OPTIONS = [
+  { id: 'haz-dogs', label: 'Dogs', description: 'Dogs present on site.' },
+  { id: 'haz-other-pets', label: 'Other pets', description: 'Other pets present on site.' },
+  { id: 'haz-clutter', label: 'Clutter', description: 'Cluttered working areas.' },
+  { id: 'haz-hygiene', label: 'Hygiene issues', description: 'General hygiene concerns.' },
+  { id: 'haz-animal-mess', label: 'Animal mess', description: 'Animal mess present.' },
+  { id: 'haz-nesting-insects', label: 'Nesting insects', description: 'Active nesting insects observed.' },
+  { id: 'haz-uneven-ground', label: 'Uneven ground', description: 'Uneven or unstable ground.' },
+  { id: 'haz-small-spaces', label: 'Small working spaces', description: 'Confined working area.' }
+];
+
+const DISRUPTION_LEVEL_OPTIONS = [
+  { id: 'DI01', code: 'DI01', label: 'Minimal', description: 'Minimal disruption expected.' },
+  { id: 'DI02', code: 'DI02', label: 'Moderate – carpets lifted', description: 'Carpets lifted in working areas.' },
+  { id: 'DI03', code: 'DI03', label: 'High – floors lifted', description: 'Floorboards lifted to complete works.' },
+  { id: 'DI04', code: 'DI04', label: 'Preparation – customer to clear areas/routes', description: 'Customer must clear access routes.' },
+  { id: 'DI05', code: 'DI05', label: 'Protection – dust protection required', description: 'Dust protection or sheeting required.' }
+];
+
+const CUSTOMER_ACTION_OPTIONS = [
+  { id: 'CA01', code: 'CA01', label: 'Clear working areas', description: 'Customer to clear working areas.' },
+  { id: 'CA02', code: 'CA02', label: 'Gain permission where required', description: 'Customer to obtain permissions.' },
+  { id: 'CA03', code: 'CA03', label: 'Ensure animals are kept safely', description: 'Pets to be safely contained.' },
+  { id: 'CA04', code: 'CA04', label: 'Remove cupboard', description: 'Customer to remove cupboard.' },
+  { id: 'CA05', code: 'CA05', label: 'Rebuild cupboard', description: 'Customer to rebuild cupboard after works.' },
+  { id: 'CA06', code: 'CA06', label: 'Remove old flue & weather seal', description: 'Customer to remove existing flue and seal.' },
+  { id: 'CA07', code: 'CA07', label: 'Supply specified items', description: 'Customer to supply agreed items.' }
+];
+
+const PIPEWORK_SECTIONS = [
   {
-    id: 'CD01',
-    code: 'CD01',
-    label: 'Connection',
-    description: 'Internal waste – P-trap present'
+    id: 'gas-supply',
+    key: 'gasSupply',
+    title: 'Gas supply',
+    options: [
+      { id: 'GR01', code: 'GR01', label: 'Upgrade to 22 mm', description: 'Gas supply to be upgraded to 22 mm.' },
+      { id: 'GR02', code: 'GR02', label: 'Tightness test pass required', description: 'Tightness test confirmation required.' },
+      { id: 'GR03', code: 'GR03', label: 'Meter location restricts route', description: 'Gas meter position restricts proposed route.' },
+      { id: 'GR04', code: 'GR04', label: 'Internal reroute', description: 'Internal gas pipework reroute required.' },
+      { id: 'GR05', code: 'GR05', label: 'External reroute', description: 'External gas pipework reroute required.' }
+    ]
   },
   {
-    id: 'CD02',
-    code: 'CD02',
-    label: 'Connection',
-    description: 'Internal waste – new trap required'
+    id: 'meter-type',
+    key: 'meterType',
+    title: 'Meter type',
+    options: [
+      { id: 'GR06', code: 'GR06', label: 'U6 – inside', description: 'U6 meter located inside.' },
+      { id: 'GR07', code: 'GR07', label: 'U6 – outside', description: 'U6 meter located outside.' }
+    ]
   },
   {
-    id: 'CD03',
-    code: 'CD03',
-    label: 'External run',
-    description: 'Insulate (42 mm MI)'
+    id: 'route-complexity',
+    key: 'routeComplexity',
+    title: 'Route complexity',
+    options: [
+      { id: 'GR08', code: 'GR08', label: 'Simple / local', description: 'Simple/local route with minimal changes.' },
+      { id: 'GR09', code: 'GR09', label: 'Reuse existing', description: 'Reuse existing gas route where possible.' },
+      { id: 'GR10', code: 'GR10', label: 'Upsize sections for capacity', description: 'Upsize sections for capacity requirements.' },
+      { id: 'GR11', code: 'GR11', label: 'Complex (clipping / drilling / routing)', description: 'Complex routing including clipping and drilling.' }
+    ]
   },
   {
-    id: 'CD04',
-    code: 'CD04',
-    label: 'External run',
-    description: 'Replace with 42 mm (MI compliant)'
+    id: 'gas-notes',
+    key: 'gasNotes',
+    title: 'Gas notes',
+    options: [
+      { id: 'GR12', code: 'GR12', label: 'Replace meter tail lead', description: 'Replace meter tail lead required.' },
+      { id: 'GR13', code: 'GR13', label: 'Pressure drop risk over length', description: 'Risk of pressure drop due to run length.' }
+    ]
   },
   {
-    id: 'CD05',
-    code: 'CD05',
-    label: 'Pump',
-    description: 'Condensate pump required'
+    id: 'gas-guidance',
+    key: 'gasGuidance',
+    title: 'Gas guidance',
+    options: [
+      { id: 'GAS50', code: 'GAS50', label: '≤28 kW = 22 mm at boiler; >28 kW = 28 mm', description: 'Rule-of-thumb sizing guidance.' },
+      { id: 'GAS51', code: 'GAS51', label: 'Max 1 mbar drop from meter to appliance', description: 'Compliance requirement for pressure drop.' },
+      { id: 'GAS52', code: 'GAS52', label: 'U6 ≈ 63 kW max; U16 ≈ 169 kW max', description: 'Aggregate load awareness for meter sizing.' },
+      { id: 'GAS53', code: 'GAS53', label: 'Long runs/many bends increase resistance', description: 'Upsize pipework to minimise resistance.' },
+      { id: 'GAS54', code: 'GAS54', label: 'Final pipe size confirmed at commissioning', description: 'Final sizing to be confirmed during commissioning.' }
+    ]
   },
   {
-    id: 'CD06',
-    code: 'CD06',
-    label: 'Soakaway',
-    description: '42 mm pipe'
+    id: 'condensate',
+    key: 'condensate',
+    title: 'Condensate',
+    options: [
+      { id: 'CD01', code: 'CD01', label: 'Internal waste – P-trap present', description: 'Internal waste with P-trap already installed.' },
+      { id: 'CD02', code: 'CD02', label: 'Internal waste – new trap required', description: 'Install new trap on internal waste.' },
+      { id: 'CD03', code: 'CD03', label: 'External run – insulate (42 mm MI)', description: 'Insulate external run with 42 mm MI.' },
+      { id: 'CD04', code: 'CD04', label: 'External run – replace with 42 mm (MI compliant)', description: 'Replace external run with 42 mm MI compliant pipe.' },
+      { id: 'CD05', code: 'CD05', label: 'Condensate pump required', description: 'Install condensate pump.' },
+      { id: 'CD06', code: 'CD06', label: 'Soakaway – 42 mm pipe', description: 'Install soakaway with 42 mm pipe.' },
+      { id: 'CD07', code: 'CD07', label: 'Soakaway – Gravel trap', description: 'Provide gravel trap for soakaway.' },
+      { id: 'CD08', code: 'CD08', label: 'Gradient – Fall correction required', description: 'Correct gradient for condensate run.' },
+      { id: 'CD09', code: 'CD09', label: 'Upgrade – 32 mm → 42 mm (MI compliant)', description: 'Upgrade condensate from 32 mm to 42 mm.' },
+      { id: 'CD10', code: 'CD10', label: 'Discharge – External soil stack – termination check', description: 'Check termination at external soil stack.' },
+      { id: 'CD11', code: 'CD11', label: 'Neutraliser fitted (where required)', description: 'Install condensate neutraliser where required.' }
+    ]
   },
   {
-    id: 'CD07',
-    code: 'CD07',
-    label: 'Soakaway',
-    description: 'Gravel trap'
+    id: 'discharge',
+    key: 'discharge',
+    title: 'Discharge',
+    options: [
+      { id: 'DS01', code: 'DS01', label: 'PRV discharge – Pipework to outside', description: 'PRV discharge pipe routed outside.' },
+      { id: 'DS02', code: 'DS02', label: 'Tundish – Visible and compliant', description: 'Tundish positioned for visible discharge.' },
+      { id: 'DS03', code: 'DS03', label: 'Route – Under floor to outside', description: 'Run discharge under floor to outside.' },
+      { id: 'DS04', code: 'DS04', label: 'Route – Direct to outside', description: 'Discharge routes directly outside.' },
+      { id: 'DS05', code: 'DS05', label: 'Route – Behind cupboards', description: 'Discharge routed behind cupboards.' },
+      { id: 'DS06', code: 'DS06', label: 'Route – Through cupboards', description: 'Discharge routed through cupboards.' }
+    ]
   },
   {
-    id: 'CD08',
-    code: 'CD08',
-    label: 'Gradient',
-    description: 'Fall correction required'
+    id: 'water-services',
+    key: 'waterServices',
+    title: 'Water services',
+    options: [
+      { id: 'WS01', code: 'WS01', label: 'Increase pressure / flow', description: 'Increase incoming mains pressure/flow.' },
+      { id: 'WS02', code: 'WS02', label: 'Pressure reducing valve required', description: 'Fit pressure reducing valve.' },
+      { id: 'WS03', code: 'WS03', label: 'Secondary return present', description: 'Secondary return present on system.' },
+      { id: 'WS04', code: 'WS04', label: 'Scale filter required', description: 'Install scale filter.' },
+      { id: 'WS05', code: 'WS05', label: 'Stop tap / service valve access', description: 'Ensure access to stop tap/service valve.' },
+      { id: 'WS06', code: 'WS06', label: 'Route to under-counter', description: 'Route pipework to under-counter location.' },
+      { id: 'WS07', code: 'WS07', label: 'Route to airing cupboard', description: 'Route pipework to airing cupboard.' }
+    ]
+  }
+];
+
+const AWARENESS_SECTIONS = [
+  {
+    id: 'aw-system',
+    title: 'System',
+    options: [
+      { id: 'ARS01', code: 'ARS01', label: 'Sealing an old system may expose hidden leaks' },
+      { id: 'ARS02', code: 'ARS02', label: 'Existing radiators and valves may leak once pressurised' },
+      { id: 'ARS03', code: 'ARS03', label: 'Old vented pipework and joints not designed for pressure' },
+      { id: 'ARS04', code: 'ARS04', label: 'System converted from open vent to sealed — pressure relief valve fitted for safety' },
+      { id: 'ARS05', code: 'ARS05', label: 'Pressure drops after installation may indicate existing weeps or hidden leaks' },
+      { id: 'ARS06', code: 'ARS06', label: 'Customer advised to monitor pressure during initial days of use' },
+      { id: 'ARS07', code: 'ARS07', label: 'No liability for existing system weaknesses or pre-existing faults' }
+    ]
   },
   {
-    id: 'CD09',
-    code: 'CD09',
-    label: 'Upgrade',
-    description: '32 mm → 42 mm (MI compliant)'
+    id: 'aw-combi',
+    title: 'Combi',
+    options: [
+      { id: 'ARS08', code: 'ARS08', label: 'Combination boilers supply one outlet at a time — flow reduces with multiple use' },
+      { id: 'ARS09', code: 'ARS09', label: 'Flow rate limited by mains water supply — cannot exceed incoming pressure or flow' },
+      { id: 'ARS10', code: 'ARS10', label: 'Large households or multiple bathrooms may experience reduced performance' },
+      { id: 'ARS11', code: 'ARS11', label: 'Cold mains restrictions may affect shower performance' },
+      { id: 'ARS12', code: 'ARS12', label: 'Hot water temperature varies slightly with flow rate' },
+      { id: 'ARS13', code: 'ARS13', label: 'Not suitable for power showers with pump — pump must be removed' },
+      { id: 'ARS14', code: 'ARS14', label: 'Shower performance dependent on incoming cold main flow and pressure' }
+    ]
   },
   {
-    id: 'CD10',
-    code: 'CD10',
-    label: 'Discharge',
-    description: 'External soil stack – termination check'
+    id: 'aw-hot-water',
+    title: 'Hot water',
+    options: [
+      { id: 'ARS15', code: 'ARS15', label: 'Stored cylinder water may take time to reheat' },
+      { id: 'ARS16', code: 'ARS16', label: 'Mixergy or unvented cylinders require periodic servicing for safety' },
+      { id: 'ARS17', code: 'ARS17', label: 'Unvented cylinder discharge tested and compliant at time of install only' },
+      { id: 'ARS18', code: 'ARS18', label: 'Hot water recovery times vary depending on usage pattern' },
+      { id: 'ARS19', code: 'ARS19', label: 'No liability for customer-supplied fixtures not designed for mains pressure' }
+    ]
   },
   {
-    id: 'CD11',
-    code: 'CD11',
-    label: 'Neutraliser',
-    description: 'Fitted (where required)'
+    id: 'aw-condensate',
+    title: 'Condensate',
+    options: [
+      { id: 'ARS20', code: 'ARS20', label: 'Condensate routes external — insulated to reduce freezing risk, not guaranteed' },
+      { id: 'ARS21', code: 'ARS21', label: 'External soakaway provided only where suitable drainage available' },
+      { id: 'ARS22', code: 'ARS22', label: 'Customer responsible for maintaining condensate route clear and free-flowing' },
+      { id: 'ARS23', code: 'ARS23', label: 'No responsibility for freezing if installation complies with manufacturer MI' }
+    ]
+  },
+  {
+    id: 'aw-controls',
+    title: 'Controls',
+    options: [
+      { id: 'ARS24', code: 'ARS24', label: 'Controls installed in accordance with manufacturer’s instructions' },
+      { id: 'ARS25', code: 'ARS25', label: 'Hive system can operate without Wi-Fi; only remote app access requires router connection and USB power' },
+      { id: 'ARS26', code: 'ARS26', label: 'Smart controls may require network access for optional app features' },
+      { id: 'ARS27', code: 'ARS27', label: 'No responsibility for internet connectivity or app integration issues' },
+      { id: 'ARS28', code: 'ARS28', label: 'Room stat location based on best judgement at time of survey' }
+    ]
+  },
+  {
+    id: 'aw-flue',
+    title: 'Flue',
+    options: [
+      { id: 'ARS29', code: 'ARS29', label: 'Flue termination checked for clearance at time of install — future obstructions not covered' },
+      { id: 'ARS30', code: 'ARS30', label: 'Brickwork and render made good to reasonable standard, not decorative finish' },
+      { id: 'ARS31', code: 'ARS31', label: 'Flue sealing and flashings weatherproof only — not decorative' },
+      { id: 'ARS32', code: 'ARS32', label: 'Existing holes or redundant flues made safe and sealed where practical' }
+    ]
+  },
+  {
+    id: 'aw-access',
+    title: 'Access',
+    options: [
+      { id: 'ARS33', code: 'ARS33', label: 'Safe access provided for installation only — permanent access is customer responsibility' },
+      { id: 'ARS34', code: 'ARS34', label: 'Loft must be boarded, lit, and safe before works commence' },
+      { id: 'ARS35', code: 'ARS35', label: 'Working at height precautions apply — scaffold or tower may be required' },
+      { id: 'ARS36', code: 'ARS36', label: 'No work above safe height without suitable equipment' }
+    ]
+  },
+  {
+    id: 'aw-customer',
+    title: 'Customer',
+    options: [
+      { id: 'ARS37', code: 'ARS37', label: 'Customer to clear working area and ensure safe access' },
+      { id: 'ARS38', code: 'ARS38', label: 'Pets to be contained during works' },
+      { id: 'ARS39', code: 'ARS39', label: 'Noise, dust, and disruption unavoidable during installation' },
+      { id: 'ARS40', code: 'ARS40', label: 'Water and heating supply may be temporarily unavailable during works' },
+      { id: 'ARS41', code: 'ARS41', label: 'Customer responsible for redecorating or boxing in after completion' }
+    ]
+  },
+  {
+    id: 'aw-general',
+    title: 'General',
+    options: [
+      { id: 'ARS42', code: 'ARS42', label: 'All works carried out to Gas Safe and Building Regs at time of install' },
+      { id: 'ARS43', code: 'ARS43', label: 'Manufacturer warranty subject to annual service' },
+      { id: 'ARS44', code: 'ARS44', label: 'No liability for pre-existing faults or unrelated plumbing issues' },
+      { id: 'ARS45', code: 'ARS45', label: 'Installation performance depends on system design and existing pipework' },
+      { id: 'ARS46', code: 'ARS46', label: 'Recommendations given in good faith based on visible inspection' }
+    ]
   }
 ];
 
@@ -278,6 +459,19 @@ const FLUE_COMPONENT_LIBRARY = [
 const FLUE_COMPONENT_MAP = new Map(FLUE_COMPONENT_LIBRARY.map(component => [component.id, component]));
 const FLUE_START_ICON = `<svg viewBox="0 0 80 80" role="img" aria-hidden="true"><rect x="26" y="26" width="28" height="28" rx="6" fill="none" stroke="currentColor" stroke-width="4"/><path d="M40 26 V12" stroke="currentColor" stroke-width="6" stroke-linecap="round"/></svg>`;
 
+function createEmptyPipeworkState() {
+  return {
+    gasSupply: new Set(),
+    meterType: new Set(),
+    routeComplexity: new Set(),
+    gasNotes: new Set(),
+    gasGuidance: new Set(),
+    condensate: new Set(),
+    discharge: new Set(),
+    waterServices: new Set()
+  };
+}
+
 const state = {
   access: new Set(),
   boilerType: '',
@@ -288,11 +482,17 @@ const state = {
   newBoilerType: '',
   newFlueDirection: '',
   makingGood: new Set(),
-  condensateRoutes: new Set(),
+  pipework: createEmptyPipeworkState(),
   systemUpgrades: new Map(),
   cylinderSelections: new Set(),
   customerControls: new Set(),
   disruptionRooms: new Set(),
+  liftItems: new Set(),
+  permissions: new Set(),
+  hazards: new Set(),
+  disruptionNotes: new Set(),
+  customerActions: new Set(),
+  awarenessNotes: new Set(),
   flueRoute: []
 };
 
@@ -305,10 +505,20 @@ const labelLookup = new Map([
   ...NEW_FLUE_DIRECTIONS.map(option => [option.id, option.label]),
   ...LOCATION_SPOTS.map(option => [option.id, option.label]),
   ...MAKING_GOOD_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}: ${option.description}`]),
-  ...CONDENSATE_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}: ${option.description}`]),
+  ...PIPEWORK_SECTIONS.flatMap(section =>
+    section.options.map(option => [option.id, option.code ? `${option.code} – ${option.label}` : option.label])
+  ),
   ...SYSTEM_UPGRADE_OPTIONS.map(option => [option.id, option.label]),
   ...CYLINDER_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}`]),
-  ...CONTROL_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}`])
+  ...CONTROL_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}`]),
+  ...LIFT_OPTIONS.map(option => [option.id, option.label]),
+  ...PERMISSION_OPTIONS.map(option => [option.id, option.label]),
+  ...HAZARD_OPTIONS.map(option => [option.id, option.label]),
+  ...DISRUPTION_LEVEL_OPTIONS.map(option => [option.id, option.code ? `${option.code} – ${option.label}` : option.label]),
+  ...CUSTOMER_ACTION_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}`]),
+  ...AWARENESS_SECTIONS.flatMap(section =>
+    section.options.map(option => [option.id, option.code ? `${option.code} – ${option.label}` : option.label])
+  )
 ]);
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -320,11 +530,17 @@ document.addEventListener('DOMContentLoaded', () => {
   renderNewBoilerOptions();
   renderNewFlueDirections();
   renderMakingGoodOptions();
-  renderCondensateOptions();
+  renderPipeworkSections();
   renderSystemUpgradeOptions();
   renderCylinderOptions();
   renderControlOptions();
   renderDisruptionHotspots('disruptionHotspots', 'disruptionRooms');
+  renderLiftOptions();
+  renderPermissionOptions();
+  renderHazardOptions();
+  renderDisruptionLevels();
+  renderCustomerActionOptions();
+  renderAwarenessSections();
   initFlueBuilder();
   updateSummary();
   document.getElementById('resetSelections').addEventListener('click', resetSurvey);
@@ -439,23 +655,35 @@ function renderNewFlueDirections() {
   syncChoiceTiles(container, state.newFlueDirection);
 }
 
-function renderCondensateOptions() {
-  const container = document.getElementById('condensateChoices');
+function renderPipeworkSections() {
+  const container = document.getElementById('pipeworkSections');
   if (!container) return;
   container.innerHTML = '';
-  CONDENSATE_OPTIONS.forEach(option => {
-    const tile = createCheckboxTile('condensate-route', option, (optionId, isSelected) => {
-      if (isSelected) {
-        state.condensateRoutes.add(optionId);
-      } else {
-        state.condensateRoutes.delete(optionId);
-      }
-      syncCheckboxTiles(container, state.condensateRoutes);
-      updateSummary();
+
+  PIPEWORK_SECTIONS.forEach(section => {
+    const fieldset = document.createElement('fieldset');
+    fieldset.className = 'fieldset';
+    fieldset.id = `${section.id}-fieldset`;
+    fieldset.innerHTML = `
+      <legend>${section.title}</legend>
+      <div class="choice-group" role="group" aria-labelledby="${section.id}-fieldset"></div>
+    `;
+
+    const group = fieldset.querySelector('.choice-group');
+    const selectionSet = state.pipework[section.key];
+
+    section.options.forEach(option => {
+      const tile = createCheckboxTile(section.id, option, (optionId, checked) => {
+        updateSetWithNone(selectionSet, optionId, checked, null);
+        syncCheckboxTiles(group, selectionSet);
+        updateSummary();
+      });
+      group.appendChild(tile);
     });
-    container.appendChild(tile);
+
+    syncCheckboxTiles(group, selectionSet);
+    container.appendChild(fieldset);
   });
-  syncCheckboxTiles(container, state.condensateRoutes);
 }
 
 function renderCylinderOptions() {
@@ -494,6 +722,110 @@ function renderControlOptions() {
     container.appendChild(tile);
   });
   syncCheckboxTiles(container, state.customerControls);
+}
+
+function renderLiftOptions() {
+  const container = document.getElementById('liftChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  LIFT_OPTIONS.forEach(option => {
+    const tile = createCheckboxTile('lift-items', option, (optionId, checked) => {
+      updateSetWithNone(state.liftItems, optionId, checked, 'lift-none');
+      syncCheckboxTiles(container, state.liftItems);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+  syncCheckboxTiles(container, state.liftItems);
+}
+
+function renderPermissionOptions() {
+  const container = document.getElementById('permissionChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  PERMISSION_OPTIONS.forEach(option => {
+    const tile = createCheckboxTile('permissions', option, (optionId, checked) => {
+      updateSetWithNone(state.permissions, optionId, checked, 'perm-none');
+      syncCheckboxTiles(container, state.permissions);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+  syncCheckboxTiles(container, state.permissions);
+}
+
+function renderHazardOptions() {
+  const container = document.getElementById('hazardChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  HAZARD_OPTIONS.forEach(option => {
+    const tile = createCheckboxTile('hazards', option, (optionId, checked) => {
+      updateSetWithNone(state.hazards, optionId, checked, null);
+      syncCheckboxTiles(container, state.hazards);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+  syncCheckboxTiles(container, state.hazards);
+}
+
+function renderDisruptionLevels() {
+  const container = document.getElementById('disruptionLevelChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  DISRUPTION_LEVEL_OPTIONS.forEach(option => {
+    const tile = createCheckboxTile('disruption-level', option, (optionId, checked) => {
+      updateSetWithNone(state.disruptionNotes, optionId, checked, null);
+      syncCheckboxTiles(container, state.disruptionNotes);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+  syncCheckboxTiles(container, state.disruptionNotes);
+}
+
+function renderCustomerActionOptions() {
+  const container = document.getElementById('customerActionChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  CUSTOMER_ACTION_OPTIONS.forEach(option => {
+    const tile = createCheckboxTile('customer-actions', option, (optionId, checked) => {
+      updateSetWithNone(state.customerActions, optionId, checked, null);
+      syncCheckboxTiles(container, state.customerActions);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+  syncCheckboxTiles(container, state.customerActions);
+}
+
+function renderAwarenessSections() {
+  const container = document.getElementById('awarenessSections');
+  if (!container) return;
+  container.innerHTML = '';
+
+  AWARENESS_SECTIONS.forEach(section => {
+    const fieldset = document.createElement('fieldset');
+    fieldset.className = 'fieldset';
+    fieldset.id = `${section.id}-fieldset`;
+    fieldset.innerHTML = `
+      <legend>${section.title}</legend>
+      <div class="choice-group" role="group" aria-labelledby="${section.id}-fieldset"></div>
+    `;
+
+    const group = fieldset.querySelector('.choice-group');
+    section.options.forEach(option => {
+      const tile = createCheckboxTile(section.id, option, (optionId, checked) => {
+        updateSetWithNone(state.awarenessNotes, optionId, checked, null);
+        syncCheckboxTiles(group, state.awarenessNotes);
+        updateSummary();
+      });
+      group.appendChild(tile);
+    });
+
+    syncCheckboxTiles(group, state.awarenessNotes);
+    container.appendChild(fieldset);
+  });
 }
 
 function renderSystemUpgradeOptions() {
@@ -682,6 +1014,25 @@ function createCheckboxTile(groupName, option, onToggle) {
   return tile;
 }
 
+function updateSetWithNone(targetSet, optionId, checked, noneOptionId) {
+  if (!checked) {
+    targetSet.delete(optionId);
+    return;
+  }
+
+  if (noneOptionId && optionId === noneOptionId) {
+    targetSet.clear();
+    targetSet.add(optionId);
+    return;
+  }
+
+  if (noneOptionId) {
+    targetSet.delete(noneOptionId);
+  }
+
+  targetSet.add(optionId);
+}
+
 function toggleAccessOption(optionId) {
   if (state.access.has(optionId)) {
     state.access.delete(optionId);
@@ -740,6 +1091,20 @@ function syncHotspotMulti(container, selectedSet) {
   });
 }
 
+function getPipeworkLabels(sectionKey) {
+  const section = PIPEWORK_SECTIONS.find(item => item.key === sectionKey);
+  if (!section) {
+    return [];
+  }
+  const selectionSet = state.pipework[sectionKey];
+  if (!selectionSet || selectionSet.size === 0) {
+    return [];
+  }
+  return section.options
+    .filter(option => selectionSet.has(option.id))
+    .map(option => labelLookup.get(option.id));
+}
+
 function updateSummary() {
   const summaryList = document.getElementById('summaryList');
   const accessList = Array.from(state.access).map(id => labelLookup.get(id));
@@ -748,7 +1113,14 @@ function updateSummary() {
     return component ? component.label : id;
   });
   const makingGoodList = MAKING_GOOD_OPTIONS.filter(option => state.makingGood.has(option.id)).map(option => labelLookup.get(option.id));
-  const condensateList = CONDENSATE_OPTIONS.filter(option => state.condensateRoutes.has(option.id)).map(option => labelLookup.get(option.id));
+  const gasSupplyList = getPipeworkLabels('gasSupply');
+  const meterTypeList = getPipeworkLabels('meterType');
+  const routeComplexityList = getPipeworkLabels('routeComplexity');
+  const gasNotesList = getPipeworkLabels('gasNotes');
+  const gasGuidanceList = getPipeworkLabels('gasGuidance');
+  const condensateList = getPipeworkLabels('condensate');
+  const dischargeList = getPipeworkLabels('discharge');
+  const waterServicesList = getPipeworkLabels('waterServices');
   const upgradeList = SYSTEM_UPGRADE_OPTIONS.reduce((list, option) => {
     const count = state.systemUpgrades.get(option.id) || 0;
     if (count > 0) {
@@ -763,6 +1135,14 @@ function updateSummary() {
   const cylinderList = CYLINDER_OPTIONS.filter(option => state.cylinderSelections.has(option.id)).map(option => labelLookup.get(option.id));
   const controlList = CONTROL_OPTIONS.filter(option => state.customerControls.has(option.id)).map(option => labelLookup.get(option.id));
   const disruptionList = Array.from(state.disruptionRooms).map(id => labelLookup.get(id));
+  const liftList = Array.from(state.liftItems).map(id => labelLookup.get(id));
+  const permissionList = Array.from(state.permissions).map(id => labelLookup.get(id));
+  const hazardList = Array.from(state.hazards).map(id => labelLookup.get(id));
+  const disruptionNotesList = Array.from(state.disruptionNotes).map(id => labelLookup.get(id));
+  const customerActionList = CUSTOMER_ACTION_OPTIONS.filter(option => state.customerActions.has(option.id)).map(option => labelLookup.get(option.id));
+  const awarenessList = AWARENESS_SECTIONS.flatMap(section =>
+    section.options.filter(option => state.awarenessNotes.has(option.id)).map(option => labelLookup.get(option.id))
+  );
   summaryList.innerHTML = '';
 
   const summaryItems = [
@@ -803,8 +1183,36 @@ function updateSummary() {
       value: makingGoodList.length ? makingGoodList.join(', ') : 'Not recorded'
     },
     {
+      label: 'Gas supply',
+      value: gasSupplyList.length ? gasSupplyList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Gas meter',
+      value: meterTypeList.length ? meterTypeList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Gas route complexity',
+      value: routeComplexityList.length ? routeComplexityList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Gas notes',
+      value: gasNotesList.length ? gasNotesList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Gas guidance',
+      value: gasGuidanceList.length ? gasGuidanceList.join(', ') : 'Not recorded'
+    },
+    {
       label: 'Condensate works',
       value: condensateList.length ? condensateList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Discharge route',
+      value: dischargeList.length ? dischargeList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Water services',
+      value: waterServicesList.length ? waterServicesList.join(', ') : 'Not recorded'
     },
     {
       label: 'System upgrade works',
@@ -825,6 +1233,30 @@ function updateSummary() {
     {
       label: 'Disruption zones',
       value: disruptionList.length ? disruptionList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Double-handed lifts',
+      value: liftList.length ? liftList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Permissions',
+      value: permissionList.length ? permissionList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Site hazards',
+      value: hazardList.length ? hazardList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Disruption notes',
+      value: disruptionNotesList.length ? disruptionNotesList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Customer actions',
+      value: customerActionList.length ? customerActionList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Awareness notes',
+      value: awarenessList.length ? awarenessList.join(', ') : 'Not recorded'
     }
   ];
 
@@ -833,6 +1265,180 @@ function updateSummary() {
     li.innerHTML = `<strong>${item.label}</strong><span>${item.value}</span>`;
     summaryList.appendChild(li);
   });
+
+  persistOutputState({
+    accessList,
+    gasSupplyList,
+    meterTypeList,
+    routeComplexityList,
+    gasNotesList,
+    gasGuidanceList,
+    condensateList,
+    dischargeList,
+    waterServicesList,
+    upgradeList,
+    cylinderList,
+    controlList,
+    routeList,
+    disruptionList,
+    liftList,
+    permissionList,
+    hazardList,
+    disruptionNotesList,
+    customerActionList,
+    awarenessList,
+    makingGoodList
+  });
+}
+
+function persistOutputState(precomputedLists) {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return;
+  }
+  try {
+    const payload = buildOutputPayload(precomputedLists);
+    window.localStorage.setItem('survey-output', JSON.stringify(payload));
+  } catch (error) {
+    console.warn('Failed to persist survey output', error);
+  }
+}
+
+function buildOutputPayload(lists) {
+  const {
+    accessList,
+    gasSupplyList,
+    meterTypeList,
+    routeComplexityList,
+    gasNotesList,
+    gasGuidanceList,
+    condensateList,
+    dischargeList,
+    waterServicesList,
+    upgradeList,
+    cylinderList,
+    controlList,
+    routeList,
+    disruptionList,
+    liftList,
+    permissionList,
+    hazardList,
+    disruptionNotesList,
+    customerActionList,
+    awarenessList,
+    makingGoodList
+  } = lists;
+
+  const workingAtHeights = accessList.filter(Boolean);
+  const componentsAssistance = liftList.filter(Boolean);
+  const restrictions = permissionList.filter(Boolean);
+  const hazards = hazardList.filter(Boolean);
+
+  const systemCharacteristics = [];
+  if (state.boilerType) {
+    systemCharacteristics.push(`Existing boiler: ${labelLookup.get(state.boilerType)}`);
+  }
+  if (condensateList.length) {
+    systemCharacteristics.push(`Condensate works: ${condensateList.join(', ')}`);
+  }
+  if (customerActionList.length) {
+    systemCharacteristics.push(`Customer actions: ${customerActionList.join(', ')}`);
+  }
+  if (awarenessList.length) {
+    systemCharacteristics.push(`Awareness notes: ${awarenessList.join(', ')}`);
+  }
+
+  const upgradeDetails = upgradeList.length ? `System upgrades: ${upgradeList.join(', ')}` : null;
+  const cylinderDetails = cylinderList.length ? `Cylinder works: ${cylinderList.join(', ')}` : null;
+  const controlDetails = controlList.length ? `Controls: ${controlList.join(', ')}` : null;
+
+  const newBoilerAndControls = [];
+  if (state.location) {
+    newBoilerAndControls.push(`Existing boiler location: ${labelLookup.get(state.location)}`);
+  }
+  if (state.newBoilerLocation) {
+    newBoilerAndControls.push(`New boiler location: ${labelLookup.get(state.newBoilerLocation)}`);
+  }
+  if (state.newBoilerType) {
+    newBoilerAndControls.push(`New boiler type: ${labelLookup.get(state.newBoilerType)}`);
+  }
+  if (upgradeDetails) {
+    newBoilerAndControls.push(upgradeDetails);
+  }
+  if (cylinderDetails) {
+    newBoilerAndControls.push(cylinderDetails);
+  }
+  if (controlDetails) {
+    newBoilerAndControls.push(controlDetails);
+  }
+
+  const flue = [];
+  if (state.flueType) {
+    flue.push(`Existing flue type: ${labelLookup.get(state.flueType)}`);
+  }
+  if (state.flueExit) {
+    flue.push(`Flue exit point: ${labelLookup.get(state.flueExit)}`);
+  }
+  if (state.newFlueDirection) {
+    flue.push(`New flue direction: ${labelLookup.get(state.newFlueDirection)}`);
+  }
+  if (makingGoodList.length) {
+    flue.push(`Making good: ${makingGoodList.join(', ')}`);
+  }
+  if (routeList.length) {
+    flue.push(`Route fittings: ${routeList.join(' → ')}`);
+  }
+
+  const pipeWork = [];
+  if (gasSupplyList.length) {
+    pipeWork.push(`Gas supply: ${gasSupplyList.join(', ')}`);
+  }
+  if (meterTypeList.length) {
+    pipeWork.push(`Meter type: ${meterTypeList.join(', ')}`);
+  }
+  if (routeComplexityList.length) {
+    pipeWork.push(`Route complexity: ${routeComplexityList.join(', ')}`);
+  }
+  if (gasNotesList.length) {
+    pipeWork.push(`Gas notes: ${gasNotesList.join(', ')}`);
+  }
+  if (gasGuidanceList.length) {
+    pipeWork.push(`Gas guidance: ${gasGuidanceList.join(', ')}`);
+  }
+  if (condensateList.length) {
+    pipeWork.push(`Condensate: ${condensateList.join(', ')}`);
+  }
+  if (dischargeList.length) {
+    pipeWork.push(`Discharge: ${dischargeList.join(', ')}`);
+  }
+  if (waterServicesList.length) {
+    pipeWork.push(`Water services: ${waterServicesList.join(', ')}`);
+  }
+
+  const disruption = [];
+  if (disruptionNotesList.length) {
+    disruption.push(`General: ${disruptionNotesList.join(', ')}`);
+  }
+  if (disruptionList.length) {
+    disruption.push(`Areas: ${disruptionList.join(', ')}`);
+  }
+
+  const restrictionsWithMessage = [];
+  if (restrictions.length) {
+    restrictionsWithMessage.push(restrictions.join(', '));
+  }
+  restrictionsWithMessage.push('It is the customers responsibility to ensure these permissions are granted.');
+
+  return {
+    workingAtHeights,
+    systemCharacteristics,
+    componentsAssistance,
+    restrictions: restrictionsWithMessage,
+    hazards,
+    newBoilerAndControls,
+    flue,
+    pipeWork,
+    disruption
+  };
 }
 
 function resetSurvey() {
@@ -845,11 +1451,17 @@ function resetSurvey() {
   state.newBoilerType = '';
   state.newFlueDirection = '';
   state.makingGood.clear();
-  state.condensateRoutes.clear();
+  Object.values(state.pipework).forEach(set => set.clear());
   state.systemUpgrades.clear();
   state.cylinderSelections.clear();
   state.customerControls.clear();
   state.disruptionRooms.clear();
+  state.liftItems.clear();
+  state.permissions.clear();
+  state.hazards.clear();
+  state.disruptionNotes.clear();
+  state.customerActions.clear();
+  state.awarenessNotes.clear();
   state.flueRoute = [];
   document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
     input.checked = false;
@@ -859,10 +1471,16 @@ function resetSurvey() {
   syncHotspots(document.getElementById('newHouseHotspots'), state.newBoilerLocation);
   syncHotspotMulti(document.getElementById('disruptionHotspots'), state.disruptionRooms);
   document.querySelectorAll('.choice-group').forEach(group => syncChoiceTiles(group, ''));
-  syncCheckboxTiles(document.getElementById('condensateChoices'), state.condensateRoutes);
   syncCheckboxTiles(document.getElementById('makingGoodChoices'), state.makingGood);
   syncCheckboxTiles(document.getElementById('cylinderChoices'), state.cylinderSelections);
   syncCheckboxTiles(document.getElementById('controlChoices'), state.customerControls);
+  renderPipeworkSections();
+  renderLiftOptions();
+  renderPermissionOptions();
+  renderHazardOptions();
+  renderDisruptionLevels();
+  renderCustomerActionOptions();
+  renderAwarenessSections();
   syncSystemUpgradeCards();
   updateFlueBuilder();
   updateSummary();
