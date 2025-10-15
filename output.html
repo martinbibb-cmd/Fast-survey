@@ -108,5 +108,110 @@
   </div>
 
   <script src="output.js" type="module"></script>
+  <!-- Depot Router: paste near </body> -->
+  <script>
+  /* ==== SECTION TARGETS (edit IDs if your page uses different ones) ==== */
+  const SECTION_TARGETS = {
+    needs:                 '#copy-needs',
+    wah:                   '#copy-wah',
+    systemCharacteristics: '#copy-system-characteristics',
+    arseCoverNotes:        '#copy-arse-cover-notes',
+    componentsAssist:      '#copy-components-assistance',
+    restrictions:          '#copy-restrictions',
+    externalHazards:       '#copy-external-hazards',
+    delivery:              '#copy-delivery',
+    office:                '#copy-office',
+    newBoilerControls:     '#copy-new-boiler-controls',
+    flue:                  '#copy-flue',
+    pipeWork:              '#copy-pipe-work',
+    disruption:            '#copy-disruption',
+    customerActions:       '#copy-customer-actions'
+  };
+
+  /* ==== PREFIX ROUTING RULES ==== */
+  const PREFIX_TO_SECTION = [
+    [/^NE\d+/i,                        'needs'],
+    [/^WAH\d+/i,                       'wah'],
+    [/^(SE|SN)\d+/i,                   'systemCharacteristics'], // SE/SN -> System Characteristics
+    [/^SC(5\d)\b/i,                    'systemCharacteristics'], // SC50..SC60 -> System Characteristics
+    [/^ARS\d+/i,                       'arseCoverNotes'],
+    [/^CS\d+/i,                        'componentsAssist'],
+    [/^SR\d+/i,                        'restrictions'],
+    [/^(EH|ASB|HAZ)\d+/i,              'externalHazards'],
+    [/^DL\d+/i,                        'delivery'],
+    [/^OA\d+/i,                        'office'],
+    [/^(BLC|BT|BOIL|UC|CYL|SC0|CB)\d*/i,'newBoilerControls'],   // SC0x (system_config) goes here
+    [/^(FMG|FN|FLU)\d+/i,              'flue'],
+    [/^(GR|GAS|CD|DS|WS)\d+/i,         'pipeWork'],
+    [/^(PF|CE|RD|DI)\d+/i,             'disruption'],
+    [/^CA\d+/i,                        'customerActions']
+  ];
+
+  function resolveSectionForCode(code){
+    for (const [re, section] of PREFIX_TO_SECTION) if (re.test(code)) return section;
+    return null;
+  }
+
+  function getSelectedOptions(){
+    return Array.from(document.querySelectorAll('input.opt[type="checkbox"]:checked')).map(el=>{
+      const code = (el.dataset.code||'').trim();
+      let text   = (el.dataset.text||'').trim();
+      if (!text){
+        const lbl = el.closest('label') || document.querySelector(`label[for="${el.id}"]`);
+        text = lbl ? lbl.textContent.trim() : '';
+        if (code && text.startsWith(code)) text = text.replace(code,'').replace(/^[\s|\-–—:]+/,'').trim();
+      }
+      return code && text ? {code,text} : null;
+    }).filter(Boolean);
+  }
+
+  function buildLines(items){ return items.map(({code,text})=>`↘️ ${code} | ${text};`).join('\n'); }
+
+  function writeTo(selector, text, {append=false}={}){
+    const el = document.querySelector(selector);
+    if (!el) return;
+    el.value = append && el.value ? el.value.replace(/\s*$/,'') + '\n' + text : text;
+  }
+
+  function routeSelectionsToSections({append=false}={}){
+    const buckets = {};
+    for (const sel of getSelectedOptions()){
+      const section = resolveSectionForCode(sel.code);
+      if (!section) continue;
+      (buckets[section] ||= []).push(sel);
+    }
+    for (const [key, selector] of Object.entries(SECTION_TARGETS)){
+      const items = buckets[key] || [];
+      writeTo(selector, items.length ? buildLines(items) : '', {append});
+    }
+  }
+
+  /* Optional helpers: copy one / copy all */
+  function copySelector(selector){
+    const el = document.querySelector(selector); if(!el) return;
+    el.select(); el.setSelectionRange(0, el.value.length); document.execCommand('copy');
+  }
+  function copyAllSections(){
+    const text = Object.values(SECTION_TARGETS).map(sel=>{
+      const el = document.querySelector(sel); return el ? el.value.trim() : '';
+    }).filter(Boolean).join('\n');
+    const ta = document.createElement('textarea'); ta.style.position='fixed'; ta.style.opacity='0';
+    ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+  }
+
+  /* Wire buttons if present */
+  function initDepotRouter(){
+    const sendBtn = document.querySelector('#send-to-sections');
+    if (sendBtn) sendBtn.addEventListener('click', ()=>routeSelectionsToSections({append:false}));
+    const sendAppendBtn = document.querySelector('#send-to-sections-append');
+    if (sendAppendBtn) sendAppendBtn.addEventListener('click', ()=>routeSelectionsToSections({append:true}));
+    document.querySelectorAll('[data-copy-target]').forEach(btn=>{
+      btn.addEventListener('click', ()=>copySelector(btn.getAttribute('data-copy-target')));
+    });
+    const copyAllBtn = document.querySelector('#copy-all-sections');
+    if (copyAllBtn) copyAllBtn.addEventListener('click', copyAllSections);
+  }
+  document.readyState==='loading' ? document.addEventListener('DOMContentLoaded', initDepotRouter) : initDepotRouter();
+  </script>
 </body>
 </html>
