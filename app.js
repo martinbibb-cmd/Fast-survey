@@ -631,6 +631,9 @@ const labelLookup = new Map([
 let stepSections = [];
 let stepNavButtons = [];
 let currentStepIndex = 0;
+let stepProgressLabel = null;
+let prevStepButton = null;
+let nextStepButton = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   renderAccessOptions();
@@ -1353,6 +1356,22 @@ function initStepNavigation() {
     return;
   }
 
+  prevStepButton = document.getElementById('prevStep');
+  nextStepButton = document.getElementById('nextStep');
+  stepProgressLabel = document.getElementById('stepProgressLabel');
+
+  if (prevStepButton) {
+    prevStepButton.addEventListener('click', () => {
+      showStep(currentStepIndex - 1);
+    });
+  }
+
+  if (nextStepButton) {
+    nextStepButton.addEventListener('click', () => {
+      showStep(currentStepIndex + 1);
+    });
+  }
+
   shortcutList.innerHTML = '';
   stepNavButtons = stepSections.map((section, index) => {
     const listItem = document.createElement('li');
@@ -1377,7 +1396,26 @@ function initStepNavigation() {
     return button;
   });
 
-  showStep(currentStepIndex, { scroll: false, focus: false });
+  const initialHash = window.location.hash.replace(/^#/, '');
+  if (initialHash) {
+    const initialIndex = stepSections.findIndex(section => section.id === initialHash);
+    if (initialIndex >= 0) {
+      currentStepIndex = initialIndex;
+    }
+  }
+
+  showStep(currentStepIndex, { scroll: false, focus: false, smooth: false });
+
+  window.addEventListener('hashchange', () => {
+    const hash = window.location.hash.replace(/^#/, '');
+    if (!hash) {
+      return;
+    }
+    const targetIndex = stepSections.findIndex(section => section.id === hash);
+    if (targetIndex >= 0 && targetIndex !== currentStepIndex) {
+      showStep(targetIndex, { scroll: false, focus: false, smooth: false });
+    }
+  });
 }
 
 function showStep(index, options = {}) {
@@ -1386,7 +1424,8 @@ function showStep(index, options = {}) {
   }
 
   const { scroll = true, focus = true, smooth = true } = options;
-  currentStepIndex = Math.max(0, Math.min(index, stepSections.length - 1));
+  const targetIndex = Math.max(0, Math.min(index, stepSections.length - 1));
+  currentStepIndex = targetIndex;
 
   stepSections.forEach((section, idx) => {
     const isActive = idx === currentStepIndex;
@@ -1420,6 +1459,31 @@ function showStep(index, options = {}) {
   const activeSection = stepSections[currentStepIndex];
   if (!activeSection) {
     return;
+  }
+
+  if (stepProgressLabel) {
+    stepProgressLabel.textContent = `Step ${currentStepIndex + 1} of ${stepSections.length}`;
+  }
+
+  if (prevStepButton) {
+    prevStepButton.disabled = currentStepIndex === 0;
+  }
+
+  if (nextStepButton) {
+    const isLastStep = currentStepIndex === stepSections.length - 1;
+    nextStepButton.disabled = isLastStep;
+    nextStepButton.textContent = isLastStep ? 'Survey complete' : 'Next step';
+  }
+
+  if (activeSection.id) {
+    const newHash = `#${activeSection.id}`;
+    if (window.location.hash !== newHash) {
+      if (window.history && typeof window.history.replaceState === 'function') {
+        window.history.replaceState(null, '', newHash);
+      } else {
+        window.location.hash = newHash;
+      }
+    }
   }
 
   if (scroll) {
