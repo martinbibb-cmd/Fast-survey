@@ -1,0 +1,20 @@
+{
+  "notes": {
+    "convert_to_sealed": "System will be converted from open vent to sealed.",
+    "keep_open_vent": "System remains open vented with existing feed and expansion tanks retained.",
+    "remove_fe_tanks": "Remove feed and expansion tanks and cap redundant pipework.",
+    "dhw_now_mains": "Hot water will be mains pressure; confirm compatibility of showers and taps.",
+    "remove_shower_pumps": "Remove any shower pumps; not suitable for pressurised systems.",
+    "g3_req": "Unvented cylinder installation to be completed by a G3-certified engineer; provide discharge pipework and tundish as per Building Regulations.",
+    "remove_vented_cyl": "Remove vented cylinder and associated cold water storage.",
+    "retain_vented_cyl": "Retain vented cylinder and cold water storage; check condition and insulation.",
+    "retain_unvented": "Retain existing unvented cylinder; confirm annual service and verify discharge/mixing arrangements.",
+    "no_replacement_cyl": "No replacement cylinder required (combi upgrade).",
+    "install_unvented": "Install unvented cylinder with pressure reducing valve and compliant discharge to outside.",
+    "fanned_horizontal": "Install fanned horizontal flue to manufacturer instructions.",
+    "fanned_vertical": "Install fanned vertical flue through roof with approved flashing kit.",
+    "terminal_clearances": "Ensure flue terminal clearances comply with BS 5440.",
+    "plume_kit": "Add plume kit with extensions or elbows as required.",
+    "no_plume_needed": "Standard terminal only; plume kit not required."
+  }
+}
