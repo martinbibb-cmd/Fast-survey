@@ -1700,7 +1700,9 @@ function updateSummary() {
     newBoilerAndControls: buildOutputText(formatBulletList(newBoilerLines), 'No items recorded.'),
     flue: buildOutputText(formatBulletList(flueLines), 'No items recorded.'),
     pipework: buildOutputText(formatSectionedList(pipeworkSections), 'No items recorded.'),
-    disruption: buildOutputText(formatSectionedList(disruptionSections), 'No items recorded.')
+    disruption: buildOutputText(formatSectionedList(disruptionSections), 'No items recorded.'),
+    customerAgreedActions: buildOutputText(formatBulletList(customerActionList), 'No items recorded.'),
+    additional: buildOutputText(formatSectionedList(awarenessSections), 'No items recorded.')
   };
 
   persistOutputState(outputPayload);
