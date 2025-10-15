@@ -212,6 +212,51 @@ const MAKING_GOOD_OPTIONS = [
   }
 ];
 
+const BUILDING_WORK_OPTIONS = [
+  {
+    id: 'BW01',
+    code: 'BW01',
+    label: 'Fanned flue – same hole',
+    description: 'Re-use existing opening with minimal making good.'
+  },
+  {
+    id: 'BW02',
+    code: 'BW02',
+    label: 'Fanned flue – remodelling required',
+    description: 'Alter surrounding finishes to suit the new fanned flue.'
+  },
+  {
+    id: 'BW03',
+    code: 'BW03',
+    label: 'Fanned flue – new position',
+    description: 'Form a new opening to relocate the flue termination.'
+  },
+  {
+    id: 'BW04',
+    code: 'BW04',
+    label: 'Balanced changed to fanned – engineer to provide bricks',
+    description: 'Engineer to supply bricks for infilling the old balanced flue.'
+  },
+  {
+    id: 'BW05',
+    code: 'BW05',
+    label: 'Balanced to fanned – customer provide bricks',
+    description: 'Customer to supply bricks while converting from balanced to fanned.'
+  },
+  {
+    id: 'BW06',
+    code: 'BW06',
+    label: 'Specialist builder (3)',
+    description: 'Specialist builder attendance – three visits or days.'
+  },
+  {
+    id: 'BW07',
+    code: 'BW07',
+    label: 'Specialist builder (5)',
+    description: 'Specialist builder attendance – five visits or days.'
+  }
+];
+
 const CYLINDER_OPTIONS = [
   { id: 'CY01', code: 'CY01', label: 'Replace', description: 'Cylinder to be replaced' },
   { id: 'CY02', code: 'CY02', label: 'Retain', description: 'Retain existing cylinder' },
@@ -288,6 +333,7 @@ const state = {
   newBoilerType: '',
   newFlueDirection: '',
   makingGood: new Set(),
+  buildingWork: new Set(),
   condensateRoutes: new Set(),
   systemUpgrades: new Map(),
   cylinderSelections: new Set(),
@@ -305,6 +351,7 @@ const labelLookup = new Map([
   ...NEW_FLUE_DIRECTIONS.map(option => [option.id, option.label]),
   ...LOCATION_SPOTS.map(option => [option.id, option.label]),
   ...MAKING_GOOD_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}: ${option.description}`]),
+  ...BUILDING_WORK_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}: ${option.description}`]),
   ...CONDENSATE_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}: ${option.description}`]),
   ...SYSTEM_UPGRADE_OPTIONS.map(option => [option.id, option.label]),
   ...CYLINDER_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}`]),
@@ -320,6 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderNewBoilerOptions();
   renderNewFlueDirections();
   renderMakingGoodOptions();
+  renderBuildingWorkOptions();
   renderCondensateOptions();
   renderSystemUpgradeOptions();
   renderCylinderOptions();
@@ -407,6 +455,25 @@ function renderMakingGoodOptions() {
     container.appendChild(tile);
   });
   syncCheckboxTiles(container, state.makingGood);
+}
+
+function renderBuildingWorkOptions() {
+  const container = document.getElementById('buildingWorkChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  BUILDING_WORK_OPTIONS.forEach(option => {
+    const tile = createCheckboxTile('building-work', option, (optionId, isSelected) => {
+      if (isSelected) {
+        state.buildingWork.add(optionId);
+      } else {
+        state.buildingWork.delete(optionId);
+      }
+      syncCheckboxTiles(container, state.buildingWork);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+  syncCheckboxTiles(container, state.buildingWork);
 }
 
 function renderNewBoilerOptions() {
@@ -748,6 +815,7 @@ function updateSummary() {
     return component ? component.label : id;
   });
   const makingGoodList = MAKING_GOOD_OPTIONS.filter(option => state.makingGood.has(option.id)).map(option => labelLookup.get(option.id));
+  const buildingWorkList = BUILDING_WORK_OPTIONS.filter(option => state.buildingWork.has(option.id)).map(option => labelLookup.get(option.id));
   const condensateList = CONDENSATE_OPTIONS.filter(option => state.condensateRoutes.has(option.id)).map(option => labelLookup.get(option.id));
   const upgradeList = SYSTEM_UPGRADE_OPTIONS.reduce((list, option) => {
     const count = state.systemUpgrades.get(option.id) || 0;
@@ -803,6 +871,10 @@ function updateSummary() {
       value: makingGoodList.length ? makingGoodList.join(', ') : 'Not recorded'
     },
     {
+      label: 'Building work & making good',
+      value: buildingWorkList.length ? buildingWorkList.join(', ') : 'Not recorded'
+    },
+    {
       label: 'Condensate works',
       value: condensateList.length ? condensateList.join(', ') : 'Not recorded'
     },
@@ -845,6 +917,7 @@ function resetSurvey() {
   state.newBoilerType = '';
   state.newFlueDirection = '';
   state.makingGood.clear();
+  state.buildingWork.clear();
   state.condensateRoutes.clear();
   state.systemUpgrades.clear();
   state.cylinderSelections.clear();
@@ -861,6 +934,7 @@ function resetSurvey() {
   document.querySelectorAll('.choice-group').forEach(group => syncChoiceTiles(group, ''));
   syncCheckboxTiles(document.getElementById('condensateChoices'), state.condensateRoutes);
   syncCheckboxTiles(document.getElementById('makingGoodChoices'), state.makingGood);
+  syncCheckboxTiles(document.getElementById('buildingWorkChoices'), state.buildingWork);
   syncCheckboxTiles(document.getElementById('cylinderChoices'), state.cylinderSelections);
   syncCheckboxTiles(document.getElementById('controlChoices'), state.customerControls);
   syncSystemUpgradeCards();
