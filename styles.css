@@ -107,6 +107,64 @@ button {
   gap: 1.75rem;
 }
 
+.step-pager {
+  margin-top: 0.5rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--panel-bg);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.step-progress {
+  font-weight: 600;
+  color: var(--muted);
+  margin: 0;
+}
+
+.step-pager-button {
+  border-radius: 999px;
+  padding: 0.7rem 1.6rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.step-pager-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.step-pager-button.is-prev {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.step-pager-button.is-prev:hover,
+.step-pager-button.is-prev:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+  outline: none;
+}
+
+.step-pager-button.is-next {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: #fff;
+  box-shadow: 0 14px 32px rgba(37, 99, 235, 0.25);
+}
+
+.step-pager-button.is-next:hover,
+.step-pager-button.is-next:focus-visible {
+  box-shadow: 0 16px 36px rgba(37, 99, 235, 0.3);
+  outline: none;
+}
+
 .step-nav {
   background: var(--panel-bg);
   border-radius: 20px;
@@ -758,6 +816,10 @@ button {
 
   .step-nav {
     position: static;
+    order: -1;
+  }
+
+  .step-pager {
     order: -1;
   }
 
