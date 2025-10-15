@@ -13,7 +13,10 @@
         <span class="brand-mark" aria-hidden="true">🔥</span>
         <h1>Heating Survey Planner</h1>
       </div>
-      <button class="ghost" id="resetSelections" type="button">Reset survey</button>
+      <div class="top-actions">
+        <a class="ghost" href="output.html" target="_blank" rel="noopener">Open output page</a>
+        <button class="ghost" id="resetSelections" type="button">Reset survey</button>
+      </div>
     </header>
 
     <main class="content">
@@ -234,6 +237,98 @@
         <div class="house-scene">
           <div class="house-illustration" id="disruptionHotspots" role="group" aria-labelledby="disruptionHeading"></div>
         </div>
+      </section>
+
+      <section class="panel" aria-labelledby="doubleLiftHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 15</p>
+            <h2 id="doubleLiftHeading">Double handed lift items</h2>
+          </div>
+          <p class="panel-hint">Select every component that requires two-person lifting.</p>
+        </div>
+        <fieldset class="fieldset" aria-labelledby="doubleLiftHeading">
+          <legend>Components requiring assistance</legend>
+          <div class="choice-group" id="doubleLiftChoices" role="group" aria-labelledby="doubleLiftHeading"></div>
+        </fieldset>
+      </section>
+
+      <section class="panel" aria-labelledby="permissionHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 16</p>
+            <h2 id="permissionHeading">Permissions</h2>
+          </div>
+          <p class="panel-hint">Note all permissions required before works can begin.</p>
+        </div>
+        <fieldset class="fieldset" aria-labelledby="permissionHeading">
+          <legend>Permissions needed</legend>
+          <div class="choice-group" id="permissionChoices" role="group" aria-labelledby="permissionHeading"></div>
+        </fieldset>
+      </section>
+
+      <section class="panel" aria-labelledby="hazardHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 17</p>
+            <h2 id="hazardHeading">Hazards</h2>
+          </div>
+          <p class="panel-hint">Highlight potential hazards that engineers must plan for.</p>
+        </div>
+        <fieldset class="fieldset" aria-labelledby="hazardHeading">
+          <legend>On-site hazards</legend>
+          <div class="choice-group" id="hazardChoices" role="group" aria-labelledby="hazardHeading"></div>
+        </fieldset>
+      </section>
+
+      <section class="panel" aria-labelledby="pipeworkHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 18</p>
+            <h2 id="pipeworkHeading">Pipe work requirements</h2>
+          </div>
+          <p class="panel-hint">Record gas supply, routing, and commissioning notes.</p>
+        </div>
+        <div class="sectioned-fieldsets" id="pipeworkSections" role="group" aria-labelledby="pipeworkHeading"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="disruptionCodesHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 19</p>
+            <h2 id="disruptionCodesHeading">Disruption requirements</h2>
+          </div>
+          <p class="panel-hint">Select all preparation and protection measures required.</p>
+        </div>
+        <fieldset class="fieldset" aria-labelledby="disruptionCodesHeading">
+          <legend>Disruption notes</legend>
+          <div class="choice-group" id="disruptionCodeChoices" role="group" aria-labelledby="disruptionCodesHeading"></div>
+        </fieldset>
+      </section>
+
+      <section class="panel" aria-labelledby="customerActionsHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 20</p>
+            <h2 id="customerActionsHeading">Customer actions</h2>
+          </div>
+          <p class="panel-hint">Document actions the customer must complete ahead of installation.</p>
+        </div>
+        <fieldset class="fieldset" aria-labelledby="customerActionsHeading">
+          <legend>Customer responsibilities</legend>
+          <div class="choice-group" id="customerActionChoices" role="group" aria-labelledby="customerActionsHeading"></div>
+        </fieldset>
+      </section>
+
+      <section class="panel" aria-labelledby="awarenessHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 21</p>
+            <h2 id="awarenessHeading">Things to be aware of</h2>
+          </div>
+          <p class="panel-hint">Share key advisories and expectations with the customer.</p>
+        </div>
+        <div class="sectioned-fieldsets" id="awarenessSections" role="group" aria-labelledby="awarenessHeading"></div>
       </section>
     </main>
 

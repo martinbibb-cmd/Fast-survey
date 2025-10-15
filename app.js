@@ -275,6 +275,252 @@ const CONTROL_OPTIONS = [
   { id: 'CC06', code: 'CC06', label: 'Cylinder stat', description: 'Cylinder thermostat' }
 ];
 
+const DOUBLE_LIFT_OPTIONS = [
+  { id: 'double-none', label: 'None' },
+  { id: 'double-old-boiler', label: 'Old boiler' },
+  { id: 'double-new-boiler', label: 'New boiler' },
+  { id: 'double-cylinder', label: 'Cylinder' },
+  { id: 'double-heavy-rads', label: 'Heavy rads' },
+  { id: 'double-boiler-loft', label: 'Boiler in loft' }
+];
+
+const PERMISSION_OPTIONS = [
+  { id: 'perm-none', label: 'None' },
+  { id: 'perm-flat', label: 'Flat' },
+  { id: 'perm-listen', label: 'Listen' },
+  { id: 'perm-conservation', label: 'Conservation area' },
+  { id: 'perm-gated-community', label: 'Gated community' }
+];
+
+const HAZARD_OPTIONS = [
+  { id: 'haz-dogs', label: 'Dogs' },
+  { id: 'haz-other-pets', label: 'Other pets' },
+  { id: 'haz-clutter', label: 'Clutter' },
+  { id: 'haz-hygiene', label: 'Hygiene issues' },
+  { id: 'haz-animal-mess', label: 'Animal mess' },
+  { id: 'haz-nesting-insects', label: 'Nesting insects' },
+  { id: 'haz-uneven-ground', label: 'Uneven ground' },
+  { id: 'haz-small-spaces', label: 'Small working spaces' }
+];
+
+const PIPEWORK_SECTIONS = [
+  {
+    id: 'gas-supply',
+    label: 'Gas supply',
+    options: [
+      { id: 'GR01', code: 'GR01', label: 'Upgrade to 22 mm' },
+      { id: 'GR02', code: 'GR02', label: 'Tightness test pass required' },
+      { id: 'GR03', code: 'GR03', label: 'Meter location restricts route' },
+      { id: 'GR04', code: 'GR04', label: 'Internal reroute' },
+      { id: 'GR05', code: 'GR05', label: 'External reroute' }
+    ]
+  },
+  {
+    id: 'meter-type',
+    label: 'Meter type',
+    options: [
+      { id: 'GR06', code: 'GR06', label: 'U6 – inside' },
+      { id: 'GR07', code: 'GR07', label: 'U6 – outside' }
+    ]
+  },
+  {
+    id: 'route-complexity',
+    label: 'Route complexity',
+    options: [
+      { id: 'GR08', code: 'GR08', label: 'Simple / local' },
+      { id: 'GR09', code: 'GR09', label: 'Reuse existing' },
+      { id: 'GR10', code: 'GR10', label: 'Upsize sections for capacity' },
+      { id: 'GR11', code: 'GR11', label: 'Complex (clipping / drilling / routing)' }
+    ]
+  },
+  {
+    id: 'gas-notes',
+    label: 'Gas notes',
+    options: [
+      { id: 'GR12', code: 'GR12', label: 'Replace meter tail lead' },
+      { id: 'GR13', code: 'GR13', label: 'Pressure drop risk over length' }
+    ]
+  },
+  {
+    id: 'gas-pipework',
+    label: 'Gas pipework',
+    options: [
+      {
+        id: 'GAS50',
+        code: 'GAS50',
+        label: 'Rule-of-thumb: ≤28 kW = 22 mm at boiler; >28 kW = 28 mm (check calcs)'
+      }
+    ]
+  },
+  {
+    id: 'gas-compliance',
+    label: 'Gas compliance',
+    options: [
+      {
+        id: 'GAS51',
+        code: 'GAS51',
+        label: 'Max 1 mbar drop from meter to appliance on new installations'
+      }
+    ]
+  },
+  {
+    id: 'gas-meter',
+    label: 'Gas meter',
+    options: [
+      { id: 'GAS52', code: 'GAS52', label: 'U6 ≈ 63 kW max; U16 ≈ 169 kW max (aggregate load awareness)' }
+    ]
+  },
+  {
+    id: 'gas-route',
+    label: 'Gas route',
+    options: [
+      { id: 'GAS53', code: 'GAS53', label: 'Long runs/many bends increase resistance – upsize and minimise fittings' }
+    ]
+  },
+  {
+    id: 'gas-commission',
+    label: 'Gas commission',
+    options: [
+      { id: 'GAS54', code: 'GAS54', label: 'Final pipe size confirmed at commissioning under load with new appliance' }
+    ]
+  }
+];
+
+const PIPEWORK_OPTION_DETAILS = PIPEWORK_SECTIONS.flatMap(section =>
+  section.options.map(option => ({ ...option, section: section.label }))
+);
+const PIPEWORK_DETAIL_LOOKUP = new Map(
+  PIPEWORK_OPTION_DETAILS.map(option => [option.id, option])
+);
+
+const DISRUPTION_CODES = [
+  { id: 'DI01', code: 'DI01', label: 'Disruption', description: 'Minimal' },
+  { id: 'DI02', code: 'DI02', label: 'Disruption', description: 'Moderate – carpets lifted' },
+  { id: 'DI03', code: 'DI03', label: 'Disruption', description: 'High – floors lifted' },
+  { id: 'DI04', code: 'DI04', label: 'Preparation', description: 'Customer to clear areas/routes' },
+  { id: 'DI05', code: 'DI05', label: 'Protection', description: 'Dust protection required' }
+];
+
+const CUSTOMER_ACTIONS = [
+  { id: 'CA01', code: 'CA01', label: 'Customer', description: 'Clear working areas' },
+  { id: 'CA02', code: 'CA02', label: 'Customer', description: 'Gain permission where required' },
+  { id: 'CA03', code: 'CA03', label: 'Customer', description: 'Ensure animals are kept safely' },
+  { id: 'CA04', code: 'CA04', label: 'Customer', description: 'Remove cupboard' },
+  { id: 'CA05', code: 'CA05', label: 'Customer', description: 'Rebuild cupboard' },
+  { id: 'CA06', code: 'CA06', label: 'Customer', description: 'Remove old flue & weather seal' },
+  { id: 'CA07', code: 'CA07', label: 'Customer', description: 'Supply specified items' }
+];
+
+const AWARENESS_SECTIONS = [
+  {
+    id: 'system',
+    label: 'System',
+    options: [
+      { id: 'ARS01', code: 'ARS01', label: 'Sealing an old system may expose hidden leaks' },
+      { id: 'ARS02', code: 'ARS02', label: 'Existing radiators and valves may leak once pressurised' },
+      { id: 'ARS03', code: 'ARS03', label: 'Old vented pipework and joints not designed for pressure' },
+      { id: 'ARS04', code: 'ARS04', label: 'System converted from open vent to sealed — pressure relief valve fitted for safety' },
+      { id: 'ARS05', code: 'ARS05', label: 'Pressure drops after installation may indicate existing weeps or hidden leaks' },
+      { id: 'ARS06', code: 'ARS06', label: 'Customer advised to monitor pressure during initial days of use' },
+      { id: 'ARS07', code: 'ARS07', label: 'No liability for existing system weaknesses or pre-existing faults' }
+    ]
+  },
+  {
+    id: 'combi',
+    label: 'Combi',
+    options: [
+      { id: 'ARS08', code: 'ARS08', label: 'Combination boilers supply one outlet at a time — flow reduces with multiple use' },
+      { id: 'ARS09', code: 'ARS09', label: 'Flow rate limited by mains water supply — cannot exceed incoming pressure or flow' },
+      { id: 'ARS10', code: 'ARS10', label: 'Large households or multiple bathrooms may experience reduced performance' },
+      { id: 'ARS11', code: 'ARS11', label: 'Cold mains restrictions may affect shower performance' },
+      { id: 'ARS12', code: 'ARS12', label: 'Hot water temperature varies slightly with flow rate' },
+      { id: 'ARS13', code: 'ARS13', label: 'Not suitable for power showers with pump — pump must be removed' },
+      { id: 'ARS14', code: 'ARS14', label: 'Shower performance dependent on incoming cold main flow and pressure' }
+    ]
+  },
+  {
+    id: 'hot-water',
+    label: 'Hot water',
+    options: [
+      { id: 'ARS15', code: 'ARS15', label: 'Stored cylinder water may take time to reheat' },
+      { id: 'ARS16', code: 'ARS16', label: 'Mixergy or unvented cylinders require periodic servicing for safety' },
+      { id: 'ARS17', code: 'ARS17', label: 'Unvented cylinder discharge tested and compliant at time of install only' },
+      { id: 'ARS18', code: 'ARS18', label: 'Hot water recovery times vary depending on usage pattern' },
+      { id: 'ARS19', code: 'ARS19', label: 'No liability for customer-supplied fixtures not designed for mains pressure' }
+    ]
+  },
+  {
+    id: 'condensate',
+    label: 'Condensate',
+    options: [
+      { id: 'ARS20', code: 'ARS20', label: 'Condensate routes external — insulated to reduce freezing risk, not guaranteed' },
+      { id: 'ARS21', code: 'ARS21', label: 'External soakaway provided only where suitable drainage available' },
+      { id: 'ARS22', code: 'ARS22', label: 'Customer responsible for maintaining condensate route clear and free-flowing' },
+      { id: 'ARS23', code: 'ARS23', label: 'No responsibility for freezing if installation complies with manufacturer MI' }
+    ]
+  },
+  {
+    id: 'controls',
+    label: 'Controls',
+    options: [
+      { id: 'ARS24', code: 'ARS24', label: 'Controls installed in accordance with manufacturer’s instructions' },
+      { id: 'ARS25', code: 'ARS25', label: 'Hive system can operate without Wi-Fi; only remote app access requires router connection and USB power' },
+      { id: 'ARS26', code: 'ARS26', label: 'Smart controls may require network access for optional app features' },
+      { id: 'ARS27', code: 'ARS27', label: 'No responsibility for internet connectivity or app integration issues' },
+      { id: 'ARS28', code: 'ARS28', label: 'Room stat location based on best judgement at time of survey' }
+    ]
+  },
+  {
+    id: 'flue',
+    label: 'Flue',
+    options: [
+      { id: 'ARS29', code: 'ARS29', label: 'Flue termination checked for clearance at time of install — future obstructions not covered' },
+      { id: 'ARS30', code: 'ARS30', label: 'Brickwork and render made good to reasonable standard, not decorative finish' },
+      { id: 'ARS31', code: 'ARS31', label: 'Flue sealing and flashings weatherproof only — not decorative' },
+      { id: 'ARS32', code: 'ARS32', label: 'Existing holes or redundant flues made safe and sealed where practical' }
+    ]
+  },
+  {
+    id: 'access',
+    label: 'Access',
+    options: [
+      { id: 'ARS33', code: 'ARS33', label: 'Safe access provided for installation only — permanent access is customer responsibility' },
+      { id: 'ARS34', code: 'ARS34', label: 'Loft must be boarded, lit, and safe before works commence' },
+      { id: 'ARS35', code: 'ARS35', label: 'Working at height precautions apply — scaffold or tower may be required' },
+      { id: 'ARS36', code: 'ARS36', label: 'No work above safe height without suitable equipment' }
+    ]
+  },
+  {
+    id: 'customer',
+    label: 'Customer',
+    options: [
+      { id: 'ARS37', code: 'ARS37', label: 'Customer to clear working area and ensure safe access' },
+      { id: 'ARS38', code: 'ARS38', label: 'Pets to be contained during works' },
+      { id: 'ARS39', code: 'ARS39', label: 'Noise, dust, and disruption unavoidable during installation' },
+      { id: 'ARS40', code: 'ARS40', label: 'Water and heating supply may be temporarily unavailable during works' },
+      { id: 'ARS41', code: 'ARS41', label: 'Customer responsible for redecorating or boxing in after completion' }
+    ]
+  },
+  {
+    id: 'general',
+    label: 'General',
+    options: [
+      { id: 'ARS42', code: 'ARS42', label: 'All works carried out to Gas Safe and Building Regs at time of install' },
+      { id: 'ARS43', code: 'ARS43', label: 'Manufacturer warranty subject to annual service' },
+      { id: 'ARS44', code: 'ARS44', label: 'No liability for pre-existing faults or unrelated plumbing issues' },
+      { id: 'ARS45', code: 'ARS45', label: 'Installation performance depends on system design and existing pipework' },
+      { id: 'ARS46', code: 'ARS46', label: 'Recommendations given in good faith based on visible inspection' }
+    ]
+  }
+];
+
+const AWARENESS_OPTION_DETAILS = AWARENESS_SECTIONS.flatMap(section =>
+  section.options.map(option => ({ ...option, section: section.label }))
+);
+const AWARENESS_DETAIL_LOOKUP = new Map(
+  AWARENESS_OPTION_DETAILS.map(option => [option.id, option])
+);
+
 const SYSTEM_UPGRADE_OPTIONS = [
   { id: 'pump', label: 'Pump', type: 'toggle' },
   { id: 'pump-valves', label: 'Pump valves', type: 'toggle' },
@@ -339,6 +585,13 @@ const state = {
   cylinderSelections: new Set(),
   customerControls: new Set(),
   disruptionRooms: new Set(),
+  doubleLiftItems: new Set(),
+  permissions: new Set(),
+  hazards: new Set(),
+  pipework: new Map(PIPEWORK_SECTIONS.map(section => [section.id, new Set()])),
+  disruptionNotes: new Set(),
+  customerActions: new Set(),
+  awarenessSelections: new Map(AWARENESS_SECTIONS.map(section => [section.id, new Set()])),
   flueRoute: []
 };
 
@@ -355,7 +608,14 @@ const labelLookup = new Map([
   ...CONDENSATE_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}: ${option.description}`]),
   ...SYSTEM_UPGRADE_OPTIONS.map(option => [option.id, option.label]),
   ...CYLINDER_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}`]),
-  ...CONTROL_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}`])
+  ...CONTROL_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}`]),
+  ...DOUBLE_LIFT_OPTIONS.map(option => [option.id, option.label]),
+  ...PERMISSION_OPTIONS.map(option => [option.id, option.label]),
+  ...HAZARD_OPTIONS.map(option => [option.id, option.label]),
+  ...PIPEWORK_OPTION_DETAILS.map(option => [option.id, `${option.code} – ${option.section}: ${option.label}`]),
+  ...DISRUPTION_CODES.map(option => [option.id, `${option.code} – ${option.label}: ${option.description}`]),
+  ...CUSTOMER_ACTIONS.map(option => [option.id, `${option.code} – ${option.description}`]),
+  ...AWARENESS_OPTION_DETAILS.map(option => [option.id, `${option.code} – ${option.section}: ${option.label}`])
 ]);
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -372,6 +632,13 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSystemUpgradeOptions();
   renderCylinderOptions();
   renderControlOptions();
+  renderDoubleLiftOptions();
+  renderPermissionOptions();
+  renderHazardOptions();
+  renderPipeworkOptions();
+  renderDisruptionCodeOptions();
+  renderCustomerActionOptions();
+  renderAwarenessOptions();
   renderDisruptionHotspots('disruptionHotspots', 'disruptionRooms');
   initFlueBuilder();
   updateSummary();
@@ -625,6 +892,169 @@ function renderSystemUpgradeOptions() {
   syncSystemUpgradeCards();
 }
 
+function renderDoubleLiftOptions() {
+  const container = document.getElementById('doubleLiftChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  DOUBLE_LIFT_OPTIONS.forEach(option => {
+    const tile = createCheckboxTile('double-lift', option, (optionId, checked) => {
+      toggleSetSelection(state.doubleLiftItems, optionId, checked, 'double-none');
+      syncCheckboxTiles(container, state.doubleLiftItems);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+  syncCheckboxTiles(container, state.doubleLiftItems);
+}
+
+function renderPermissionOptions() {
+  const container = document.getElementById('permissionChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  PERMISSION_OPTIONS.forEach(option => {
+    const tile = createCheckboxTile('permissions', option, (optionId, checked) => {
+      toggleSetSelection(state.permissions, optionId, checked, 'perm-none');
+      syncCheckboxTiles(container, state.permissions);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+  syncCheckboxTiles(container, state.permissions);
+}
+
+function renderHazardOptions() {
+  const container = document.getElementById('hazardChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  HAZARD_OPTIONS.forEach(option => {
+    const tile = createCheckboxTile('hazards', option, (optionId, checked) => {
+      if (checked) {
+        state.hazards.add(optionId);
+      } else {
+        state.hazards.delete(optionId);
+      }
+      syncCheckboxTiles(container, state.hazards);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+  syncCheckboxTiles(container, state.hazards);
+}
+
+function renderPipeworkOptions() {
+  const container = document.getElementById('pipeworkSections');
+  if (!container) return;
+  container.innerHTML = '';
+  PIPEWORK_SECTIONS.forEach(section => {
+    const fieldset = document.createElement('fieldset');
+    fieldset.className = 'fieldset subfieldset';
+    const legend = document.createElement('legend');
+    legend.textContent = section.label;
+    fieldset.appendChild(legend);
+
+    const choiceGroup = document.createElement('div');
+    choiceGroup.className = 'choice-group';
+    choiceGroup.dataset.pipeworkGroup = section.id;
+
+    section.options.forEach(option => {
+      const tile = createCheckboxTile(`pipe-${section.id}`, option, (optionId, checked) => {
+        const sectionSet = state.pipework.get(section.id) || new Set();
+        if (checked) {
+          sectionSet.add(optionId);
+        } else {
+          sectionSet.delete(optionId);
+        }
+        state.pipework.set(section.id, sectionSet);
+        syncCheckboxTiles(choiceGroup, sectionSet);
+        updateSummary();
+      });
+      choiceGroup.appendChild(tile);
+    });
+
+    const sectionSet = state.pipework.get(section.id) || new Set();
+    syncCheckboxTiles(choiceGroup, sectionSet);
+
+    fieldset.appendChild(choiceGroup);
+    container.appendChild(fieldset);
+  });
+}
+
+function renderDisruptionCodeOptions() {
+  const container = document.getElementById('disruptionCodeChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  DISRUPTION_CODES.forEach(option => {
+    const tile = createCheckboxTile('disruption-codes', option, (optionId, checked) => {
+      if (checked) {
+        state.disruptionNotes.add(optionId);
+      } else {
+        state.disruptionNotes.delete(optionId);
+      }
+      syncCheckboxTiles(container, state.disruptionNotes);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+  syncCheckboxTiles(container, state.disruptionNotes);
+}
+
+function renderCustomerActionOptions() {
+  const container = document.getElementById('customerActionChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  CUSTOMER_ACTIONS.forEach(option => {
+    const tile = createCheckboxTile('customer-actions', option, (optionId, checked) => {
+      if (checked) {
+        state.customerActions.add(optionId);
+      } else {
+        state.customerActions.delete(optionId);
+      }
+      syncCheckboxTiles(container, state.customerActions);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+  syncCheckboxTiles(container, state.customerActions);
+}
+
+function renderAwarenessOptions() {
+  const container = document.getElementById('awarenessSections');
+  if (!container) return;
+  container.innerHTML = '';
+  AWARENESS_SECTIONS.forEach(section => {
+    const fieldset = document.createElement('fieldset');
+    fieldset.className = 'fieldset subfieldset';
+    const legend = document.createElement('legend');
+    legend.textContent = section.label;
+    fieldset.appendChild(legend);
+
+    const choiceGroup = document.createElement('div');
+    choiceGroup.className = 'choice-group';
+    choiceGroup.dataset.awarenessGroup = section.id;
+
+    section.options.forEach(option => {
+      const tile = createCheckboxTile(`awareness-${section.id}`, option, (optionId, checked) => {
+        const sectionSet = state.awarenessSelections.get(section.id) || new Set();
+        if (checked) {
+          sectionSet.add(optionId);
+        } else {
+          sectionSet.delete(optionId);
+        }
+        state.awarenessSelections.set(section.id, sectionSet);
+        syncCheckboxTiles(choiceGroup, sectionSet);
+        updateSummary();
+      });
+      choiceGroup.appendChild(tile);
+    });
+
+    const sectionSet = state.awarenessSelections.get(section.id) || new Set();
+    syncCheckboxTiles(choiceGroup, sectionSet);
+
+    fieldset.appendChild(choiceGroup);
+    container.appendChild(fieldset);
+  });
+}
+
 function syncSystemUpgradeCards() {
   const container = document.getElementById('systemUpgradeGrid');
   if (!container) return;
@@ -727,6 +1157,22 @@ function createRadioTile(groupName, option, onSelect) {
   return tile;
 }
 
+function toggleSetSelection(targetSet, optionId, checked, noneOptionId) {
+  if (checked) {
+    if (noneOptionId && optionId === noneOptionId) {
+      targetSet.clear();
+      targetSet.add(optionId);
+    } else {
+      if (noneOptionId) {
+        targetSet.delete(noneOptionId);
+      }
+      targetSet.add(optionId);
+    }
+  } else {
+    targetSet.delete(optionId);
+  }
+}
+
 function createCheckboxTile(groupName, option, onToggle) {
   const tile = document.createElement('div');
   tile.className = 'choice-tile';
@@ -807,6 +1253,41 @@ function syncHotspotMulti(container, selectedSet) {
   });
 }
 
+function formatBulletList(items) {
+  if (!items.length) {
+    return '';
+  }
+  return items.map(item => `• ${item}`).join('\n');
+}
+
+function formatSectionedList(sections) {
+  if (!sections.length) {
+    return '';
+  }
+  return sections
+    .map(section => {
+      const bulletText = formatBulletList(section.items || []);
+      if (!bulletText) {
+        return '';
+      }
+      return `${section.heading}:\n${bulletText}`;
+    })
+    .filter(Boolean)
+    .join('\n\n');
+}
+
+function fallbackText(text, fallback) {
+  return text && text.trim().length ? text : fallback;
+}
+
+function persistOutputState(payload) {
+  try {
+    window.localStorage.setItem('surveyOutput', JSON.stringify(payload));
+  } catch (error) {
+    console.warn('Unable to store survey output', error);
+  }
+}
+
 function updateSummary() {
   const summaryList = document.getElementById('summaryList');
   const accessList = Array.from(state.access).map(id => labelLookup.get(id));
@@ -831,6 +1312,35 @@ function updateSummary() {
   const cylinderList = CYLINDER_OPTIONS.filter(option => state.cylinderSelections.has(option.id)).map(option => labelLookup.get(option.id));
   const controlList = CONTROL_OPTIONS.filter(option => state.customerControls.has(option.id)).map(option => labelLookup.get(option.id));
   const disruptionList = Array.from(state.disruptionRooms).map(id => labelLookup.get(id));
+  const doubleLiftList = Array.from(state.doubleLiftItems).map(id => labelLookup.get(id));
+  const permissionList = Array.from(state.permissions).map(id => labelLookup.get(id));
+  const hazardList = Array.from(state.hazards).map(id => labelLookup.get(id));
+  const pipeworkSections = PIPEWORK_SECTIONS.map(section => {
+    const selected = Array.from(state.pipework.get(section.id) || []);
+    if (!selected.length) {
+      return null;
+    }
+    const items = selected.map(optionId => {
+      const detail = PIPEWORK_DETAIL_LOOKUP.get(optionId);
+      return detail ? `${detail.code} – ${detail.label}` : labelLookup.get(optionId);
+    });
+    return { heading: section.label, items };
+  }).filter(Boolean);
+  const pipeworkSummaryList = pipeworkSections.flatMap(section => section.items.map(item => `${section.heading}: ${item}`));
+  const disruptionCodeList = Array.from(state.disruptionNotes).map(id => labelLookup.get(id));
+  const customerActionList = Array.from(state.customerActions).map(id => labelLookup.get(id));
+  const awarenessSections = AWARENESS_SECTIONS.map(section => {
+    const selected = Array.from(state.awarenessSelections.get(section.id) || []);
+    if (!selected.length) {
+      return null;
+    }
+    const items = selected.map(optionId => {
+      const detail = AWARENESS_DETAIL_LOOKUP.get(optionId);
+      return detail ? `${detail.code} – ${detail.label}` : labelLookup.get(optionId);
+    });
+    return { heading: section.label, items };
+  }).filter(Boolean);
+  const awarenessSummaryList = awarenessSections.flatMap(section => section.items.map(item => `${section.heading}: ${item}`));
   summaryList.innerHTML = '';
 
   const summaryItems = [
@@ -891,6 +1401,34 @@ function updateSummary() {
       value: controlList.length ? controlList.join(', ') : 'Not recorded'
     },
     {
+      label: 'Two-person lift items',
+      value: doubleLiftList.length ? doubleLiftList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Permissions',
+      value: permissionList.length ? permissionList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Hazards',
+      value: hazardList.length ? hazardList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Pipework notes',
+      value: pipeworkSummaryList.length ? pipeworkSummaryList.join(' | ') : 'Not recorded'
+    },
+    {
+      label: 'Disruption requirements',
+      value: disruptionCodeList.length ? disruptionCodeList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Customer actions',
+      value: customerActionList.length ? customerActionList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Awareness items',
+      value: awarenessSummaryList.length ? awarenessSummaryList.join(' | ') : 'Not recorded'
+    },
+    {
       label: 'Flue route fittings',
       value: routeList.length ? routeList.join(' → ') : 'None added'
     },
@@ -905,6 +1443,51 @@ function updateSummary() {
     li.innerHTML = `<strong>${item.label}</strong><span>${item.value}</span>`;
     summaryList.appendChild(li);
   });
+
+  const newBoilerLines = [
+    `Existing boiler location: ${state.location ? labelLookup.get(state.location) : 'Not recorded'}`,
+    `New boiler location: ${state.newBoilerLocation ? labelLookup.get(state.newBoilerLocation) : 'Not recorded'}`,
+    `New boiler type: ${state.newBoilerType ? labelLookup.get(state.newBoilerType) : 'Not recorded'}`,
+    `Condensate works: ${condensateList.length ? condensateList.join(', ') : 'Not recorded'}`,
+    `System upgrades: ${upgradeList.length ? upgradeList.join(', ') : 'Not recorded'}`,
+    `Cylinder works: ${cylinderList.length ? cylinderList.join(', ') : 'Not recorded'}`,
+    `Controls: ${controlList.length ? controlList.join(', ') : 'Not recorded'}`
+  ];
+
+  const flueLines = [
+    `Existing flue type: ${state.flueType ? labelLookup.get(state.flueType) : 'Not recorded'}`,
+    `Flue exit point: ${state.flueExit ? labelLookup.get(state.flueExit) : 'Not recorded'}`,
+    `New flue direction: ${state.newFlueDirection ? labelLookup.get(state.newFlueDirection) : 'Not recorded'}`,
+    `Making good: ${makingGoodList.length ? makingGoodList.join(', ') : 'Not recorded'}`
+  ];
+
+  const disruptionSections = [];
+  if (disruptionCodeList.length) {
+    disruptionSections.push({ heading: 'Requirements', items: disruptionCodeList });
+  }
+  if (disruptionList.length) {
+    disruptionSections.push({ heading: 'Rooms affected', items: disruptionList });
+  }
+
+  const systemCharacteristicsLines = summaryItems.map(item => `${item.label}: ${item.value}`);
+
+  const outputPayload = {
+    workingAtHeights: fallbackText(formatBulletList(accessList), 'No items recorded.'),
+    systemCharacteristics: fallbackText(formatBulletList(systemCharacteristicsLines), 'No items recorded.'),
+    assistanceComponents: fallbackText(formatBulletList(doubleLiftList), 'No items recorded.'),
+    restrictions: (() => {
+      const bulletLines = permissionList.map(item => `• ${item}`);
+      bulletLines.push('• It is the customers responsibility to ensure these permissions are granted');
+      return bulletLines.join('\n');
+    })(),
+    externalHazards: fallbackText(formatBulletList(hazardList), 'No items recorded.'),
+    newBoilerAndControls: fallbackText(formatBulletList(newBoilerLines), 'No items recorded.'),
+    flue: fallbackText(formatBulletList(flueLines), 'No items recorded.'),
+    pipework: fallbackText(formatSectionedList(pipeworkSections), 'No items recorded.'),
+    disruption: fallbackText(formatSectionedList(disruptionSections), 'No items recorded.')
+  };
+
+  persistOutputState(outputPayload);
 }
 
 function resetSurvey() {
@@ -923,6 +1506,13 @@ function resetSurvey() {
   state.cylinderSelections.clear();
   state.customerControls.clear();
   state.disruptionRooms.clear();
+  state.doubleLiftItems.clear();
+  state.permissions.clear();
+  state.hazards.clear();
+  state.pipework.forEach(set => set.clear());
+  state.disruptionNotes.clear();
+  state.customerActions.clear();
+  state.awarenessSelections.forEach(set => set.clear());
   state.flueRoute = [];
   document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
     input.checked = false;
@@ -937,6 +1527,21 @@ function resetSurvey() {
   syncCheckboxTiles(document.getElementById('buildingWorkChoices'), state.buildingWork);
   syncCheckboxTiles(document.getElementById('cylinderChoices'), state.cylinderSelections);
   syncCheckboxTiles(document.getElementById('controlChoices'), state.customerControls);
+  syncCheckboxTiles(document.getElementById('doubleLiftChoices'), state.doubleLiftItems);
+  syncCheckboxTiles(document.getElementById('permissionChoices'), state.permissions);
+  syncCheckboxTiles(document.getElementById('hazardChoices'), state.hazards);
+  syncCheckboxTiles(document.getElementById('disruptionCodeChoices'), state.disruptionNotes);
+  syncCheckboxTiles(document.getElementById('customerActionChoices'), state.customerActions);
+  document.querySelectorAll('[data-pipework-group]').forEach(group => {
+    const sectionId = group.dataset.pipeworkGroup;
+    const sectionSet = state.pipework.get(sectionId) || new Set();
+    syncCheckboxTiles(group, sectionSet);
+  });
+  document.querySelectorAll('[data-awareness-group]').forEach(group => {
+    const sectionId = group.dataset.awarenessGroup;
+    const sectionSet = state.awarenessSelections.get(sectionId) || new Set();
+    syncCheckboxTiles(group, sectionSet);
+  });
   syncSystemUpgradeCards();
   updateFlueBuilder();
   updateSummary();
