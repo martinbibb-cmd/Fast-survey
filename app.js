@@ -158,6 +158,12 @@ const CONDENSATE_OPTIONS = [
     code: 'CD11',
     label: 'Neutraliser',
     description: 'Fitted (where required)'
+  },
+  {
+    id: 'CD12',
+    code: 'CD12',
+    label: 'Soakaway',
+    description: 'Specialist builder installed soak away'
   }
 ];
 
@@ -553,7 +559,9 @@ const LOCATION_SPOTS = [
   { id: 'airing-cupboard', label: 'Airing cupboard', top: 58, left: 65 },
   { id: 'dining-room', label: 'Dining room', top: 72, left: 78 },
   { id: 'bedroom', label: 'Bedroom', top: 42, left: 72 },
-  { id: 'lounge', label: 'Lounge', top: 62, left: 90 }
+  { id: 'lounge', label: 'Lounge', top: 62, left: 90 },
+  { id: 'existing-location', label: 'Existing', top: 86, left: 30 },
+  { id: 'other-location', label: 'Other', top: 86, left: 70 }
 ];
 
 const FLUE_COMPONENT_LIBRARY = [
