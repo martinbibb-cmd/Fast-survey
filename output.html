@@ -108,6 +108,152 @@
   </div>
 
   <script src="output.js" type="module"></script>
+  <script src="./js/notes-engine.js"></script>
+  <script>
+    (function(){
+      if (!window.NotesEngine || typeof window.NotesEngine.buildFromPlanner !== 'function') {
+        return;
+      }
+
+      const sections = NotesEngine.buildFromPlanner() || {};
+      const headingMap = {
+        Flue: 'Flue',
+        Gas: 'Pipe work',
+        Condensate: 'Disruption',
+        SummaryChange: 'System characteristics',
+        SystemChanges: 'Additional',
+        HotWater: 'New boiler and controls',
+        LocationAndMakingGood: 'Additional',
+        Controls: 'New boiler and controls',
+        HouseKeeping: 'Disruption'
+      };
+
+      const aggregated = {};
+      Object.entries(headingMap).forEach(([engineKey, headingText]) => {
+        const lines = sections[engineKey];
+        if (!Array.isArray(lines) || !lines.length) {
+          return;
+        }
+        if (!aggregated[headingText]) {
+          aggregated[headingText] = [];
+        }
+        aggregated[headingText].push(...lines);
+      });
+
+      function findHeadingByText(text) {
+        const headings = Array.from(document.querySelectorAll('h2, h3, h4'));
+        return headings.find(heading => heading.textContent.trim().toLowerCase() === text.toLowerCase());
+      }
+
+      function ensureNotesArea(sectionEl) {
+        if (!sectionEl) {
+          return null;
+        }
+        let textarea = sectionEl.querySelector('textarea.notes-engine-output');
+        if (!textarea) {
+          textarea = document.createElement('textarea');
+          textarea.className = 'notes-engine-output';
+          textarea.rows = 8;
+          textarea.spellcheck = false;
+          textarea.style.width = '100%';
+          textarea.style.marginTop = '12px';
+          const reference = sectionEl.querySelector('.output-content');
+          if (reference) {
+            sectionEl.insertBefore(textarea, reference);
+          } else {
+            sectionEl.appendChild(textarea);
+          }
+          let copyButton = sectionEl.querySelector('button.notes-engine-copy');
+          if (!copyButton) {
+            copyButton = document.createElement('button');
+            copyButton.type = 'button';
+            copyButton.textContent = 'Copy notes';
+            copyButton.className = 'copy-button notes-engine-copy';
+            copyButton.style.margin = '6px 0 12px';
+            copyButton.addEventListener('click', () => {
+              textarea.select();
+              document.execCommand('copy');
+            });
+            textarea.insertAdjacentElement('afterend', copyButton);
+          }
+        }
+        return textarea;
+      }
+
+      Object.entries(aggregated).forEach(([headingText, lines]) => {
+        const headingEl = findHeadingByText(headingText);
+        if (!headingEl) {
+          return;
+        }
+        const sectionEl = headingEl.closest('.output-card') || headingEl.parentElement;
+        const textarea = ensureNotesArea(sectionEl);
+        if (!textarea) {
+          return;
+        }
+        textarea.value = lines.join('\n');
+      });
+
+      if (Array.isArray(sections.SummaryChange) && sections.SummaryChange.length) {
+        const grid = document.querySelector('.output-grid');
+        if (grid) {
+          const summaryCard = document.createElement('section');
+          summaryCard.className = 'output-card notes-summary-card';
+          const head = document.createElement('div');
+          head.className = 'output-card-head';
+          const heading = document.createElement('h2');
+          heading.textContent = 'Summary Change';
+          head.appendChild(heading);
+          summaryCard.appendChild(head);
+          const textarea = document.createElement('textarea');
+          textarea.className = 'notes-engine-output';
+          textarea.rows = 4;
+          textarea.spellcheck = false;
+          textarea.style.width = '100%';
+          textarea.style.marginTop = '12px';
+          textarea.value = sections.SummaryChange.join('\n');
+          summaryCard.appendChild(textarea);
+          const copyButton = document.createElement('button');
+          copyButton.type = 'button';
+          copyButton.textContent = 'Copy notes';
+          copyButton.className = 'copy-button notes-engine-copy';
+          copyButton.style.margin = '6px 0 12px';
+          copyButton.addEventListener('click', () => {
+            textarea.select();
+            document.execCommand('copy');
+          });
+          summaryCard.appendChild(copyButton);
+          grid.insertBefore(summaryCard, grid.firstChild);
+        }
+      }
+    })();
+  </script>
+  <script>
+    (function(){
+      const shell = document.querySelector('.output-shell');
+      if (!shell || shell.querySelector('.notes-copy-all-button')) {
+        return;
+      }
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = 'Copy All Notes';
+      button.className = 'copy-button notes-copy-all-button';
+      button.style.margin = '20px 0';
+      button.addEventListener('click', () => {
+        const textareas = Array.from(document.querySelectorAll('textarea.notes-engine-output'));
+        const combined = textareas.map(t => t.value.trim()).filter(Boolean).join('\n');
+        const temp = document.createElement('textarea');
+        temp.style.position = 'fixed';
+        temp.style.left = '-9999px';
+        temp.value = combined;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+        alert('All sections copied');
+      });
+      shell.appendChild(button);
+    })();
+  </script>
   <!-- Depot Router: paste near </body> -->
   <script>
   /* ==== SECTION TARGETS (edit IDs if your page uses different ones) ==== */
