@@ -612,6 +612,28 @@ const state = {
   flueRoute: []
 };
 
+const PLANNER_FLUE_TYPE_VALUES = {
+  balanced: 'Balanced',
+  fanned: 'Fanned',
+  side: 'Side flue',
+  rear: 'Rear flue'
+};
+
+const PLANNER_FLUE_EXIT_VALUES = {
+  wall: 'Wall',
+  'roof-flat': 'Flat roof',
+  'roof-pitched': 'Pitched roof'
+};
+
+const PLANNER_NEW_FLUE_VALUES = {
+  'new-flue-direct-rear': 'Horizontal (balanced)',
+  'new-flue-turret-rear': 'Horizontal (balanced)',
+  'new-flue-turret-right': 'Horizontal (balanced)',
+  'new-flue-turret-forward': 'Horizontal (balanced)',
+  'new-flue-turret-lift': 'Vertical (balanced)',
+  'new-flue-vertical': 'Vertical (balanced)'
+};
+
 const labelLookup = new Map([
   ...ACCESS_OPTIONS.map(option => [option.id, option.label]),
   ...BOILER_OPTIONS.map(option => [option.id, option.label]),
@@ -635,6 +657,70 @@ const labelLookup = new Map([
   ...CUSTOMER_ACTIONS.map(option => [option.id, `${option.code} – ${option.description}`]),
   ...AWARENESS_OPTION_DETAILS.map(option => [option.id, `${option.code} – ${option.section}: ${option.label}`])
 ]);
+
+function persistPlannerValue(key, value) {
+  try {
+    if (value == null || value === '') {
+      window.localStorage.removeItem(key);
+    } else {
+      window.localStorage.setItem(key, value);
+    }
+  } catch (error) {
+    console.warn(`Unable to store planner key ${key}`, error);
+  }
+}
+
+function storeLabelForSelection(key, optionId) {
+  const label = optionId ? (labelLookup.get(optionId) || optionId) : '';
+  persistPlannerValue(key, label);
+}
+
+function updateCylinderPlannerStorage() {
+  let cylinderA = '';
+  let cylinderB = '';
+  const selections = state.cylinderSelections;
+  const hasSelections = selections.size > 0;
+
+  if (selections.has('CY03')) {
+    cylinderA = 'VENTED_TANKED';
+    cylinderB = 'NONE';
+  }
+
+  if (selections.has('CY02')) {
+    cylinderA = 'VENTED_TANKED';
+    if (!cylinderB) {
+      cylinderB = 'VENTED_TANKED';
+    }
+  }
+
+  if (selections.has('CY01')) {
+    cylinderA = cylinderA || 'VENTED_TANKED';
+  }
+
+  if (selections.has('CY04')) {
+    cylinderB = 'UNVENTED_MAINS';
+  }
+
+  if (selections.has('CY05')) {
+    cylinderB = 'VENTED_TANKED';
+  }
+
+  if (selections.has('CY06')) {
+    cylinderB = 'THERMAL_STORE';
+  }
+
+  const newBoilerLabel = state.newBoilerType ? (labelLookup.get(state.newBoilerType) || '') : '';
+  if (!cylinderB && newBoilerLabel.toLowerCase().includes('combi')) {
+    cylinderB = 'NONE';
+  }
+
+  if (!cylinderA && hasSelections) {
+    cylinderA = 'VENTED_TANKED';
+  }
+
+  persistPlannerValue('CylA', cylinderA);
+  persistPlannerValue('CylB', cylinderB);
+}
 
 let stepSections = [];
 let stepNavButtons = [];
@@ -699,6 +785,7 @@ function renderBoilerOptions() {
       state.boilerType = selectedId;
       syncChoiceTiles(container, selectedId);
       updateSummary();
+      persistPlannerValue('BlrA', option.label);
     });
     container.appendChild(tile);
   });
@@ -716,6 +803,8 @@ function renderFlueOptions() {
       state.flueType = selectedId;
       syncChoiceTiles(typeGroup, selectedId);
       updateSummary();
+      const storedValue = PLANNER_FLUE_TYPE_VALUES[selectedId] || option.label || selectedId;
+      persistPlannerValue('FluA', storedValue);
     });
     typeGroup.appendChild(tile);
   });
@@ -726,6 +815,8 @@ function renderFlueOptions() {
       state.flueExit = selectedId;
       syncChoiceTiles(exitGroup, selectedId);
       updateSummary();
+      const storedValue = PLANNER_FLUE_EXIT_VALUES[selectedId] || option.label || selectedId;
+      persistPlannerValue('TermWall', storedValue);
     });
     exitGroup.appendChild(tile);
   });
@@ -779,6 +870,8 @@ function renderNewBoilerOptions() {
       state.newBoilerType = selectedId;
       syncChoiceTiles(container, selectedId);
       updateSummary();
+      persistPlannerValue('BlrB', option.label);
+      updateCylinderPlannerStorage();
     });
     container.appendChild(tile);
   });
@@ -794,6 +887,8 @@ function renderNewFlueDirections() {
       state.newFlueDirection = selectedId;
       syncChoiceTiles(container, selectedId);
       updateSummary();
+      const storedValue = PLANNER_NEW_FLUE_VALUES[selectedId] || option.label || selectedId;
+      persistPlannerValue('FluB', storedValue);
     });
     container.appendChild(tile);
   });
@@ -1144,6 +1239,11 @@ function renderHotspotGroup(containerId, stateKey) {
       }
       syncHotspots(container, state[stateKey]);
       updateSummary();
+      if (stateKey === 'location') {
+        storeLabelForSelection('LocA', state[stateKey]);
+      } else if (stateKey === 'newBoilerLocation') {
+        storeLabelForSelection('LocB', state[stateKey]);
+      }
     });
     container.appendChild(button);
   });
@@ -1743,6 +1843,9 @@ function resetSurvey() {
   state.flueRoute = [];
   document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
     input.checked = false;
+  });
+  ['BlrA','FluA','TermWall','TermHeight','LocA','LocB','BlrB','FluB','CylA','CylB'].forEach(key => {
+    persistPlannerValue(key, '');
   });
   syncAccessCards();
   syncHotspots(document.getElementById('houseHotspots'), state.location);
