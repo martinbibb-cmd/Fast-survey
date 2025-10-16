@@ -1,6 +1,7 @@
 (function(){
   // -------- Cloudflare Worker endpoint (set once via button) --------
-  const DEFAULT_CF_ENDPOINT = localStorage.getItem("CF_GPT_URL") || "https://YOUR-WORKER.workers.dev/gpt-all";
+  const DEFAULT_CF_ENDPOINT =
+    localStorage.getItem("CF_GPT_URL") || "https://survey-brain-api.martinbibb.workers.dev/gpt-all";
   function setEndpoint(u){ localStorage.setItem("CF_GPT_URL",(u||"").trim()); }
   function getEndpoint(){ return localStorage.getItem("CF_GPT_URL") || DEFAULT_CF_ENDPOINT; }
 
