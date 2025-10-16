@@ -13,10 +13,21 @@
         <span class="brand-mark" aria-hidden="true">🔥</span>
         <h1>Survey Output Summary</h1>
       </div>
-      <a class="ghost" href="index.html">Back to planner</a>
+      <div class="output-actions">
+        <a class="ghost" href="index.html">Back to planner</a>
+        <button class="primary-action" id="generateBtn" type="button">Send to Survey Brain</button>
+      </div>
     </header>
 
     <main class="output-grid" aria-live="polite">
+      <section class="output-card" aria-labelledby="apiNotesHeading">
+        <div class="output-card-head">
+          <h2 id="apiNotesHeading">Survey Brain response</h2>
+          <button type="button" class="copy-button" id="copyApiResponse">Copy</button>
+        </div>
+        <pre class="output-content api-output" id="api-output" data-status="idle">Press “Send to Survey Brain” to generate structured notes.</pre>
+      </section>
+
       <section class="output-card" aria-labelledby="outputWorkingHeights">
         <div class="output-card-head">
           <h2 id="outputWorkingHeights">Working at heights</h2>
@@ -109,6 +120,7 @@
 
   <script src="output.js" type="module"></script>
   <script src="./js/notes-engine.js"></script>
+  <script src="./js/notes-api-client.js"></script>
   <script>
     (function(){
       if (!window.NotesEngine || typeof window.NotesEngine.buildFromPlanner !== 'function') {

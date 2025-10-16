@@ -459,6 +459,37 @@ button {
   box-shadow: var(--shadow);
 }
 
+.output-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.primary-action {
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.6rem 1.4rem;
+  border-radius: 999px;
+  font-weight: 600;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.primary-action:hover,
+.primary-action:focus-visible {
+  background: var(--accent-strong);
+  box-shadow: 0 0 0 3px var(--accent-muted);
+  outline: none;
+}
+
+.primary-action:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 .output-grid {
   display: grid;
   gap: 1.5rem;
@@ -517,6 +548,29 @@ button {
   padding: 0.85rem 1rem;
   border-radius: 12px;
   min-height: 160px;
+}
+
+.api-output {
+  min-height: 180px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.api-output[data-status="idle"] {
+  color: var(--muted);
+}
+
+.api-output[data-status="loading"] {
+  color: var(--accent-strong);
+  background: rgba(37, 99, 235, 0.15);
+}
+
+.api-output[data-status="error"] {
+  color: #b91c1c;
+  background: rgba(248, 113, 113, 0.2);
+}
+
+.api-output[data-status="success"] {
+  color: var(--text);
 }
 
 .option-card.upgrade-card {
