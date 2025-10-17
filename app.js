@@ -658,6 +658,96 @@ const labelLookup = new Map([
   ...AWARENESS_OPTION_DETAILS.map(option => [option.id, `${option.code} – ${option.section}: ${option.label}`])
 ]);
 
+const STEP_NOTES_STORAGE_KEY = 'surveyStepNotes';
+let stepNotesState = {};
+
+function loadStoredStepNotes() {
+  try {
+    const stored = window.localStorage.getItem(STEP_NOTES_STORAGE_KEY);
+    if (!stored) {
+      return {};
+    }
+    const parsed = JSON.parse(stored);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (error) {
+    console.warn('Unable to load stored step notes', error);
+    return {};
+  }
+}
+
+function persistStepNotesState() {
+  try {
+    const keys = Object.keys(stepNotesState);
+    if (!keys.length) {
+      window.localStorage.removeItem(STEP_NOTES_STORAGE_KEY);
+      return;
+    }
+    window.localStorage.setItem(STEP_NOTES_STORAGE_KEY, JSON.stringify(stepNotesState));
+  } catch (error) {
+    console.warn('Unable to store step notes', error);
+  }
+}
+
+function handleStepNoteInput(noteKey, value) {
+  if (value && value.trim().length) {
+    stepNotesState[noteKey] = value;
+  } else {
+    delete stepNotesState[noteKey];
+  }
+  persistStepNotesState();
+}
+
+function clearStepNotesState() {
+  stepNotesState = {};
+  try {
+    window.localStorage.removeItem(STEP_NOTES_STORAGE_KEY);
+  } catch (error) {
+    console.warn('Unable to clear stored step notes', error);
+  }
+}
+
+function injectStepNotes() {
+  stepNotesState = loadStoredStepNotes();
+  const panels = Array.from(document.querySelectorAll('.content .panel'));
+  panels.forEach((panel, index) => {
+    if (!panel.id) {
+      panel.id = `step-section-${index + 1}`;
+    }
+    if (panel.querySelector('.step-notes')) {
+      return;
+    }
+    const noteKey = panel.id;
+    const textareaId = `${noteKey}-notes`;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'step-notes';
+
+    const label = document.createElement('label');
+    label.className = 'step-notes-label';
+    label.setAttribute('for', textareaId);
+    label.textContent = 'Notes';
+
+    const textarea = document.createElement('textarea');
+    textarea.className = 'step-notes-input';
+    textarea.id = textareaId;
+    textarea.name = textareaId;
+    textarea.rows = 3;
+    textarea.placeholder = 'Type notes for this step…';
+    textarea.value = stepNotesState[noteKey] || '';
+    textarea.addEventListener('input', event => {
+      handleStepNoteInput(noteKey, event.target.value);
+    });
+
+    wrapper.appendChild(label);
+    wrapper.appendChild(textarea);
+    panel.appendChild(wrapper);
+  });
+}
+
+function updateTopBarHeightVar() {
+  const height = topBarElement ? topBarElement.offsetHeight : 0;
+  document.documentElement.style.setProperty('--top-bar-height', `${height}px`);
+}
+
 function persistPlannerValue(key, value) {
   try {
     if (value == null || value === '') {
@@ -728,8 +818,12 @@ let currentStepIndex = 0;
 let stepProgressLabel = null;
 let prevStepButton = null;
 let nextStepButton = null;
+let topBarElement = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+  topBarElement = document.querySelector('.top-bar');
+  updateTopBarHeightVar();
+  window.addEventListener('resize', updateTopBarHeightVar);
   renderAccessOptions();
   renderBoilerOptions();
   renderFlueOptions();
@@ -753,6 +847,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAwarenessOptions();
   renderDisruptionHotspots('disruptionHotspots', 'disruptionRooms');
   initFlueBuilder();
+  injectStepNotes();
   initStepNavigation();
   updateSummary();
   document.getElementById('resetSelections').addEventListener('click', resetSurvey);
@@ -1595,7 +1690,12 @@ function showStep(index, options = {}) {
   }
 
   if (scroll) {
-    activeSection.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+    const offset = topBarElement ? topBarElement.offsetHeight + 24 : 16;
+    const targetTop = window.scrollY + activeSection.getBoundingClientRect().top - offset;
+    window.scrollTo({
+      top: Math.max(0, targetTop),
+      behavior: smooth ? 'smooth' : 'auto'
+    });
   }
 
   if (focus) {
@@ -1874,6 +1974,10 @@ function resetSurvey() {
     syncCheckboxTiles(group, sectionSet);
   });
   syncSystemUpgradeCards();
+  document.querySelectorAll('.step-notes-input').forEach(textarea => {
+    textarea.value = '';
+  });
+  clearStepNotesState();
   updateFlueBuilder();
   if (stepSections.length) {
     showStep(0, { scroll: true, smooth: false, focus: false });
