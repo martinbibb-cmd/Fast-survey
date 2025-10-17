@@ -1,0 +1,9 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 420' width='640' height='420'>
+  <defs>
+    <style>
+      text { fill: #fff; font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; font-size: 36px; font-weight: 600; }
+    </style>
+  </defs>
+  <rect x='0' y='0' width='640' height='420' rx='24' fill='#dc2626'/>
+  <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'>Offset > 40 mm</text>
+</svg>
