@@ -30,36 +30,36 @@ const BOILER_OPTIONS = [
     id: 'regular',
     label: 'Regular (open-vent)',
     description: 'Header tank and vented cylinder.',
-    image: 'assets/img/fast-survey/open-vent-schematic.svg',
-    alt: 'Open-vent regular system with feed and expansion tank'
+    image: 'assets/img/fast-survey/vented-cylinder.PNG',
+    alt: 'Traditional vented hot water cylinder installation'
   },
   {
     id: 'system',
     label: 'System (sealed)',
     description: 'Cylinder with two motorised valves.',
-    image: 'assets/img/fast-survey/s-plan.svg',
-    alt: 'Sealed system showing S-plan zone valves'
+    image: 'assets/img/fast-survey/system-boiler.PNG',
+    alt: 'Modern sealed system boiler casing'
   },
   {
     id: 'combi',
     label: 'Combi',
     description: 'No cylinder, instant hot water.',
-    image: 'assets/img/fast-survey/boiler-generic.svg',
-    alt: 'Wall-hung combi boiler illustration'
+    image: 'assets/img/fast-survey/gravity.JPG',
+    alt: 'Combi boiler installation in situ'
   },
   {
     id: 'storage-combi',
     label: 'Storage combi',
     description: 'Combination boiler with built-in store.',
-    image: 'assets/img/fast-survey/boiler-generic.svg',
-    alt: 'Storage combi boiler with integrated cylinder'
+    image: 'assets/img/fast-survey/unvented-cylinder.JPG',
+    alt: 'Integrated storage cylinder for combi boiler'
   },
   {
     id: 'warm-air',
     label: 'Warm air',
     description: 'Ducted warm air unit providing heating.',
-    image: 'assets/img/fast-survey/warm-air.svg',
-    alt: 'Warm air ducted heating diagram'
+    image: 'assets/img/fast-survey/warm-air.GIF',
+    alt: 'Warm air heating unit with ducting'
   },
   { id: 'none', label: 'None', description: 'No boiler currently installed.' }
 ];
@@ -75,15 +75,15 @@ const FLUE_TYPES = [
     id: 'fanned-horizontal',
     label: 'Fanned horizontal',
     description: 'Fan-assisted flue leaving through a wall.',
-    image: 'assets/img/fast-survey/rear-flue-dims.svg',
-    alt: 'Horizontal fanned flue rear exit example'
+    image: 'assets/img/fast-survey/plume-kit.JPG',
+    alt: 'Horizontal flue plume management kit'
   },
   {
     id: 'fanned-vertical',
     label: 'Fanned vertical',
     description: 'Fan-assisted flue terminating through the roof.',
-    image: 'assets/img/fast-survey/roof-terminal.svg',
-    alt: 'Vertical roof terminal'
+    image: 'assets/img/fast-survey/vertical-flue-pitched.PNG',
+    alt: 'Vertical flue on a pitched roof'
   }
 ];
 
@@ -92,22 +92,22 @@ const FLUE_EXIT_POINTS = [
     id: 'rear-wall',
     label: 'Rear wall',
     description: 'Exits directly behind the boiler.',
-    image: 'assets/img/fast-survey/rear-flue-dims.svg',
-    alt: 'Rear wall exit illustration'
+    image: 'assets/img/fast-survey/plume-kit.JPG',
+    alt: 'Rear wall flue exit with plume kit'
   },
   {
     id: 'side-wall',
     label: 'Side wall',
     description: 'Terminates through a side elevation.',
-    image: 'assets/img/fast-survey/rear-flue-dims.svg',
-    alt: 'Side wall exit illustration'
+    image: 'assets/img/fast-survey/plume-kit.JPG',
+    alt: 'Side elevation flue termination'
   },
   {
     id: 'roof',
     label: 'Roof',
     description: 'Terminates vertically through the roof.',
-    image: 'assets/img/fast-survey/roof-terminal.svg',
-    alt: 'Roof terminal exit'
+    image: 'assets/img/fast-survey/vertical-flue-pitched.PNG',
+    alt: 'Vertical flue termination through roof tiles'
   }
 ];
 
@@ -116,15 +116,15 @@ const NEW_FLUE_DIRECTIONS = [
     id: 'new-flue-horizontal',
     label: 'Horizontal',
     description: 'Horizontal run from the boiler.',
-    image: 'assets/img/fast-survey/rear-flue-dims.svg',
-    alt: 'Horizontal flue route illustration'
+    image: 'assets/img/fast-survey/plume-kit.JPG',
+    alt: 'Horizontal flue route with plume kit components'
   },
   {
     id: 'new-flue-vertical',
     label: 'Vertical',
     description: 'Vertical run through the roof.',
-    image: 'assets/img/fast-survey/roof-terminal.svg',
-    alt: 'Vertical flue route illustration'
+    image: 'assets/img/fast-survey/vertical-flue-pitched.PNG',
+    alt: 'Vertical flue route exiting a pitched roof'
   }
 ];
 
@@ -133,35 +133,35 @@ const ZONING_OPTIONS = [
     id: 'zoning-s-plan',
     label: 'S-Plan',
     description: 'Two motorised valves controlling heating and hot water.',
-    image: 'assets/img/fast-survey/s-plan.svg',
+    image: 'assets/img/fast-survey/s-plan.jpg',
     alt: 'Two zone valves with pumped circuit'
   },
   {
     id: 'zoning-y-plan',
     label: 'Y-Plan',
     description: 'Mid-position valve serving heating and hot water.',
-    image: 'assets/img/fast-survey/y-plan.svg',
+    image: 'assets/img/fast-survey/y-plan.jpg',
     alt: 'Mid-position valve heating schematic'
   },
   {
     id: 'zoning-open-vent',
     label: 'Open vented',
     description: 'Feed and expansion tank supplying a gravity circuit.',
-    image: 'assets/img/fast-survey/open-vent-schematic.svg',
+    image: 'assets/img/fast-survey/open-vented-schematic.JPG',
     alt: 'Open vented heating schematic'
   },
   {
     id: 'zoning-two-zone',
     label: 'Two-zone',
     description: 'Separate circuits for upstairs and downstairs zones.',
-    image: 'assets/img/fast-survey/two-zone.svg',
+    image: 'assets/img/fast-survey/two-zone.jpg',
     alt: 'Two-zone heating layout'
   },
   {
     id: 'zoning-one-pipe',
     label: 'One-pipe',
     description: 'Single loop circuit feeding each emitter in sequence.',
-    image: 'assets/img/fast-survey/one-pipe.svg',
+    image: 'assets/img/fast-survey/one-pipe.jpg',
     alt: 'One-pipe circuit layout'
   }
 ];
@@ -253,15 +253,15 @@ const MAKING_GOOD_OPTIONS = [
     code: 'FN02',
     label: 'New flue',
     description: 'New hole – same wall',
-    image: 'assets/img/fast-survey/rear-flue-dims.svg',
-    alt: 'Rear flue drilling and collar'
+    image: 'assets/img/fast-survey/plume-kit.JPG',
+    alt: 'Rear wall flue drilling and plume kit collar'
   },
   {
     id: 'FN03',
     code: 'FN03',
     label: 'New flue',
     description: 'New hole – alternative wall',
-    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    image: 'assets/img/fast-survey/plume-kit.JPG',
     alt: 'Side wall flue drilling illustration'
   },
   {
@@ -269,7 +269,7 @@ const MAKING_GOOD_OPTIONS = [
     code: 'FN04',
     label: 'Orientation',
     description: 'Horizontal',
-    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    image: 'assets/img/fast-survey/plume-kit.JPG',
     alt: 'Horizontal flue orientation'
   },
   {
@@ -277,7 +277,7 @@ const MAKING_GOOD_OPTIONS = [
     code: 'FN05',
     label: 'Orientation',
     description: 'Vertical',
-    image: 'assets/img/fast-survey/roof-terminal.svg',
+    image: 'assets/img/fast-survey/vertical-flue-pitched.PNG',
     alt: 'Vertical flue orientation'
   },
   {
@@ -293,7 +293,7 @@ const MAKING_GOOD_OPTIONS = [
     code: 'FN07',
     label: 'Sealing',
     description: 'Vertical flashing kit',
-    image: 'assets/img/fast-survey/roof-terminal.svg',
+    image: 'assets/img/fast-survey/vertical-flue-pitched.PNG',
     alt: 'Vertical flashing kit illustration'
   },
   {
@@ -301,7 +301,7 @@ const MAKING_GOOD_OPTIONS = [
     code: 'FN08',
     label: 'Sealing',
     description: 'Flat roof flashing by specialist builder',
-    image: 'assets/img/fast-survey/roof-terminal.svg',
+    image: 'assets/img/fast-survey/vertical-flue-pitched.PNG',
     alt: 'Flat roof flashing illustration'
   }
 ];
@@ -312,7 +312,7 @@ const BUILDING_WORK_OPTIONS = [
     code: 'BW01',
     label: 'Fanned flue – same hole',
     description: 'Re-use existing opening with minimal making good.',
-    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    image: 'assets/img/fast-survey/plume-kit.JPG',
     alt: 'Fanned flue using existing hole'
   },
   {
@@ -320,7 +320,7 @@ const BUILDING_WORK_OPTIONS = [
     code: 'BW02',
     label: 'Fanned flue – remodelling required',
     description: 'Alter surrounding finishes to suit the new fanned flue.',
-    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    image: 'assets/img/fast-survey/plume-kit.JPG',
     alt: 'Fanned flue requiring remodelling'
   },
   {
@@ -328,7 +328,7 @@ const BUILDING_WORK_OPTIONS = [
     code: 'BW03',
     label: 'Fanned flue – new position',
     description: 'Form a new opening to relocate the flue termination.',
-    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    image: 'assets/img/fast-survey/plume-kit.JPG',
     alt: 'Fanned flue in new position'
   },
   {
@@ -336,7 +336,7 @@ const BUILDING_WORK_OPTIONS = [
     code: 'BW04',
     label: 'Balanced changed to fanned – engineer to provide bricks',
     description: 'Engineer to supply bricks for infilling the old balanced flue.',
-    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    image: 'assets/img/fast-survey/plume-kit.JPG',
     alt: 'Balanced to fanned conversion with engineer provided bricks'
   },
   {
@@ -344,7 +344,7 @@ const BUILDING_WORK_OPTIONS = [
     code: 'BW05',
     label: 'Balanced to fanned – customer provide bricks',
     description: 'Customer to supply bricks while converting from balanced to fanned.',
-    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    image: 'assets/img/fast-survey/plume-kit.JPG',
     alt: 'Balanced to fanned conversion with customer bricks'
   },
   {
