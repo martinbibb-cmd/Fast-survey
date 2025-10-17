@@ -30,8 +30,8 @@ const BOILER_OPTIONS = [
     id: 'regular',
     label: 'Regular (open-vent)',
     description: 'Header tank and vented cylinder.',
-    image: 'assets/img/fast-survey/vented-cylinder.PNG',
-    alt: 'Traditional vented hot water cylinder installation'
+    image: 'assets/img/fast-survey/open-vented-schematic.JPG',
+    alt: 'Open vented heating system schematic'
   },
   {
     id: 'system',
@@ -51,8 +51,6 @@ const BOILER_OPTIONS = [
     id: 'storage-combi',
     label: 'Storage combi',
     description: 'Combination boiler with built-in store.',
-    image: 'assets/img/fast-survey/unvented-cylinder.JPG',
-    alt: 'Integrated storage cylinder for combi boiler'
   },
   {
     id: 'warm-air',
