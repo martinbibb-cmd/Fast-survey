@@ -26,11 +26,41 @@ const ACCESS_OPTIONS = [
 ];
 
 const BOILER_OPTIONS = [
-  { id: 'regular', label: 'Regular', description: 'Open vented boiler with tanks in the loft.' },
-  { id: 'system', label: 'System', description: 'Sealed system with cylinder but no loft tanks.' },
-  { id: 'combi', label: 'Combi', description: 'Combination boiler with instant hot water.' },
-  { id: 'storage-combi', label: 'Storage combi', description: 'Combination boiler with built-in storage.' },
-  { id: 'warm-air', label: 'Warm air', description: 'Ducted warm air unit providing heating.' },
+  {
+    id: 'regular',
+    label: 'Regular (open-vent)',
+    description: 'Header tank and vented cylinder.',
+    image: 'assets/img/fast-survey/open-vent-schematic.svg',
+    alt: 'Open-vent regular system with feed and expansion tank'
+  },
+  {
+    id: 'system',
+    label: 'System (sealed)',
+    description: 'Cylinder with two motorised valves.',
+    image: 'assets/img/fast-survey/s-plan.svg',
+    alt: 'Sealed system showing S-plan zone valves'
+  },
+  {
+    id: 'combi',
+    label: 'Combi',
+    description: 'No cylinder, instant hot water.',
+    image: 'assets/img/fast-survey/boiler-generic.svg',
+    alt: 'Wall-hung combi boiler illustration'
+  },
+  {
+    id: 'storage-combi',
+    label: 'Storage combi',
+    description: 'Combination boiler with built-in store.',
+    image: 'assets/img/fast-survey/boiler-generic.svg',
+    alt: 'Storage combi boiler with integrated cylinder'
+  },
+  {
+    id: 'warm-air',
+    label: 'Warm air',
+    description: 'Ducted warm air unit providing heating.',
+    image: 'assets/img/fast-survey/warm-air.svg',
+    alt: 'Warm air ducted heating diagram'
+  },
   { id: 'none', label: 'None', description: 'No boiler currently installed.' }
 ];
 
@@ -41,54 +71,98 @@ const NEW_BOILER_OPTIONS = [
 ];
 
 const FLUE_TYPES = [
-  { id: 'balanced', label: 'Balanced', description: 'Twin wall with natural draft.' },
-  { id: 'fanned', label: 'Fanned', description: 'Room sealed with fan assisted exhaust.' },
-  { id: 'side', label: 'Side flue', description: 'Leaves the property via the side elevation.' },
-  { id: 'rear', label: 'Rear flue', description: 'Leaves the property directly behind the boiler.' }
+  {
+    id: 'fanned-horizontal',
+    label: 'Fanned horizontal',
+    description: 'Fan-assisted flue leaving through a wall.',
+    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    alt: 'Horizontal fanned flue rear exit example'
+  },
+  {
+    id: 'fanned-vertical',
+    label: 'Fanned vertical',
+    description: 'Fan-assisted flue terminating through the roof.',
+    image: 'assets/img/fast-survey/roof-terminal.svg',
+    alt: 'Vertical roof terminal'
+  }
 ];
 
 const FLUE_EXIT_POINTS = [
-  { id: 'wall', label: 'Wall', description: 'Horizontal flue terminal through a wall.' },
-  { id: 'roof-flat', label: 'Flat roof', description: 'Exits vertically through a flat roof.' },
-  { id: 'roof-pitched', label: 'Pitched roof', description: 'Exits vertically through a pitched roof.' }
+  {
+    id: 'rear-wall',
+    label: 'Rear wall',
+    description: 'Exits directly behind the boiler.',
+    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    alt: 'Rear wall exit illustration'
+  },
+  {
+    id: 'side-wall',
+    label: 'Side wall',
+    description: 'Terminates through a side elevation.',
+    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    alt: 'Side wall exit illustration'
+  },
+  {
+    id: 'roof',
+    label: 'Roof',
+    description: 'Terminates vertically through the roof.',
+    image: 'assets/img/fast-survey/roof-terminal.svg',
+    alt: 'Roof terminal exit'
+  }
 ];
 
 const NEW_FLUE_DIRECTIONS = [
   {
-    id: 'new-flue-direct-rear',
-    label: 'Direct rear',
-    description: 'Flue exits directly through the rear wall.',
-    icon: createFlueDirectionIcon('direct-rear')
-  },
-  {
-    id: 'new-flue-turret-lift',
-    label: 'Turret lift',
-    description: 'Flue rises vertically via a roof turret.',
-    icon: createFlueDirectionIcon('turret-lift')
-  },
-  {
-    id: 'new-flue-turret-rear',
-    label: 'Turret rear',
-    description: 'Flue routes rearwards from a turret outlet.',
-    icon: createFlueDirectionIcon('turret-rear')
-  },
-  {
-    id: 'new-flue-turret-right',
-    label: 'Turret right',
-    description: 'Flue routes to the right from a turret outlet.',
-    icon: createFlueDirectionIcon('turret-right')
-  },
-  {
-    id: 'new-flue-turret-forward',
-    label: 'Turret forward',
-    description: 'Flue routes forward from a turret outlet.',
-    icon: createFlueDirectionIcon('turret-forward')
+    id: 'new-flue-horizontal',
+    label: 'Horizontal',
+    description: 'Horizontal run from the boiler.',
+    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    alt: 'Horizontal flue route illustration'
   },
   {
     id: 'new-flue-vertical',
     label: 'Vertical',
-    description: 'Flue rises vertically above the boiler.',
-    icon: createFlueDirectionIcon('vertical')
+    description: 'Vertical run through the roof.',
+    image: 'assets/img/fast-survey/roof-terminal.svg',
+    alt: 'Vertical flue route illustration'
+  }
+];
+
+const ZONING_OPTIONS = [
+  {
+    id: 'zoning-s-plan',
+    label: 'S-Plan',
+    description: 'Two motorised valves controlling heating and hot water.',
+    image: 'assets/img/fast-survey/s-plan.svg',
+    alt: 'Two zone valves with pumped circuit'
+  },
+  {
+    id: 'zoning-y-plan',
+    label: 'Y-Plan',
+    description: 'Mid-position valve serving heating and hot water.',
+    image: 'assets/img/fast-survey/y-plan.svg',
+    alt: 'Mid-position valve heating schematic'
+  },
+  {
+    id: 'zoning-open-vent',
+    label: 'Open vented',
+    description: 'Feed and expansion tank supplying a gravity circuit.',
+    image: 'assets/img/fast-survey/open-vent-schematic.svg',
+    alt: 'Open vented heating schematic'
+  },
+  {
+    id: 'zoning-two-zone',
+    label: 'Two-zone',
+    description: 'Separate circuits for upstairs and downstairs zones.',
+    image: 'assets/img/fast-survey/two-zone.svg',
+    alt: 'Two-zone heating layout'
+  },
+  {
+    id: 'zoning-one-pipe',
+    label: 'One-pipe',
+    description: 'Single loop circuit feeding each emitter in sequence.',
+    image: 'assets/img/fast-survey/one-pipe.svg',
+    alt: 'One-pipe circuit layout'
   }
 ];
 
@@ -178,43 +252,57 @@ const MAKING_GOOD_OPTIONS = [
     id: 'FN02',
     code: 'FN02',
     label: 'New flue',
-    description: 'New hole – same wall'
+    description: 'New hole – same wall',
+    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    alt: 'Rear flue drilling and collar'
   },
   {
     id: 'FN03',
     code: 'FN03',
     label: 'New flue',
-    description: 'New hole – alternative wall'
+    description: 'New hole – alternative wall',
+    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    alt: 'Side wall flue drilling illustration'
   },
   {
     id: 'FN04',
     code: 'FN04',
     label: 'Orientation',
-    description: 'Horizontal'
+    description: 'Horizontal',
+    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    alt: 'Horizontal flue orientation'
   },
   {
     id: 'FN05',
     code: 'FN05',
     label: 'Orientation',
-    description: 'Vertical'
+    description: 'Vertical',
+    image: 'assets/img/fast-survey/roof-terminal.svg',
+    alt: 'Vertical flue orientation'
   },
   {
     id: 'FN06',
     code: 'FN06',
     label: 'Sealing',
-    description: 'Seal brickwork to flue'
+    description: 'Seal brickwork to flue',
+    image: 'assets/img/fast-survey/flue-offset-40mm.svg',
+    alt: 'Flue sealing illustration'
   },
   {
     id: 'FN07',
     code: 'FN07',
     label: 'Sealing',
-    description: 'Vertical flashing kit'
+    description: 'Vertical flashing kit',
+    image: 'assets/img/fast-survey/roof-terminal.svg',
+    alt: 'Vertical flashing kit illustration'
   },
   {
     id: 'FN08',
     code: 'FN08',
     label: 'Sealing',
-    description: 'Flat roof flashing by specialist builder'
+    description: 'Flat roof flashing by specialist builder',
+    image: 'assets/img/fast-survey/roof-terminal.svg',
+    alt: 'Flat roof flashing illustration'
   }
 ];
 
@@ -223,43 +311,57 @@ const BUILDING_WORK_OPTIONS = [
     id: 'BW01',
     code: 'BW01',
     label: 'Fanned flue – same hole',
-    description: 'Re-use existing opening with minimal making good.'
+    description: 'Re-use existing opening with minimal making good.',
+    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    alt: 'Fanned flue using existing hole'
   },
   {
     id: 'BW02',
     code: 'BW02',
     label: 'Fanned flue – remodelling required',
-    description: 'Alter surrounding finishes to suit the new fanned flue.'
+    description: 'Alter surrounding finishes to suit the new fanned flue.',
+    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    alt: 'Fanned flue requiring remodelling'
   },
   {
     id: 'BW03',
     code: 'BW03',
     label: 'Fanned flue – new position',
-    description: 'Form a new opening to relocate the flue termination.'
+    description: 'Form a new opening to relocate the flue termination.',
+    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    alt: 'Fanned flue in new position'
   },
   {
     id: 'BW04',
     code: 'BW04',
     label: 'Balanced changed to fanned – engineer to provide bricks',
-    description: 'Engineer to supply bricks for infilling the old balanced flue.'
+    description: 'Engineer to supply bricks for infilling the old balanced flue.',
+    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    alt: 'Balanced to fanned conversion with engineer provided bricks'
   },
   {
     id: 'BW05',
     code: 'BW05',
     label: 'Balanced to fanned – customer provide bricks',
-    description: 'Customer to supply bricks while converting from balanced to fanned.'
+    description: 'Customer to supply bricks while converting from balanced to fanned.',
+    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    alt: 'Balanced to fanned conversion with customer bricks'
   },
   {
     id: 'BW06',
     code: 'BW06',
     label: 'Specialist builder (3)',
-    description: 'Specialist builder attendance – three visits or days.'
+    description: 'Specialist builder attendance – three visits or days.',
+    image: 'assets/img/fast-survey/flue-offset-40mm.svg',
+    alt: 'Specialist builder support illustration'
   },
   {
     id: 'BW07',
     code: 'BW07',
     label: 'Specialist builder (5)',
-    description: 'Specialist builder attendance – five visits or days.'
+    description: 'Specialist builder attendance – five visits or days.',
+    image: 'assets/img/fast-survey/flue-offset-40mm.svg',
+    alt: 'Extended specialist builder support illustration'
   }
 ];
 
@@ -594,6 +696,7 @@ const state = {
   newBoilerLocation: '',
   newBoilerType: '',
   newFlueDirection: '',
+  zoningLayout: '',
   makingGood: new Set(),
   buildingWork: new Set(),
   condensateRoutes: new Set(),
@@ -613,25 +716,19 @@ const state = {
 };
 
 const PLANNER_FLUE_TYPE_VALUES = {
-  balanced: 'Balanced',
-  fanned: 'Fanned',
-  side: 'Side flue',
-  rear: 'Rear flue'
+  'fanned-horizontal': 'Fanned horizontal',
+  'fanned-vertical': 'Fanned vertical'
 };
 
 const PLANNER_FLUE_EXIT_VALUES = {
-  wall: 'Wall',
-  'roof-flat': 'Flat roof',
-  'roof-pitched': 'Pitched roof'
+  'rear-wall': 'Rear wall',
+  'side-wall': 'Side wall',
+  roof: 'Roof'
 };
 
 const PLANNER_NEW_FLUE_VALUES = {
-  'new-flue-direct-rear': 'Horizontal (balanced)',
-  'new-flue-turret-rear': 'Horizontal (balanced)',
-  'new-flue-turret-right': 'Horizontal (balanced)',
-  'new-flue-turret-forward': 'Horizontal (balanced)',
-  'new-flue-turret-lift': 'Vertical (balanced)',
-  'new-flue-vertical': 'Vertical (balanced)'
+  'new-flue-horizontal': 'Horizontal',
+  'new-flue-vertical': 'Vertical'
 };
 
 const labelLookup = new Map([
@@ -641,6 +738,7 @@ const labelLookup = new Map([
   ...FLUE_TYPES.map(option => [option.id, option.label]),
   ...FLUE_EXIT_POINTS.map(option => [option.id, option.label]),
   ...NEW_FLUE_DIRECTIONS.map(option => [option.id, option.label]),
+  ...ZONING_OPTIONS.map(option => [option.id, option.label]),
   ...LOCATION_SPOTS.map(option => [option.id, option.label]),
   ...MAKING_GOOD_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}: ${option.description}`]),
   ...BUILDING_WORK_OPTIONS.map(option => [option.id, `${option.code} – ${option.label}: ${option.description}`]),
@@ -831,6 +929,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderHotspotGroup('newHouseHotspots', 'newBoilerLocation');
   renderNewBoilerOptions();
   renderNewFlueDirections();
+  renderZoningOptions();
   renderMakingGoodOptions();
   renderBuildingWorkOptions();
   renderCondensateOptions();
@@ -874,7 +973,9 @@ function renderAccessOptions() {
 
 function renderBoilerOptions() {
   const container = document.getElementById('boilerChoices');
+  if (!container) return;
   container.innerHTML = '';
+  container.classList.add('visual-grid');
   BOILER_OPTIONS.forEach(option => {
     const tile = createRadioTile('boiler', option, selectedId => {
       state.boilerType = selectedId;
@@ -892,6 +993,8 @@ function renderFlueOptions() {
   const exitGroup = document.querySelector('#flueExitGroup .choice-group');
   typeGroup.innerHTML = '';
   exitGroup.innerHTML = '';
+  typeGroup.classList.add('visual-grid');
+  exitGroup.classList.add('visual-grid');
 
   FLUE_TYPES.forEach(option => {
     const tile = createRadioTile('flue-type', option, selectedId => {
@@ -922,6 +1025,7 @@ function renderMakingGoodOptions() {
   const container = document.getElementById('makingGoodChoices');
   if (!container) return;
   container.innerHTML = '';
+  container.classList.add('visual-grid');
   MAKING_GOOD_OPTIONS.forEach(option => {
     const tile = createCheckboxTile('making-good', option, (optionId, checked) => {
       if (checked) {
@@ -941,6 +1045,7 @@ function renderBuildingWorkOptions() {
   const container = document.getElementById('buildingWorkChoices');
   if (!container) return;
   container.innerHTML = '';
+  container.classList.add('visual-grid');
   BUILDING_WORK_OPTIONS.forEach(option => {
     const tile = createCheckboxTile('building-work', option, (optionId, isSelected) => {
       if (isSelected) {
@@ -977,6 +1082,7 @@ function renderNewFlueDirections() {
   const container = document.getElementById('newFlueDirectionChoices');
   if (!container) return;
   container.innerHTML = '';
+  container.classList.add('visual-grid');
   NEW_FLUE_DIRECTIONS.forEach(option => {
     const tile = createRadioTile('new-flue-direction', option, selectedId => {
       state.newFlueDirection = selectedId;
@@ -988,6 +1094,23 @@ function renderNewFlueDirections() {
     container.appendChild(tile);
   });
   syncChoiceTiles(container, state.newFlueDirection);
+}
+
+function renderZoningOptions() {
+  const container = document.getElementById('zoningChoices');
+  if (!container) return;
+  container.innerHTML = '';
+  container.classList.add('visual-grid');
+  ZONING_OPTIONS.forEach(option => {
+    const tile = createRadioTile('zoning-layout', option, selectedId => {
+      state.zoningLayout = selectedId;
+      syncChoiceTiles(container, selectedId);
+      updateSummary();
+      storeLabelForSelection('ZoneLayout', selectedId);
+    });
+    container.appendChild(tile);
+  });
+  syncChoiceTiles(container, state.zoningLayout);
 }
 
 function renderCondensateOptions() {
@@ -1375,16 +1498,34 @@ function renderDisruptionHotspots(containerId, stateKey) {
 function createRadioTile(groupName, option, onSelect) {
   const tile = document.createElement('div');
   tile.className = 'choice-tile';
+  const hasImage = Boolean(option.image);
+  if (hasImage) {
+    tile.classList.add('visual-choice');
+  }
   const inputId = `${groupName}-${option.id}`;
-  tile.innerHTML = `
-    <input type="radio" name="${groupName}" id="${inputId}" value="${option.id}">
-    <label for="${inputId}">
+  const labelContent = hasImage
+    ? `
+      ${option.code ? `<span class="tile-badge">${option.code}</span>` : ''}
+      <figure>
+        <img src="${option.image}" alt="${option.alt || option.label}">
+        <figcaption>
+          <strong>${option.label}</strong>
+          ${option.description ? `<span>${option.description}</span>` : ''}
+        </figcaption>
+      </figure>
+    `
+    : `
       ${option.code ? `<span class="tile-badge">${option.code}</span>` : ''}
       ${option.icon ? `<span class="tile-icon">${option.icon}</span>` : ''}
       <span class="tile-copy">
         <strong>${option.label}</strong>
         ${option.description ? `<span>${option.description}</span>` : ''}
       </span>
+    `;
+  tile.innerHTML = `
+    <input type="radio" name="${groupName}" id="${inputId}" value="${option.id}">
+    <label for="${inputId}">
+      ${labelContent}
     </label>
   `;
   const input = tile.querySelector('input');
@@ -1413,16 +1554,34 @@ function toggleSetSelection(targetSet, optionId, checked, noneOptionId) {
 function createCheckboxTile(groupName, option, onToggle) {
   const tile = document.createElement('div');
   tile.className = 'choice-tile';
+  const hasImage = Boolean(option.image);
+  if (hasImage) {
+    tile.classList.add('visual-choice');
+  }
   const inputId = `${groupName}-${option.id}`;
-  tile.innerHTML = `
-    <input type="checkbox" name="${groupName}" id="${inputId}" value="${option.id}">
-    <label for="${inputId}">
+  const labelContent = hasImage
+    ? `
+      ${option.code ? `<span class="tile-badge">${option.code}</span>` : ''}
+      <figure>
+        <img src="${option.image}" alt="${option.alt || option.label}">
+        <figcaption>
+          <strong>${option.label}</strong>
+          ${option.description ? `<span>${option.description}</span>` : ''}
+        </figcaption>
+      </figure>
+    `
+    : `
       ${option.code ? `<span class="tile-badge">${option.code}</span>` : ''}
       ${option.icon ? `<span class="tile-icon">${option.icon}</span>` : ''}
       <span class="tile-copy">
         <strong>${option.label}</strong>
         ${option.description ? `<span>${option.description}</span>` : ''}
       </span>
+    `;
+  tile.innerHTML = `
+    <input type="checkbox" name="${groupName}" id="${inputId}" value="${option.id}">
+    <label for="${inputId}">
+      ${labelContent}
     </label>
   `;
   const input = tile.querySelector('input');
@@ -1818,6 +1977,10 @@ function updateSummary() {
       value: upgradeList.length ? upgradeList.join(', ') : 'Not recorded'
     },
     {
+      label: 'Zoning layout',
+      value: state.zoningLayout ? labelLookup.get(state.zoningLayout) : 'Not recorded'
+    },
+    {
       label: 'Cylinder works',
       value: cylinderList.length ? cylinderList.join(', ') : 'Not recorded'
     },
@@ -1873,6 +2036,7 @@ function updateSummary() {
     `New boiler type: ${state.newBoilerType ? labelLookup.get(state.newBoilerType) : 'Not recorded'}`,
     `Condensate works: ${condensateList.length ? condensateList.join(', ') : 'Not recorded'}`,
     `System upgrades: ${upgradeList.length ? upgradeList.join(', ') : 'Not recorded'}`,
+    `Zoning layout: ${state.zoningLayout ? labelLookup.get(state.zoningLayout) : 'Not recorded'}`,
     `Cylinder works: ${cylinderList.length ? cylinderList.join(', ') : 'Not recorded'}`,
     `Controls: ${controlList.length ? controlList.join(', ') : 'Not recorded'}`
   ];
@@ -1925,6 +2089,7 @@ function resetSurvey() {
   state.newBoilerLocation = '';
   state.newBoilerType = '';
   state.newFlueDirection = '';
+  state.zoningLayout = '';
   state.makingGood.clear();
   state.buildingWork.clear();
   state.condensateRoutes.clear();
@@ -1944,7 +2109,7 @@ function resetSurvey() {
   document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
     input.checked = false;
   });
-  ['BlrA','FluA','TermWall','TermHeight','LocA','LocB','BlrB','FluB','CylA','CylB'].forEach(key => {
+  ['BlrA','FluA','TermWall','TermHeight','LocA','LocB','BlrB','FluB','CylA','CylB','ZoneLayout'].forEach(key => {
     persistPlannerValue(key, '');
   });
   syncAccessCards();
@@ -1963,6 +2128,7 @@ function resetSurvey() {
   syncCheckboxTiles(document.getElementById('disruptionCodeChoices'), state.disruptionNotes);
   syncChoiceTiles(document.getElementById('powerflushChoices'), state.powerflushSelection);
   syncCheckboxTiles(document.getElementById('customerActionChoices'), state.customerActions);
+  syncChoiceTiles(document.getElementById('zoningChoices'), state.zoningLayout);
   document.querySelectorAll('[data-pipework-group]').forEach(group => {
     const sectionId = group.dataset.pipeworkGroup;
     const sectionSet = state.pipework.get(sectionId) || new Set();
@@ -2072,39 +2238,4 @@ function updateFlueBuilder() {
   if (clearButton) {
     clearButton.disabled = state.flueRoute.length === 0;
   }
-}
-
-function createFlueDirectionIcon(direction) {
-  const box = '<rect x="28" y="28" width="24" height="24" rx="6" fill="none" stroke="currentColor" stroke-width="4"/>';
-  const turret = '<path d="M32 28 V20 L40 12 L48 20 V28" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>';
-  let elements = box;
-  switch (direction) {
-    case 'direct-rear':
-      elements += '<path d="M28 40 H12" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="12" cy="40" r="4" fill="currentColor"/>';
-      break;
-    case 'turret-lift':
-      elements += turret;
-      elements += '<path d="M40 20 V8" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="40" cy="8" r="4" fill="currentColor"/>';
-      break;
-    case 'turret-rear':
-      elements += turret;
-      elements += '<path d="M28 40 H12" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="12" cy="40" r="4" fill="currentColor"/>';
-      break;
-    case 'turret-right':
-      elements += turret;
-      elements += '<path d="M52 40 H68" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="68" cy="40" r="4" fill="currentColor"/>';
-      break;
-    case 'turret-forward':
-      elements += turret;
-      elements += '<path d="M40 52 V68" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="40" cy="68" r="4" fill="currentColor"/>';
-      break;
-    case 'vertical':
-      elements += '<path d="M40 52 V20" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>';
-      elements += '<circle cx="40" cy="20" r="4" fill="currentColor"/>';
-      elements += '<path d="M40 20 V8" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="40" cy="8" r="4" fill="currentColor"/>';
-      break;
-    default:
-      break;
-  }
-  return `<svg viewBox="0 0 80 80" role="img" aria-hidden="true">${elements}</svg>`;
 }
