@@ -169,6 +169,84 @@ button {
   outline: none;
 }
 
+.step-section {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.step-section.is-active {
+  display: block;
+  opacity: 1;
+  animation: stepFadeIn 0.3s ease;
+}
+
+@keyframes stepFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.section-nav {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.section-nav-button {
+  border-radius: 999px;
+  padding: 0.7rem 1.6rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.section-nav-button.prev {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.section-nav-button.prev:hover,
+.section-nav-button.prev:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+  outline: none;
+}
+
+.section-nav-button.next {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: #fff;
+  box-shadow: 0 14px 32px rgba(37, 99, 235, 0.25);
+  margin-left: auto;
+}
+
+.section-nav-button.next:hover,
+.section-nav-button.next:focus-visible {
+  box-shadow: 0 16px 36px rgba(37, 99, 235, 0.3);
+  outline: none;
+}
+
+.section-nav-button:focus-visible {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-section {
+    transition: none;
+  }
+
+  .step-section.is-active {
+    animation: none;
+  }
+}
+
 .step-nav {
   background: var(--panel-bg);
   border-radius: 20px;

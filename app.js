@@ -806,7 +806,7 @@ function clearStepNotesState() {
 
 function injectStepNotes() {
   stepNotesState = loadStoredStepNotes();
-  const panels = Array.from(document.querySelectorAll('.content .panel'));
+  const panels = Array.from(document.querySelectorAll('#survey-container .step-section'));
   panels.forEach((panel, index) => {
     if (!panel.id) {
       panel.id = `step-section-${index + 1}`;
@@ -911,11 +911,7 @@ function updateCylinderPlannerStorage() {
 }
 
 let stepSections = [];
-let stepNavButtons = [];
 let currentStepIndex = 0;
-let stepProgressLabel = null;
-let prevStepButton = null;
-let nextStepButton = null;
 let topBarElement = null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1707,55 +1703,30 @@ function buildOutputText(value, fallback) {
 }
 
 function initStepNavigation() {
-  const shortcutList = document.getElementById('stepShortcuts');
-  if (!shortcutList) {
+  const container = document.getElementById('survey-container');
+  if (!container) {
     return;
   }
 
-  stepSections = Array.from(document.querySelectorAll('.content .panel'));
+  stepSections = Array.from(container.querySelectorAll('.step-section'));
   if (!stepSections.length) {
-    shortcutList.innerHTML = '';
     return;
   }
 
-  prevStepButton = document.getElementById('prevStep');
-  nextStepButton = document.getElementById('nextStep');
-  stepProgressLabel = document.getElementById('stepProgressLabel');
-
-  if (prevStepButton) {
-    prevStepButton.addEventListener('click', () => {
-      showStep(currentStepIndex - 1);
-    });
-  }
-
-  if (nextStepButton) {
-    nextStepButton.addEventListener('click', () => {
-      showStep(currentStepIndex + 1);
-    });
-  }
-
-  shortcutList.innerHTML = '';
-  stepNavButtons = stepSections.map((section, index) => {
-    const listItem = document.createElement('li');
-    const stepLabelElement = section.querySelector('.step-count');
-    const headingElement = section.querySelector('h2');
-    const stepLabel = stepLabelElement ? stepLabelElement.textContent.trim() : `Step ${index + 1}`;
-    const titleLabel = headingElement ? headingElement.textContent.trim() : '';
+  stepSections.forEach((section, index) => {
     if (!section.id) {
       section.id = `step-section-${index + 1}`;
     }
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'step-nav-button';
-    button.innerHTML = `
-      <span class="step-nav-number">${stepLabel}</span>
-      <span class="step-nav-title">${titleLabel}</span>
-    `;
-    button.setAttribute('aria-controls', section.id);
-    button.addEventListener('click', () => showStep(index));
-    listItem.appendChild(button);
-    shortcutList.appendChild(listItem);
-    return button;
+
+    const nextButton = section.querySelector('[data-nav="next"]');
+    if (nextButton) {
+      nextButton.addEventListener('click', () => showStep(index + 1));
+    }
+
+    const prevButton = section.querySelector('[data-nav="prev"]');
+    if (prevButton) {
+      prevButton.addEventListener('click', () => showStep(index - 1));
+    }
   });
 
   const initialHash = window.location.hash.replace(/^#/, '');
@@ -1771,6 +1742,7 @@ function initStepNavigation() {
   window.addEventListener('hashchange', () => {
     const hash = window.location.hash.replace(/^#/, '');
     if (!hash) {
+      showStep(0, { scroll: false, focus: false, smooth: false });
       return;
     }
     const targetIndex = stepSections.findIndex(section => section.id === hash);
@@ -1791,8 +1763,9 @@ function showStep(index, options = {}) {
 
   stepSections.forEach((section, idx) => {
     const isActive = idx === currentStepIndex;
-    section.hidden = !isActive;
     section.classList.toggle('is-active', isActive);
+    section.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+
     const heading = section.querySelector('h2');
     if (heading) {
       if (isActive) {
@@ -1803,38 +1776,9 @@ function showStep(index, options = {}) {
     }
   });
 
-  stepNavButtons.forEach((button, idx) => {
-    if (!button) {
-      return;
-    }
-    const isActive = idx === currentStepIndex;
-    button.classList.toggle('is-active', isActive);
-    if (isActive) {
-      button.setAttribute('aria-current', 'page');
-      button.setAttribute('aria-pressed', 'true');
-    } else {
-      button.removeAttribute('aria-current');
-      button.setAttribute('aria-pressed', 'false');
-    }
-  });
-
   const activeSection = stepSections[currentStepIndex];
   if (!activeSection) {
     return;
-  }
-
-  if (stepProgressLabel) {
-    stepProgressLabel.textContent = `Step ${currentStepIndex + 1} of ${stepSections.length}`;
-  }
-
-  if (prevStepButton) {
-    prevStepButton.disabled = currentStepIndex === 0;
-  }
-
-  if (nextStepButton) {
-    const isLastStep = currentStepIndex === stepSections.length - 1;
-    nextStepButton.disabled = isLastStep;
-    nextStepButton.textContent = isLastStep ? 'Survey complete' : 'Next step';
   }
 
   if (activeSection.id) {
