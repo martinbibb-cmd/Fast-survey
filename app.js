@@ -75,15 +75,15 @@ const FLUE_TYPES = [
     id: 'fanned-horizontal',
     label: 'Fanned horizontal',
     description: 'Fan-assisted flue leaving through a wall.',
-    image: 'assets/img/fast-survey/plume-kit.JPG',
-    alt: 'Horizontal flue plume management kit'
+    image: 'assets/img/fast-survey/flue-horizontal-fanned.WEBP',
+    alt: 'Fan-assisted horizontal flue exiting a masonry wall'
   },
   {
     id: 'fanned-vertical',
     label: 'Fanned vertical',
     description: 'Fan-assisted flue terminating through the roof.',
-    image: 'assets/img/fast-survey/vertical-flue-pitched.PNG',
-    alt: 'Vertical flue on a pitched roof'
+    image: 'assets/img/fast-survey/flue-vertical-pitched-roof.JPG',
+    alt: 'Fan-assisted vertical flue on a pitched roof'
   }
 ];
 
@@ -92,22 +92,22 @@ const FLUE_EXIT_POINTS = [
     id: 'rear-wall',
     label: 'Rear wall',
     description: 'Exits directly behind the boiler.',
-    image: 'assets/img/fast-survey/plume-kit.JPG',
-    alt: 'Rear wall flue exit with plume kit'
+    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    alt: 'Rear wall flue position and clearance diagram'
   },
   {
     id: 'side-wall',
     label: 'Side wall',
     description: 'Terminates through a side elevation.',
-    image: 'assets/img/fast-survey/plume-kit.JPG',
-    alt: 'Side elevation flue termination'
+    image: 'assets/img/fast-survey/Flue-turret-right.PNG',
+    alt: 'Side elevation flue turret detail'
   },
   {
     id: 'roof',
     label: 'Roof',
     description: 'Terminates vertically through the roof.',
-    image: 'assets/img/fast-survey/vertical-flue-pitched.PNG',
-    alt: 'Vertical flue termination through roof tiles'
+    image: 'assets/img/fast-survey/roof-terminal.svg',
+    alt: 'Roof terminal illustrating vertical flue clearance'
   }
 ];
 
@@ -116,15 +116,15 @@ const NEW_FLUE_DIRECTIONS = [
     id: 'new-flue-horizontal',
     label: 'Horizontal',
     description: 'Horizontal run from the boiler.',
-    image: 'assets/img/fast-survey/plume-kit.JPG',
-    alt: 'Horizontal flue route with plume kit components'
+    image: 'assets/img/fast-survey/flue-horizontal-fanned.WEBP',
+    alt: 'Horizontal flue route showing plume management kit'
   },
   {
     id: 'new-flue-vertical',
     label: 'Vertical',
     description: 'Vertical run through the roof.',
-    image: 'assets/img/fast-survey/vertical-flue-pitched.PNG',
-    alt: 'Vertical flue route exiting a pitched roof'
+    image: 'assets/img/fast-survey/flue-vertical-flat-roof.JPG',
+    alt: 'Vertical flue route exiting via a flat roof kit'
   }
 ];
 
@@ -253,56 +253,56 @@ const MAKING_GOOD_OPTIONS = [
     code: 'FN02',
     label: 'New flue',
     description: 'New hole – same wall',
-    image: 'assets/img/fast-survey/plume-kit.JPG',
-    alt: 'Rear wall flue drilling and plume kit collar'
+    image: 'assets/img/fast-survey/Flue-turret-left.jpg',
+    alt: 'Rear wall flue drilling with turret flashing'
   },
   {
     id: 'FN03',
     code: 'FN03',
     label: 'New flue',
     description: 'New hole – alternative wall',
-    image: 'assets/img/fast-survey/plume-kit.JPG',
-    alt: 'Side wall flue drilling illustration'
+    image: 'assets/img/fast-survey/Flue-turret-right.PNG',
+    alt: 'Side wall flue drilling with turret flashing'
   },
   {
     id: 'FN04',
     code: 'FN04',
     label: 'Orientation',
     description: 'Horizontal',
-    image: 'assets/img/fast-survey/plume-kit.JPG',
-    alt: 'Horizontal flue orientation'
+    image: 'assets/img/fast-survey/flue-horizontal-fanned.WEBP',
+    alt: 'Horizontal flue orientation with plume kit'
   },
   {
     id: 'FN05',
     code: 'FN05',
     label: 'Orientation',
     description: 'Vertical',
-    image: 'assets/img/fast-survey/vertical-flue-pitched.PNG',
-    alt: 'Vertical flue orientation'
+    image: 'assets/img/fast-survey/flue-vertical-pitched-roof.JPG',
+    alt: 'Vertical flue orientation through pitched roof'
   },
   {
     id: 'FN06',
     code: 'FN06',
     label: 'Sealing',
     description: 'Seal brickwork to flue',
-    image: 'assets/img/fast-survey/flue-offset-40mm.svg',
-    alt: 'Flue sealing illustration'
+    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    alt: 'Flue sealing and clearance illustration'
   },
   {
     id: 'FN07',
     code: 'FN07',
     label: 'Sealing',
     description: 'Vertical flashing kit',
-    image: 'assets/img/fast-survey/vertical-flue-pitched.PNG',
-    alt: 'Vertical flashing kit illustration'
+    image: 'assets/img/fast-survey/roof-terminal.svg',
+    alt: 'Vertical flashing kit and roof terminal illustration'
   },
   {
     id: 'FN08',
     code: 'FN08',
     label: 'Sealing',
     description: 'Flat roof flashing by specialist builder',
-    image: 'assets/img/fast-survey/vertical-flue-pitched.PNG',
-    alt: 'Flat roof flashing illustration'
+    image: 'assets/img/fast-survey/flue-vertical-flat-roof.JPG',
+    alt: 'Flat roof flashing around vertical flue'
   }
 ];
 
@@ -312,56 +312,56 @@ const BUILDING_WORK_OPTIONS = [
     code: 'BW01',
     label: 'Fanned flue – same hole',
     description: 'Re-use existing opening with minimal making good.',
-    image: 'assets/img/fast-survey/plume-kit.JPG',
-    alt: 'Fanned flue using existing hole'
+    image: 'assets/img/fast-survey/flue-horizontal-fanned.WEBP',
+    alt: 'Fanned flue reusing original wall penetration'
   },
   {
     id: 'BW02',
     code: 'BW02',
     label: 'Fanned flue – remodelling required',
     description: 'Alter surrounding finishes to suit the new fanned flue.',
-    image: 'assets/img/fast-survey/plume-kit.JPG',
-    alt: 'Fanned flue requiring remodelling'
+    image: 'assets/img/fast-survey/Flue-turret-left.jpg',
+    alt: 'Fanned flue with new brickwork and turret detail'
   },
   {
     id: 'BW03',
     code: 'BW03',
     label: 'Fanned flue – new position',
     description: 'Form a new opening to relocate the flue termination.',
-    image: 'assets/img/fast-survey/plume-kit.JPG',
-    alt: 'Fanned flue in new position'
+    image: 'assets/img/fast-survey/Flue-turret-right.PNG',
+    alt: 'Fanned flue relocated to alternative wall position'
   },
   {
     id: 'BW04',
     code: 'BW04',
     label: 'Balanced changed to fanned – engineer to provide bricks',
     description: 'Engineer to supply bricks for infilling the old balanced flue.',
-    image: 'assets/img/fast-survey/plume-kit.JPG',
-    alt: 'Balanced to fanned conversion with engineer provided bricks'
+    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    alt: 'Balanced to fanned conversion with engineer supplied materials'
   },
   {
     id: 'BW05',
     code: 'BW05',
     label: 'Balanced to fanned – customer provide bricks',
     description: 'Customer to supply bricks while converting from balanced to fanned.',
-    image: 'assets/img/fast-survey/plume-kit.JPG',
-    alt: 'Balanced to fanned conversion with customer bricks'
+    image: 'assets/img/fast-survey/rear-flue-dims.svg',
+    alt: 'Balanced to fanned conversion with customer supplied materials'
   },
   {
     id: 'BW06',
     code: 'BW06',
     label: 'Specialist builder (3)',
     description: 'Specialist builder attendance – three visits or days.',
-    image: 'assets/img/fast-survey/flue-offset-40mm.svg',
-    alt: 'Specialist builder support illustration'
+    image: 'assets/img/fast-survey/roof-terminal.svg',
+    alt: 'Specialist builder support for roof terminal works'
   },
   {
     id: 'BW07',
     code: 'BW07',
     label: 'Specialist builder (5)',
     description: 'Specialist builder attendance – five visits or days.',
-    image: 'assets/img/fast-survey/flue-offset-40mm.svg',
-    alt: 'Extended specialist builder support illustration'
+    image: 'assets/img/fast-survey/flue-vertical-flat-roof.JPG',
+    alt: 'Extended specialist builder support on flat roof flue works'
   }
 ];
 
