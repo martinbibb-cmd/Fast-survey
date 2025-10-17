@@ -6,7 +6,7 @@ from typing import Dict, List
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, ValidationInfo, field_validator
 
 
 app = FastAPI(title="Fast Survey", version="0.1.0")
@@ -18,7 +18,7 @@ class Choice(BaseModel):
     value: str = Field(..., description="Value returned when this choice is selected.")
     label: str = Field(..., description="Human readable label for the choice.")
 
-    @validator("value", "label")
+    @field_validator("value", "label", mode="before")
     def _strip(cls, value: str) -> str:
         if not value.strip():
             raise ValueError("Choice values and labels must not be empty.")
@@ -35,16 +35,18 @@ class Question(BaseModel):
     )
     choices: List[Choice] = Field(default_factory=list, description="Available choices.")
 
-    @validator("prompt")
+    @field_validator("prompt", mode="before")
     def _validate_prompt(cls, value: str) -> str:
         value = value.strip()
         if not value:
             raise ValueError("Question prompt must not be empty.")
         return value
 
-    @validator("choices", always=True)
-    def _validate_choices(cls, value: List[Choice], values: Dict[str, object]) -> List[Choice]:
-        kind = values.get("kind", "text")
+    @field_validator("choices", mode="after")
+    def _validate_choices(
+        cls, value: List[Choice], info: ValidationInfo
+    ) -> List[Choice]:
+        kind = (info.data or {}).get("kind", "text")
         if kind == "single_choice" and not value:
             raise ValueError("Single choice questions must define at least one choice.")
         if kind != "single_choice" and value:
@@ -59,9 +61,9 @@ class SurveyCreate(BaseModel):
 
     title: str = Field(..., description="Title displayed to respondents.")
     description: str | None = Field(None, description="Optional survey description.")
-    questions: List[Question] = Field(..., min_items=1)
+    questions: List[Question] = Field(..., min_length=1)
 
-    @validator("title")
+    @field_validator("title", mode="before")
     def _validate_title(cls, value: str) -> str:
         value = value.strip()
         if not value:
@@ -80,7 +82,7 @@ class ResponseCreate(BaseModel):
 
     answers: Dict[int, str] = Field(..., description="Mapping from question index to answer.")
 
-    @validator("answers")
+    @field_validator("answers", mode="after")
     def _validate_answers(cls, answers: Dict[int, str]) -> Dict[int, str]:
         cleaned: Dict[int, str] = {}
         for idx, answer in answers.items():
@@ -120,7 +122,7 @@ class InMemorySurveyStore:
 
     def create(self, payload: SurveyCreate) -> Survey:
         survey_id = next(self._id_sequence)
-        survey = Survey(id=survey_id, **payload.dict())
+        survey = Survey(id=survey_id, **payload.model_dump())
         self._surveys[survey_id] = survey
         self._results[survey_id] = SurveyResults()
         return survey
@@ -188,7 +190,7 @@ def submit_response(survey_id: int, submission: ResponseCreate) -> SurveyResults
     """Submit a response for the given survey."""
 
     results = store.submit_response(survey_id, submission)
-    return JSONResponse(status_code=202, content=results.dict())
+    return JSONResponse(status_code=202, content=results.model_dump())
 
 
 @app.get("/surveys/{survey_id}/results", response_model=SurveyResults)
