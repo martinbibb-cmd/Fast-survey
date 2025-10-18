@@ -4,9 +4,11 @@ const ASSETS = [
   '/index.html',
   '/styles.css',
   '/app.js',
+  '/manifest.webmanifest',
   '/data/options.txt',
   '/data/mapping.json',
   '/data/pricebook.json',
+  '/assets/icons/fast-survey-icon.svg',
   '/lib/jszip.min.js',
   '/lib/jspdf.umd.min.js'
 ];

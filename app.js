@@ -960,10 +960,28 @@ function updateCylinderPlannerStorage() {
 }
 
 let stepSections = [];
+let stepNavButtons = [];
+let stepPagerElement = null;
+let stepPagerPrevButton = null;
+let stepPagerNextButton = null;
+let stepProgressLabel = null;
 let currentStepIndex = 0;
 let topBarElement = null;
 
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) {
+    return;
+  }
+
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('./sw.js')
+      .catch(error => console.warn('Service worker registration failed', error));
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  registerServiceWorker();
   topBarElement = document.querySelector('.top-bar');
   updateTopBarHeightVar();
   window.addEventListener('resize', updateTopBarHeightVar);
@@ -1863,7 +1881,58 @@ function initStepNavigation() {
 
   stepSections = Array.from(container.querySelectorAll('.step-section'));
   if (!stepSections.length) {
+    const navContainer = document.getElementById('stepNav');
+    if (navContainer) {
+      navContainer.hidden = true;
+    }
+    const pager = document.getElementById('stepPager');
+    if (pager) {
+      pager.hidden = true;
+    }
     return;
+  }
+
+  const navContainer = document.getElementById('stepNav');
+  stepNavButtons = [];
+  if (navContainer) {
+    navContainer.hidden = false;
+    navContainer.innerHTML = '';
+    const list = document.createElement('ol');
+    list.className = 'step-nav-list';
+    stepSections.forEach((section, index) => {
+      if (!section.id) {
+        section.id = `step-section-${index + 1}`;
+      }
+      const heading = section.querySelector('h2');
+      const title = heading ? heading.textContent.trim() : `Step ${index + 1}`;
+      const item = document.createElement('li');
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'step-nav-button';
+      button.innerHTML = `
+        <span class="step-nav-number">Step ${index + 1}</span>
+        <span class="step-nav-title">${title}</span>
+      `;
+      button.addEventListener('click', () => showStep(index));
+      item.appendChild(button);
+      list.appendChild(item);
+      stepNavButtons.push(button);
+    });
+    navContainer.appendChild(list);
+  }
+
+  stepPagerElement = document.getElementById('stepPager');
+  if (stepPagerElement) {
+    stepProgressLabel = document.getElementById('stepProgressLabel');
+    stepPagerPrevButton = stepPagerElement.querySelector('[data-pager="prev"]');
+    stepPagerNextButton = stepPagerElement.querySelector('[data-pager="next"]');
+
+    if (stepPagerPrevButton) {
+      stepPagerPrevButton.addEventListener('click', () => showStep(currentStepIndex - 1));
+    }
+    if (stepPagerNextButton) {
+      stepPagerNextButton.addEventListener('click', () => showStep(currentStepIndex + 1));
+    }
   }
 
   stepSections.forEach((section, index) => {
@@ -1934,6 +2003,8 @@ function showStep(index, options = {}) {
     return;
   }
 
+  updateStepNavigationUI();
+
   if (activeSection.id) {
     const newHash = `#${activeSection.id}`;
     if (window.location.hash !== newHash) {
@@ -1959,6 +2030,39 @@ function showStep(index, options = {}) {
     if (heading && typeof heading.focus === 'function') {
       heading.focus();
     }
+  }
+}
+
+function updateStepNavigationUI() {
+  if (stepNavButtons.length) {
+    stepNavButtons.forEach((button, idx) => {
+      const isActive = idx === currentStepIndex;
+      button.classList.toggle('is-active', isActive);
+      if (isActive) {
+        button.setAttribute('aria-current', 'page');
+      } else {
+        button.removeAttribute('aria-current');
+      }
+    });
+  }
+
+  if (!stepPagerElement) {
+    return;
+  }
+
+  const totalSteps = stepSections.length;
+  stepPagerElement.hidden = totalSteps <= 1;
+
+  if (stepProgressLabel) {
+    stepProgressLabel.textContent = `Step ${currentStepIndex + 1} of ${totalSteps}`;
+  }
+
+  if (stepPagerPrevButton) {
+    stepPagerPrevButton.disabled = currentStepIndex === 0;
+  }
+
+  if (stepPagerNextButton) {
+    stepPagerNextButton.disabled = currentStepIndex === totalSteps - 1;
   }
 }
 
