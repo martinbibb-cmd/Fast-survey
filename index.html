@@ -21,24 +21,61 @@
 
     <main class="content">
       <div id="survey-container">
-      <section class="panel step-section is-active" id="step-section-1" aria-labelledby="accessHeading">
+      <section class="panel step-section is-active" id="step-section-1" aria-labelledby="customerNeedsHeading">
         <div class="panel-head">
           <div>
             <p class="step-count">Step 1</p>
+            <h2 id="customerNeedsHeading">Customer needs</h2>
+          </div>
+          <p class="panel-hint">Capture the customer's priorities for their heating system.</p>
+        </div>
+        <div class="customer-needs-grid" id="customerNeedsControls" role="group" aria-describedby="customerNeedsHeading"></div>
+        <div class="section-nav">
+          <button type="button" class="section-nav-button next" data-nav="next">Next</button>
+        </div>
+      </section>
+
+      <section class="panel step-section" id="step-section-2" aria-labelledby="parkingHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 2</p>
+            <h2 id="parkingHeading">Parking</h2>
+          </div>
+          <p class="panel-hint">Record parking availability for deliveries and engineers.</p>
+        </div>
+        <fieldset class="fieldset" aria-labelledby="parkingHeading">
+          <legend>Parking arrangements</legend>
+          <div class="choice-group" id="parkingChoices" role="group" aria-labelledby="parkingHeading"></div>
+        </fieldset>
+        <div class="manual-note" id="parkingNoteField">
+          <label class="manual-note-label" for="parkingOtherNote">Other notes</label>
+          <textarea id="parkingOtherNote" rows="3" placeholder="Add additional parking notes..."></textarea>
+        </div>
+        <div class="section-nav">
+          <button type="button" class="section-nav-button prev" data-nav="prev">Back</button>
+          <button type="button" class="section-nav-button next" data-nav="next">Next</button>
+        </div>
+      </section>
+
+      <section class="panel step-section" id="step-section-3" aria-labelledby="accessHeading">
+        <div class="panel-head">
+          <div>
+            <p class="step-count">Step 3</p>
             <h2 id="accessHeading">Access equipment required</h2>
           </div>
           <p class="panel-hint">Tap all that apply for this property.</p>
         </div>
         <div class="card-grid" id="accessGrid" role="group" aria-describedby="accessHeading"></div>
         <div class="section-nav">
+          <button type="button" class="section-nav-button prev" data-nav="prev">Back</button>
           <button type="button" class="section-nav-button next" data-nav="next">Next</button>
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-2" aria-labelledby="boilerHeading">
+      <section class="panel step-section" id="step-section-4" aria-labelledby="boilerHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 2</p>
+            <p class="step-count">Step 4</p>
             <h2 id="boilerHeading">Existing boiler type</h2>
           </div>
           <p class="panel-hint">Choose the boiler type currently installed.</p>
@@ -50,10 +87,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-3" aria-labelledby="flueHeading">
+      <section class="panel step-section" id="step-section-5" aria-labelledby="flueHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 3</p>
+            <p class="step-count">Step 5</p>
             <h2 id="flueHeading">Flue type &amp; exit point</h2>
           </div>
           <p class="panel-hint">Select one option for each question.</p>
@@ -74,10 +111,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-4" aria-labelledby="locationHeading">
+      <section class="panel step-section" id="step-section-6" aria-labelledby="locationHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 4</p>
+            <p class="step-count">Step 6</p>
             <h2 id="locationHeading">Existing boiler location</h2>
           </div>
           <p class="panel-hint">Tap a hotspot to note the room for the existing boiler.</p>
@@ -91,10 +128,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-5" aria-labelledby="newLocationHeading">
+      <section class="panel step-section" id="step-section-7" aria-labelledby="newLocationHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 5</p>
+            <p class="step-count">Step 7</p>
             <h2 id="newLocationHeading">New boiler location</h2>
           </div>
           <p class="panel-hint">Tap a hotspot to choose where the new boiler will be fitted.</p>
@@ -108,10 +145,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-6" aria-labelledby="newBoilerHeading">
+      <section class="panel step-section" id="step-section-8" aria-labelledby="newBoilerHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 6</p>
+            <p class="step-count">Step 8</p>
             <h2 id="newBoilerHeading">New boiler type</h2>
           </div>
           <p class="panel-hint">Choose the specification for the replacement boiler.</p>
@@ -126,10 +163,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-7" aria-labelledby="newFlueHeading">
+      <section class="panel step-section" id="step-section-9" aria-labelledby="newFlueHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 7</p>
+            <p class="step-count">Step 9</p>
             <h2 id="newFlueHeading">New flue direction</h2>
           </div>
           <p class="panel-hint">Select the flue direction and build the proposed route.</p>
@@ -173,10 +210,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-8" aria-labelledby="buildingWorkHeading">
+      <section class="panel step-section" id="step-section-10" aria-labelledby="buildingWorkHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 8</p>
+            <p class="step-count">Step 10</p>
             <h2 id="buildingWorkHeading">Building work &amp; making good</h2>
           </div>
           <p class="panel-hint">Select all building work requirements linked to the flue.</p>
@@ -191,10 +228,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-9" aria-labelledby="condensateHeading">
+      <section class="panel step-section" id="step-section-11" aria-labelledby="condensateHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 9</p>
+            <p class="step-count">Step 11</p>
             <h2 id="condensateHeading">Condensate route</h2>
           </div>
           <p class="panel-hint">Select all condensate discharge arrangements required.</p>
@@ -209,10 +246,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-10" aria-labelledby="systemUpgradesHeading">
+      <section class="panel step-section" id="step-section-12" aria-labelledby="systemUpgradesHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 10</p>
+            <p class="step-count">Step 12</p>
             <h2 id="systemUpgradesHeading">Heating system works</h2>
           </div>
           <p class="panel-hint">Select all upgrade items required. Use the + or − controls for multiples.</p>
@@ -228,10 +265,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-11" aria-labelledby="cylinderHeading">
+      <section class="panel step-section" id="step-section-13" aria-labelledby="cylinderHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 11</p>
+            <p class="step-count">Step 13</p>
             <h2 id="cylinderHeading">Cylinder works</h2>
           </div>
           <p class="panel-hint">Select all cylinder requirements for the installation.</p>
@@ -246,10 +283,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-12" aria-labelledby="controlHeading">
+      <section class="panel step-section" id="step-section-14" aria-labelledby="controlHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 12</p>
+            <p class="step-count">Step 14</p>
             <h2 id="controlHeading">Customer controls</h2>
           </div>
           <p class="panel-hint">Select all control packages to be provided.</p>
@@ -264,10 +301,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-13" aria-labelledby="disruptionHeading">
+      <section class="panel step-section" id="step-section-15" aria-labelledby="disruptionHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 13</p>
+            <p class="step-count">Step 15</p>
             <h2 id="disruptionHeading">Disruption areas</h2>
           </div>
           <p class="panel-hint">Tap all rooms where works will cause disruption such as lifted floorboards.</p>
@@ -281,10 +318,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-14" aria-labelledby="doubleLiftHeading">
+      <section class="panel step-section" id="step-section-16" aria-labelledby="doubleLiftHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 14</p>
+            <p class="step-count">Step 16</p>
             <h2 id="doubleLiftHeading">Double handed lift items</h2>
           </div>
           <p class="panel-hint">Select every component that requires two-person lifting.</p>
@@ -299,10 +336,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-15" aria-labelledby="permissionHeading">
+      <section class="panel step-section" id="step-section-17" aria-labelledby="permissionHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 15</p>
+            <p class="step-count">Step 17</p>
             <h2 id="permissionHeading">Permissions</h2>
           </div>
           <p class="panel-hint">Note all permissions required before works can begin.</p>
@@ -317,10 +354,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-16" aria-labelledby="hazardHeading">
+      <section class="panel step-section" id="step-section-18" aria-labelledby="hazardHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 16</p>
+            <p class="step-count">Step 18</p>
             <h2 id="hazardHeading">Hazards</h2>
           </div>
           <p class="panel-hint">Highlight potential hazards that engineers must plan for.</p>
@@ -335,10 +372,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-17" aria-labelledby="pipeworkHeading">
+      <section class="panel step-section" id="step-section-19" aria-labelledby="pipeworkHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 17</p>
+            <p class="step-count">Step 19</p>
             <h2 id="pipeworkHeading">Pipe work requirements</h2>
           </div>
           <p class="panel-hint">Record gas supply, routing, and commissioning notes.</p>
@@ -350,10 +387,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-18" aria-labelledby="disruptionCodesHeading">
+      <section class="panel step-section" id="step-section-20" aria-labelledby="disruptionCodesHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 18</p>
+            <p class="step-count">Step 20</p>
             <h2 id="disruptionCodesHeading">Disruption requirements</h2>
           </div>
           <p class="panel-hint">Select all preparation and protection measures required.</p>
@@ -368,10 +405,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-19" aria-labelledby="powerflushHeading">
+      <section class="panel step-section" id="step-section-21" aria-labelledby="powerflushHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 19</p>
+            <p class="step-count">Step 21</p>
             <h2 id="powerflushHeading">Powerflushing requirements</h2>
           </div>
           <p class="panel-hint">Choose one option to describe the agreed powerflushing approach.</p>
@@ -386,10 +423,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-20" aria-labelledby="customerActionsHeading">
+      <section class="panel step-section" id="step-section-22" aria-labelledby="customerActionsHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 20</p>
+            <p class="step-count">Step 22</p>
             <h2 id="customerActionsHeading">Customer actions</h2>
           </div>
           <p class="panel-hint">Document actions the customer must complete ahead of installation.</p>
@@ -404,10 +441,10 @@
         </div>
       </section>
 
-      <section class="panel step-section" id="step-section-21" aria-labelledby="awarenessHeading">
+      <section class="panel step-section" id="step-section-23" aria-labelledby="awarenessHeading">
         <div class="panel-head">
           <div>
-            <p class="step-count">Step 21</p>
+            <p class="step-count">Step 23</p>
             <h2 id="awarenessHeading">Things to be aware of</h2>
           </div>
           <p class="panel-hint">Share key advisories and expectations with the customer.</p>
