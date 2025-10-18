@@ -10,7 +10,16 @@
     "CylB",
     "LocB",
     "TermWall",
-    "TermHeight"
+    "TermHeight",
+    "Access",
+    "Parking",
+    "PermissionsHints",
+    "HazardsList",
+    "DeliveryNotes",
+    "OfficeNotes",
+    "ControlsChoice",
+    "NeedsList",
+    "FreeText"
   ];
 
   function readStorage(key) {
@@ -23,6 +32,9 @@
   }
 
   function collectPlannerState() {
+    if (global.NotesEngine && typeof global.NotesEngine.readPlannerState === "function") {
+      return global.NotesEngine.readPlannerState();
+    }
     return STORAGE_KEYS.reduce((acc, key) => {
       acc[key] = readStorage(key);
       return acc;
