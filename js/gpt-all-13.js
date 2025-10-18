@@ -30,6 +30,99 @@
 
   const bullet = (value) => `↘️ ${String(value || "None recorded").trim().replace(/^[↘️\s]*/, "").replace(/;*$/, "")};`;
 
+  const stripBullet = (value) => {
+    if (typeof value !== "string") {
+      return "";
+    }
+    return value.replace(/^↘️\s*/u, "").replace(/;*$/u, "").trim();
+  };
+
+  function ensureSentence(text){
+    const cleaned = String(text || "").trim().replace(/\s+/g, " ");
+    if (!cleaned) {
+      return "";
+    }
+    const initial = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+    return /[.!?]$/u.test(initial) ? initial : `${initial}.`;
+  }
+
+  function uniqueSentences(sentences){
+    const seen = new Set();
+    return sentences.filter((sentence) => {
+      const key = sentence.toLowerCase();
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+  }
+
+  function humanJoin(list){
+    if (!list.length) {
+      return "";
+    }
+    if (list.length === 1) {
+      return list[0];
+    }
+    if (list.length === 2) {
+      return `${list[0]} and ${list[1]}`;
+    }
+    return `${list.slice(0, -1).join(", ")}, and ${list[list.length - 1]}`;
+  }
+
+  function buildEngineerSummary(bullets){
+    const sentences = uniqueSentences(
+      bullets
+        .map(stripBullet)
+        .map(ensureSentence)
+        .filter(Boolean)
+    );
+    if (!sentences.length || sentences.every((sentence) => /^None recorded\.?$/iu.test(sentence))) {
+      return "None recorded.";
+    }
+    return sentences.join(" ");
+  }
+
+  function buildCustomerSummary(sectionKey, bullets){
+    const sentences = bullets
+      .map(stripBullet)
+      .map((sentence) => sentence.replace(/[.!?]+$/u, "").trim())
+      .filter((sentence) => sentence && !/^None recorded$/iu.test(sentence));
+
+    if (!sentences.length) {
+      return sectionKey === "CustomerActions"
+        ? "No additional actions needed from you."
+        : "Nothing extra needed from you.";
+    }
+
+    const joined = humanJoin(sentences.map((sentence) => sentence.replace(/\s+/g, " ")));
+    if (!joined) {
+      return sectionKey === "CustomerActions"
+        ? "No additional actions needed from you."
+        : "Nothing extra needed from you.";
+    }
+
+    if (sectionKey === "CustomerActions") {
+      return `Here's what we need from you: ${joined}.`;
+    }
+
+    return `Here's what we're doing: ${joined}.`;
+  }
+
+  function summariseSections(sections){
+    const normalised = normaliseSections(sections);
+    const summarised = {};
+    SECTION_KEYS.forEach((key) => {
+      const engineer = buildEngineerSummary(normalised[key] || []);
+      const customer = buildCustomerSummary(key, normalised[key] || []);
+      summarised[key] = [
+        bullet(`Engineer summary: ${engineer} ;; Customer summary: ${customer}`)
+      ];
+    });
+    return summarised;
+  }
+
   function normaliseBullet(value){
     if (typeof value !== "string") {
       return null;
@@ -144,7 +237,7 @@
     if (!validateSections(candidate)) {
       throw new Error("Worker response missing expected 13 sections");
     }
-    return normaliseSections(candidate);
+    return summariseSections(candidate);
   }
 
   function findHeading(text){
@@ -227,7 +320,7 @@
         if (!validateSections(json)) {
           throw new Error("JSON missing expected section keys");
         }
-        renderAll(json);
+        renderAll(summariseSections(json));
       } catch (error) {
         console.error(error);
         alert("Clipboard does not contain valid depot JSON.");
