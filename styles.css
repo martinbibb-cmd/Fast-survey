@@ -278,6 +278,8 @@ button {
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 3rem);
+  max-height: max(0px, calc(100vh - var(--top-bar-height) - 4.5rem));
+  overflow: hidden;
 }
 
 @media (max-width: 959px) {
@@ -289,6 +291,7 @@ button {
     position: static;
     max-height: none;
     order: -1;
+    overflow: visible;
   }
 }
 
