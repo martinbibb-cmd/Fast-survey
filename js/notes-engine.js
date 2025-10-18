@@ -1,281 +1,361 @@
-// Lightweight engine: inputs → flags → sectioned notes
-// Expected inputs (pull from planner steps/localStorage):
-// BlrA, FluA, CylA, LocA, BlrB, FluB, CylB, LocB, TermWall, TermHeight
-(function(global){
-  const SCENARIOS = {
-    // Like-for-like replacements
-    "REGULAR>REGULAR": {
-      title: "\u2198\ufe0f Regular boiler replacement;",
-      SystemChanges: [
-        "\u2198\ufe0f Replace regular boiler like-for-like; retain primary layout;",
-        "\u2198\ufe0f Confirm pump / 2-port or 3-port valve operation (no wiring detail);"
-      ],
-      HotWater: [
-        "\u2198\ufe0f Cylinder-fed hot water \u2014 performance depends on cylinder type and tank head;",
-        "\u2198\ufe0f Consider insulation/upgrade of existing cylinder if suboptimal;"
-      ]
-    },
-    "SYSTEM>SYSTEM": {
-      title: "\u2198\ufe0f System boiler replacement;",
-      SystemChanges: [
-        "\u2198\ufe0f Replace system boiler like-for-like; sealed/pressurised circuit retained;",
-        "\u2198\ufe0f Confirm expansion vessel and PRV condition/capacity;"
-      ],
-      HotWater: [
-        "\u2198\ufe0f Cylinder supplies hot water; performance depends on unvented/vented selection;"
-      ]
-    },
-    "COMBI>COMBI": {
-      title: "\u2198\ufe0f Combi boiler replacement;",
-      SystemChanges: [
-        "\u2198\ufe0f Replace combi like-for-like; verify plate HEX performance and DHW set-up;"
-      ],
-      HotWater: [
-        "\u2198\ufe0f Combi DHW depends on mains flow/pressure; single draw is optimal; simultaneous draws reduce performance;",
-        "\u2198\ufe0f Hot water is \u2018on demand\u2019 and not instant at outlets \u2014 run-off time applies;"
-      ]
-    },
+(function (global) {
+  const SECTION_KEYS = [
+    "Needs",
+    "WorkingAtHeights",
+    "SystemCharacteristics",
+    "ComponentsAssistance",
+    "Permissions",
+    "Hazards",
+    "Delivery",
+    "Office",
+    "BoilerAndControls",
+    "Flue",
+    "PipeWork",
+    "Disruption",
+    "CustomerActions"
+  ];
 
-    // Conversions
-    "REGULAR>SYSTEM": {
-      title: "\u2198\ufe0f Convert Regular to System boiler;",
-      SystemChanges: [
-        "\u2198\ufe0f Decommission feed & expansion tanks; convert to sealed/pressurised system;",
-        "\u2198\ufe0f Install system boiler with integral pump/expansion as specified;"
-      ],
-      HotWater: [
-        "\u2198\ufe0f Cylinder supplies hot water; choose unvented for mains pressure where suitable;",
-        "\u2198\ufe0f Verify mains capacity if selecting unvented;"
-      ]
-    },
-    "REGULAR>COMBI": {
-      title: "\u2198\ufe0f Convert Regular to Combi;",
-      SystemChanges: [
-        "\u2198\ufe0f Remove cylinder and loft tanks; convert to sealed/pressurised system;",
-        "\u2198\ufe0f Reconfigure pipework for direct CH flow/return to combi;"
-      ],
-      HotWater: [
-        "\u2198\ufe0f Combi provides hot water on demand \u2014 not instant at outlets (run-off time);",
-        "\u2198\ufe0f Performance depends on mains flow/pressure; single tap best, simultaneous taps reduce flow/temperature;"
-      ]
-    },
-    "SYSTEM>COMBI": {
-      title: "\u2198\ufe0f Convert System to Combi;",
-      SystemChanges: [
-        "\u2198\ufe0f Remove cylinder; sealed/pressurised circuit retained;",
-        "\u2198\ufe0f Reconfigure for combi primary connections;"
-      ],
-      HotWater: [
-        "\u2198\ufe0f On-demand DHW (not instant at outlet); mains capacity dictates performance; single draw preferred;"
-      ]
-    },
-    "COMBI>SYSTEM": {
-      title: "\u2198\ufe0f Convert Combi to System boiler with cylinder;",
-      SystemChanges: [
-        "\u2198\ufe0f Introduce cylinder and sealed primary circuit appropriate to system boiler;",
-        "\u2198\ufe0f Provide cylinder controls/sensors per MI;"
-      ],
-      HotWater: [
-        "\u2198\ufe0f Cylinder-based HW allows multi-outlet draw; unvented gives mains pressure where main is adequate;"
-      ]
-    },
-    "COMBI>REGULAR": {
-      title: "\u2198\ufe0f Convert Combi to Regular boiler with F&E;",
-      SystemChanges: [
-        "\u2198\ufe0f Introduce F&E tanks and regular primary layout;",
-        "\u2198\ufe0f Provide cylinder coil/controls per scheme;"
-      ],
-      HotWater: [
-        "\u2198\ufe0f Cylinder-fed HW; performance depends on cylinder type and tank head (if vented);"
-      ]
-    },
-    "REGULAR>ELECTRIC_WET": {
-      title: "\u2198\ufe0f Convert Regular to Electric wet boiler;",
-      SystemChanges: [
-        "\u2198\ufe0f Decommission gas appliance and F&E as specified; implement sealed circuit if required;"
-      ],
-      HotWater: [
-        "\u2198\ufe0f HW via cylinder (specify type); electrical capacity/tariff considerations apply;"
-      ]
-    },
-    "SYSTEM>ELECTRIC_WET": {
-      title: "\u2198\ufe0f Convert System to Electric wet boiler;",
-      SystemChanges: [
-        "\u2198\ufe0f Replace heat source with electric boiler; sealed circuit retained;"
-      ],
-      HotWater: [
-        "\u2198\ufe0f HW via cylinder; check electrical capacity and tariffs;"
-      ]
+  const bullet = (value) => `↘️ ${String(value || "None recorded").trim().replace(/^[↘️\s]*/, "").replace(/;*$/, "")};`;
+
+  function deriveScenario(input) {
+    const a = (input.BlrA || "").toUpperCase();
+    const b = (input.BlrB || "").toUpperCase();
+    if (!a && !b) {
+      return "UNKNOWN→UNKNOWN";
     }
-  };
-
-  // Cylinder overlays (applied by proposed cylinder where relevant)
-  const CYL_OVERLAYS = {
-    UNVENTED_MAINS: [
-      "\u2198\ufe0f Provide unvented (G3) safety set and correctly sized discharge (D2) termination;",
-      "\u2198\ufe0f Confirm static pressure and dynamic flow meet unvented specification;"
-    ],
-    VENTED_TANKED: [
-      "\u2198\ufe0f Vented cylinder performance depends on tank head; consider shower pump where appropriate;"
-    ],
-    THERMAL_STORE: [
-      "\u2198\ufe0f Thermal store: confirm interfaces/temperatures and suitability for emitters;"
-    ],
-    NONE: [] // e.g., combi
-  };
-
-  // Universal sanity checks (always appended)
-  const UNIVERSAL = {
-    Gas: ["\u2198\ufe0f Confirm gas pipe sizing and route for new input rating; upgrade if required;"],
-    Condensate: ["\u2198\ufe0f Confirm compliant condensate route and termination;"],
-    HouseKeeping: [
-      "\u2198\ufe0f Cleanse system and dose inhibitor; fit system filter as specified;",
-      "\u2198\ufe0f Fit/verify TRVs where required and balance system on completion;"
-    ]
-  };
-
-  // Flue/terminal overlays (applied to any scenario)
-  function flueOverlays(i){
-    const out = [];
-    const isBalanced = ["H_BALANCED","V_BALANCED","PLUME_KIT"].includes(i.FluB);
-    const changed = i.FluA && i.FluB && i.FluA !== i.FluB;
-    if (changed || isBalanced) out.push("\u2198\ufe0f Check flue type/route/terminal clearances vs MI; confirm guards and plume management if needed;");
-    if (i.FluB === "PLUME_KIT" || i.FluB === "H_BALANCED") out.push("\u2198\ufe0f Anticipated plume \u2014 consider plume kit/deflector to protect paths, windows and boundaries;");
-    if (i.TermHeight === "LOW_LT_2M") out.push("\u2198\ufe0f Terminal <2 m or accessible \u2014 provide terminal guard as required;");
-    if (["FRONT","ALLEY","NEAR_BOUNDARY","COURTYARD"].includes(i.TermWall)) out.push("\u2198\ufe0f Terminal near boundary/front/alley \u2014 confirm boundary clearances and neighbour impact;");
-    if (["OPEN_FLUE","CHIMNEY"].includes(i.FluA) && isBalanced) out.push("\u2198\ufe0f Decommission/liner considerations for chimney/open flue; cap and make good as required;");
-    return out;
+    if (!a) {
+      return `UNKNOWN→${b}`;
+    }
+    if (!b) {
+      return `${a}→UNKNOWN`;
+    }
+    return `${a}→${b}`;
   }
 
-  // Location overlay (applies to any scenario)
-  function locationOverlay(i){
-    return [`\u2198\ufe0f Old location: ${i.LocA||"?"} \u2014 decommission/make good; New location: ${i.LocB||"?"} \u2014 confirm mounting clearances and access;`];
-  }
-
-  // Derived rules needed only for a couple scenarios
-  function deriveRemoval(i){
-    // Explicit cylinder/F&E messaging for *conversions* where appropriate
-    const msgs = [];
-    const A_isVented = ["VENTED_TANKED","FORTIC_COMBINED","PRIMATIC"].includes(i.CylA);
-    if (i.scenario === "REGULAR>COMBI" || i.scenario === "SYSTEM>COMBI"){
-      if (i.CylA && i.CylA !== "NONE") msgs.push("\u2198\ufe0f Remove cylinder and associated components;");
-      if (A_isVented) msgs.push("\u2198\ufe0f Remove F&E tanks and convert to sealed/pressurised system;");
-    }
-    if (i.scenario === "REGULAR>SYSTEM"){
-      if (A_isVented && i.CylB !== "VENTED_TANKED") msgs.push("\u2198\ufe0f Remove F&E tanks and convert to sealed/pressurised system;");
-    }
-    if (i.scenario === "COMBI>SYSTEM") {
-      msgs.push("\u2198\ufe0f Introduce cylinder and associated controls as specified;");
-    }
-    if (i.scenario === "COMBI>REGULAR") {
-      msgs.push("\u2198\ufe0f Introduce F&E tanks and regular primary layout;");
-    }
-    return msgs;
-  }
-
-  function resolveScenario(inputs){
-    const i = {...inputs};
-    i.scenario = `${i.BlrA}>${i.BlrB}`;
-    const base = SCENARIOS[i.scenario] || { title:`\u2198\ufe0f System conversion (${i.scenario});`, SystemChanges:[], HotWater:[] };
-
-    // Build section buckets
-    const sections = {
-      SummaryChange: [base.title],
-      SystemChanges: [...(base.SystemChanges || []), ...deriveRemoval(i)],
-      HotWater: [...(base.HotWater || [])],
-      Flue: flueOverlays(i),
-      Gas: [...UNIVERSAL.Gas],
-      Condensate: [...UNIVERSAL.Condensate],
-      LocationAndMakingGood: locationOverlay(i),
-      Controls: [`\u2198\ufe0f Configure for ${i.BlrB} operation; confirm room/cylinder controls as specified;`],
-      HouseKeeping: [...UNIVERSAL.HouseKeeping]
-    };
-
-    // Cylinder overlay by *proposed* cylinder
-    if (i.BlrB !== "COMBI" && i.CylB){
-      const overlay = CYL_OVERLAYS[i.CylB] || [];
-      sections.HotWater.push(...overlay);
-    }
-
-    // Guarantee HotWater has at least one baseline line
-    if (sections.HotWater.length === 0){
-      sections.HotWater.push("\u2198\ufe0f Verify incoming cold main flow/pressure meets specification;");
-    }
+  function ensureMinimum(sections) {
+    SECTION_KEYS.forEach((key) => {
+      if (!Array.isArray(sections[key])) {
+        sections[key] = [];
+      }
+      if (sections[key].length === 0) {
+        sections[key].push(bullet("None recorded"));
+      }
+    });
     return sections;
   }
 
-  // Normalise planner values to engine enums
-  function normalise(v, map){ return (map[v] || v || "").toUpperCase(); }
-  const FLUE_MAP = {
-    "Horizontal (balanced)": "H_BALANCED",
-    "Vertical (balanced)": "V_BALANCED",
-    "Plume kit": "PLUME_KIT",
-    "Open flue": "OPEN_FLUE",
-    "Chimney": "CHIMNEY",
-    "Balanced": "H_BALANCED",
-    "Fanned": "H_BALANCED",
-    "Side flue": "H_BALANCED",
-    "Rear flue": "H_BALANCED",
-    "Direct rear": "H_BALANCED",
-    "Turret rear": "H_BALANCED",
-    "Turret right": "H_BALANCED",
-    "Turret forward": "H_BALANCED",
-    "Turret lift": "V_BALANCED",
-    "Vertical": "V_BALANCED",
-    "HORIZONTAL":"H_BALANCED","VERTICAL":"V_BALANCED"
-  };
-  const WALL_MAP = {
-    "Rear": "REAR","Front":"FRONT","Left":"LEFT_SIDE","Right":"RIGHT_SIDE",
-    "Courtyard":"COURTYARD","Alley":"ALLEY","Near boundary":"NEAR_BOUNDARY",
-    "Wall":"WALL_GENERIC","Flat roof":"ROOF_FLAT","Pitched roof":"ROOF_PITCHED"
-  };
-  const HEIGHT_MAP = {
-    "<2 m":"LOW_LT_2M","2–2.5 m":"MID_2_TO_2_5M",">2.5 m":"HIGH_GT_2_5M"
-  };
-
-  // Public API
-  function buildNoteSections(raw){
-    const i = {
-      BlrA: normalise(raw.BlrA,{}),
-      FluA: normalise(raw.FluA,FLUE_MAP),
-      CylA: normalise(raw.CylA,{}),
-      LocA: normalise(raw.LocA,{}),
-      BlrB: normalise(raw.BlrB,{}),
-      FluB: normalise(raw.FluB,FLUE_MAP),
-      CylB: normalise(raw.CylB,{}),
-      LocB: normalise(raw.LocB,{}),
-      TermWall: normalise(raw.TermWall,WALL_MAP),
-      TermHeight: normalise(raw.TermHeight,HEIGHT_MAP)
-    };
-    return resolveScenario(i);
+  function splitList(value) {
+    if (!value) {
+      return [];
+    }
+    return String(value)
+      .split(/[\n,;]+/)
+      .map((item) => item.trim())
+      .filter(Boolean);
   }
 
-  // Try pull from localStorage (Fast-survey planner)
-  function readPlannerState(){
-    // Use your existing storage keys if present; fallback to inferred ones.
-    const ls = (k)=>localStorage.getItem(k) || "";
-    // Common keys you likely already set in steps:
+  function applyNeeds(input, sections) {
+    splitList(input.NeedsList).forEach((item) => sections.Needs.push(bullet(item)));
+  }
+
+  function applyWorkingAtHeights(input, sections) {
+    const access = (input.Access || "").toLowerCase();
+    const flueB = (input.FluB || "").toLowerCase();
+    if (access.includes("ladder") && flueB.includes("vertical")) {
+      sections.WorkingAtHeights.push(
+        bullet("Ladder access to roof with standard linking ladders for vertical flue works")
+      );
+    }
+    if (sections.WorkingAtHeights.length === 0) {
+      sections.WorkingAtHeights.push(
+        bullet("Internal access suitable; no specialist platform declared")
+      );
+    }
+  }
+
+  function applySystemCharacteristics(input, sections) {
+    const scenario = deriveScenario(input);
+    const cylB = (input.CylB || "").toUpperCase();
+
+    switch (scenario) {
+      case "COMBI→SYSTEM":
+        sections.SystemCharacteristics.push(
+          bullet("Converting from instantaneous DHW to stored hot water with a cylinder; hot water available to multiple outlets simultaneously"),
+          bullet("Space heating remains sealed; primary circuit pressure maintained via system expansion"),
+          bullet("Recovery time and stored volume dictate DHW performance; no expectation of instant hot water at outlet")
+        );
+        if (cylB === "UNVENTED" || cylB === "") {
+          sections.SystemCharacteristics.push(
+            bullet("Unvented cylinder expected; performance dependent on mains static/dynamic pressure and flow")
+          );
+        }
+        break;
+      case "REGULAR→COMBI":
+        sections.SystemCharacteristics.push(
+          bullet("Converting from vented & stored DHW to on-demand DHW via combi; removal of cylinder and cold water storage where present"),
+          bullet("System sealed and pressurised; expansion vessel replaces F&E tank"),
+          bullet("DHW is mains-pressure and not instant at outlet; single-draw best performance")
+        );
+        break;
+      case "SYSTEM→COMBI":
+        sections.SystemCharacteristics.push(
+          bullet("Moving from stored DHW to instantaneous; cylinder decommissioned/removed as applicable"),
+          bullet("Sealed primary remains; combi prioritises DHW over CH when running"),
+          bullet("DHW relies on mains pressure/flow; not instant at outlet; single-draw best")
+        );
+        break;
+      case "REGULAR→SYSTEM":
+        sections.SystemCharacteristics.push(
+          bullet("Converting vented primary to sealed system; expansion vessel replaces F&E"),
+          bullet("DHW remains stored via cylinder; improved recovery with matched sizing")
+        );
+        break;
+      default:
+        sections.SystemCharacteristics.push(
+          bullet("Like-for-like performance expected with incremental efficiency and control improvements")
+        );
+    }
+  }
+
+  function applyComponentsAssistance(sections) {
+    sections.ComponentsAssistance.push(bullet("None recorded"));
+  }
+
+  function applyPermissions(input, sections) {
+    splitList(input.PermissionsHints).forEach((item) => sections.Permissions.push(bullet(item)));
+  }
+
+  function applyHazards(input, sections) {
+    splitList(input.HazardsList).forEach((item) => sections.Hazards.push(bullet(item)));
+  }
+
+  function applyDelivery(input, sections) {
+    splitList(input.DeliveryNotes).forEach((item) => sections.Delivery.push(bullet(item)));
+    if ((input.Parking || "").trim()) {
+      sections.Delivery.push(bullet(`Parking: ${(input.Parking || "").trim()}`));
+    }
+  }
+
+  function applyOffice(input, sections) {
+    splitList(input.OfficeNotes).forEach((item) => sections.Office.push(bullet(item)));
+    splitList(input.FreeText).forEach((item) => sections.Office.push(bullet(item)));
+  }
+
+  function applyBoilerAndControls(input, sections) {
+    const scenario = deriveScenario(input);
+    const controlsHint = (input.ControlsChoice || "").trim();
+    const cylB = (input.CylB || "").toUpperCase();
+
+    sections.BoilerAndControls.push(
+      bullet(`Proposed ${input.BlrB || "boiler"} boiler in ${input.LocB || "proposed location"}; controls to be set for clear scheduling and temperature management`)
+    );
+
+    if (scenario === "COMBI→SYSTEM") {
+      sections.BoilerAndControls.push(
+        bullet("Add system pump on primary as required by MI; motorised zone valve(s) for CH and cylinder control (S-Plan or per-zone)"),
+        bullet(cylB === "UNVENTED" || cylB === "" ? "Fit unvented cylinder with T&P relief, expansion & safety set (G3 pack)" : "Fit vented/stores cylinder per selected type"),
+        bullet("Programmer/timer updated for CH and cylinder schedules; room stat/sensor retained or replaced for efficient zoning")
+      );
+    } else if (scenario === "SYSTEM→COMBI") {
+      sections.BoilerAndControls.push(
+        bullet("Decommission cylinder and associated zone valve(s); remove DHW pump if fitted"),
+        bullet("Single CH motorised valve retained/added as required by MI for load control"),
+        bullet("Combi user controls: DHW temperature on boiler, CH scheduling on programmer/app; priority to DHW during draw-off")
+      );
+    } else if (scenario === "REGULAR→COMBI") {
+      sections.BoilerAndControls.push(
+        bullet("Remove cylinder and F&E where present; rationalise to sealed combi with integral DHW plate"),
+        bullet("Motorised valve arrangement simplified to CH-only where needed (per MI)"),
+        bullet("User controls: CH schedule/target via controller or app; DHW draw is on-demand with temperature set at boiler")
+      );
+    } else if (scenario === "REGULAR→SYSTEM") {
+      sections.BoilerAndControls.push(
+        bullet("Replace open-vented primary with sealed system; fit expansion vessel and PRV on primary"),
+        bullet("Retain or upgrade cylinder; fit/confirm CH and cylinder motorised valves for time/temperature control"),
+        bullet("User controls to provide separate CH and DHW schedules with cylinder stat")
+      );
+    } else {
+      sections.BoilerAndControls.push(
+        bullet("Verify pump head and valve configuration match proposed hydraulics; set user controls for clear CH/DHW schedules")
+      );
+    }
+
+    if (controlsHint) {
+      sections.BoilerAndControls.push(bullet(`User control preference recorded: ${controlsHint}`));
+    }
+  }
+
+  function applyFlue(input, sections) {
+    const flueB = (input.FluB || "").toLowerCase();
+    const termWall = (input.TermWall || "").toLowerCase();
+
+    if (flueB.includes("vertical")) {
+      sections.Flue.push(
+        bullet("Vertical balanced flue through roof; weathering collar and roof flashing to MI"),
+        bullet("Terminal height/clearances to be confirmed; add terminal guard if accessible <2 m")
+      );
+    } else if (flueB.includes("fanned horizontal") || flueB.includes("horizontal")) {
+      const wall = (input.TermWall || "declared wall").trim();
+      sections.Flue.push(
+        bullet(`Horizontal balanced flue on ${wall}; check boundary and adjacent openings to MI`),
+        bullet("Add plume management/deflector if discharge affects paths, windows, or boundary")
+      );
+    } else {
+      sections.Flue.push(bullet("Flue arrangement to be confirmed on survey photos and MI checks"));
+    }
+
+    if (["front wall", "side alley", "boundary"].includes(termWall)) {
+      sections.Flue.push(bullet("Boundary/alley check required; confirm distances to neighbouring property and public way"));
+    }
+  }
+
+  function applyPipeWork(input, sections) {
+    const scenario = deriveScenario(input);
+
+    if (scenario === "COMBI→SYSTEM") {
+      sections.PipeWork.push(
+        bullet("Adapt primaries for system boiler flow/return; run primary to cylinder coil"),
+        bullet("Fit/confirm auto air vent, filling loop, and primary expansion set per MI")
+      );
+    } else if (scenario === "SYSTEM→COMBI") {
+      sections.PipeWork.push(
+        bullet("Cap/remove cylinder coil connections; rationalise primaries for combi flow/return"),
+        bullet("Cold feed to combi; DHW outlet to domestic hot water distribution")
+      );
+    } else if (scenario === "REGULAR→COMBI") {
+      sections.PipeWork.push(
+        bullet("Remove vent/cold feed from F&E; convert to sealed primary with expansion set"),
+        bullet("Cold main to combi and DHW distribution from boiler")
+      );
+    } else if (scenario === "REGULAR→SYSTEM") {
+      sections.PipeWork.push(
+        bullet("Replace open-vent with sealed primary; install expansion vessel and filling loop"),
+        bullet("Primary to cylinder coil; confirm valve set for zoning")
+      );
+    } else {
+      sections.PipeWork.push(bullet("Adapt/renew local primaries as needed for proposed boiler hydraulics"));
+    }
+  }
+
+  function applyDisruption(sections) {
+    sections.Disruption.push(
+      bullet("Moderate disruption during boiler changeover and pipework alterations")
+    );
+  }
+
+  function applyCustomerActions(input, sections) {
+    const scenario = deriveScenario(input);
+
+    if (scenario.includes("COMBI")) {
+      sections.CustomerActions.push(
+        bullet("DHW not instant at outlet; allow draw-off time from boiler"),
+        bullet("Best performance with single DHW draw at a time"),
+        bullet("Overall DHW performance depends on mains pressure/flow")
+      );
+    }
+
+    if ((input.CylB || "").toUpperCase() === "UNVENTED") {
+      sections.CustomerActions.push(
+        bullet("Unvented cylinder requires G3 pack and D2 discharge route; suitability depends on verified mains static/dynamic readings")
+      );
+    }
+  }
+
+  function buildNotes(input) {
+    const sections = {
+      Needs: [],
+      WorkingAtHeights: [],
+      SystemCharacteristics: [],
+      ComponentsAssistance: [],
+      Permissions: [],
+      Hazards: [],
+      Delivery: [],
+      Office: [],
+      BoilerAndControls: [],
+      Flue: [],
+      PipeWork: [],
+      Disruption: [],
+      CustomerActions: []
+    };
+
+    applyNeeds(input, sections);
+    applyWorkingAtHeights(input, sections);
+    applySystemCharacteristics(input, sections);
+    applyComponentsAssistance(sections);
+    applyPermissions(input, sections);
+    applyHazards(input, sections);
+    applyDelivery(input, sections);
+    applyOffice(input, sections);
+    applyBoilerAndControls(input, sections);
+    applyFlue(input, sections);
+    applyPipeWork(input, sections);
+    applyDisruption(sections);
+    applyCustomerActions(input, sections);
+
+    return ensureMinimum(sections);
+  }
+
+  function normalise(value) {
+    return typeof value === "string" ? value : value == null ? "" : String(value);
+  }
+
+  function readPlannerState() {
+    const safeGet = (key) => {
+      try {
+        return localStorage.getItem(key) || "";
+      } catch (error) {
+        return "";
+      }
+    };
+
+    const fallbacks = (primary, ...alts) => {
+      const values = [primary, ...alts];
+      for (const key of values) {
+        const value = safeGet(key);
+        if (value) {
+          return value;
+        }
+      }
+      return "";
+    };
+
     const data = {
-      BlrA: ls("BlrA") || ls("existing_boiler_type"),
-      FluA: ls("FluA") || ls("existing_flue_type"),
-      CylA: ls("CylA") || ls("cylinder_a"),
-      LocA: ls("LocA") || ls("existing_boiler_location"),
-      BlrB: ls("BlrB") || ls("new_boiler_type"),
-      FluB: ls("FluB") || ls("new_flue_type_or_direction"),
-      CylB: ls("CylB") || ls("cylinder_b"),
-      LocB: ls("LocB") || ls("new_boiler_location"),
-      TermWall: ls("TermWall") || ls("flue_exit_wall"),
-      TermHeight: ls("TermHeight") || ls("flue_terminal_height")
+      BlrA: fallbacks("BlrA", "existing_boiler_type"),
+      FluA: fallbacks("FluA", "existing_flue_type"),
+      CylA: fallbacks("CylA", "cylinder_a"),
+      LocA: fallbacks("LocA", "existing_boiler_location"),
+      BlrB: fallbacks("BlrB", "new_boiler_type"),
+      FluB: fallbacks("FluB", "new_flue_type_or_direction"),
+      CylB: fallbacks("CylB", "cylinder_b"),
+      LocB: fallbacks("LocB", "new_boiler_location"),
+      TermWall: fallbacks("TermWall", "flue_exit_wall"),
+      TermHeight: fallbacks("TermHeight", "flue_terminal_height"),
+      Access: fallbacks("Access", "access_equipment"),
+      Parking: fallbacks("Parking", "parking"),
+      PermissionsHints: fallbacks("PermissionsHints", "permissions_hints"),
+      HazardsList: fallbacks("HazardsList", "hazards_list"),
+      DeliveryNotes: fallbacks("DeliveryNotes", "delivery_notes"),
+      OfficeNotes: fallbacks("OfficeNotes", "office_notes"),
+      ControlsChoice: fallbacks("ControlsChoice", "controls_choice"),
+      NeedsList: fallbacks("NeedsList", "needs_list"),
+      FreeText: fallbacks("FreeText", "free_text")
     };
-    return data;
+
+    const normalised = {};
+    Object.keys(data).forEach((key) => {
+      normalised[key] = normalise(data[key]);
+    });
+    return normalised;
   }
 
-  // Convenience: build from planner (used on output.html)
-  function buildFromPlanner(){
-    const state = readPlannerState();
-    return buildNoteSections(state);
+  function buildFromPlanner() {
+    return buildNotes(readPlannerState());
   }
 
-  // Expose
-  global.NotesEngine = { buildNoteSections, buildFromPlanner };
+  global.NotesEngine = {
+    buildNotes,
+    buildFromPlanner,
+    readPlannerState,
+    SECTION_KEYS
+  };
 })(window);

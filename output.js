@@ -1,5 +1,21 @@
 const FALLBACK_TEXT = 'No items recorded.';
 
+const LEGACY_KEY_MAP = {
+  Needs: 'needs',
+  WorkingAtHeights: 'workingAtHeights',
+  SystemCharacteristics: 'systemCharacteristics',
+  ComponentsAssistance: 'assistanceComponents',
+  Permissions: 'restrictions',
+  Hazards: 'externalHazards',
+  Delivery: 'delivery',
+  Office: 'office',
+  BoilerAndControls: 'newBoilerAndControls',
+  Flue: 'flue',
+  PipeWork: 'pipework',
+  Disruption: 'disruption',
+  CustomerActions: 'customerAgreedActions'
+};
+
 function loadOutput() {
   try {
     const stored = window.localStorage.getItem('surveyOutput');
@@ -33,8 +49,20 @@ function ensureSemicolons(text) {
     .join('\n');
 }
 
+function resolveOutputKey(output, key) {
+  if (typeof output[key] === 'string') {
+    return key;
+  }
+  const legacyKey = LEGACY_KEY_MAP[key];
+  if (legacyKey && typeof output[legacyKey] === 'string') {
+    return legacyKey;
+  }
+  return key;
+}
+
 function getSanitizedValue(output, key) {
-  const rawValue = typeof output[key] === 'string' ? output[key] : '';
+  const resolvedKey = resolveOutputKey(output, key);
+  const rawValue = typeof output[resolvedKey] === 'string' ? output[resolvedKey] : '';
   const value = rawValue.trim().length ? rawValue : FALLBACK_TEXT;
   return ensureSemicolons(value);
 }
