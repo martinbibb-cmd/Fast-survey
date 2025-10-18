@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Heating Survey Planner icon">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1d4ed8" />
+      <stop offset="100%" stop-color="#1e3a8a" />
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#bg)" />
+  <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="14">
+    <path d="M128 188c24 0 44-20 44-44 0-24-18-40-32-56-8 12-20 20-20 36 0 8 4 16 12 24-16 0-28-12-28-28 0-24 20-40 36-64" />
+    <path d="M84 196h88" />
+    <path d="M84 164h24" />
+    <path d="M84 132h16" />
+  </g>
+</svg>

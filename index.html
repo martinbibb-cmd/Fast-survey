@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Heating Survey Planner</title>
+  <meta name="theme-color" content="#1e3a8a">
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -20,7 +22,10 @@
     </header>
 
     <main class="content">
-      <div id="survey-container">
+      <div class="content-grid">
+        <aside class="step-nav" id="stepNav" aria-label="Survey steps"></aside>
+        <div class="survey-flow">
+          <div id="survey-container">
       <section class="panel step-section is-active" id="step-section-1" aria-labelledby="customerNeedsHeading">
         <div class="panel-head">
           <div>
@@ -455,6 +460,15 @@
         </div>
       </section>
 
+          </div>
+          <div class="step-pager" id="stepPager" hidden>
+            <p class="step-progress" id="stepProgressLabel" aria-live="polite"></p>
+            <div class="step-pager-actions">
+              <button type="button" class="step-pager-button is-prev" data-pager="prev">Previous step</button>
+              <button type="button" class="step-pager-button is-next" data-pager="next">Next step</button>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
