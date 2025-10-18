@@ -1,3 +1,50 @@
+const IMPORTANCE_SCALE_LABELS = [
+  'Very low priority',
+  'Low priority',
+  'Neutral priority',
+  'High priority',
+  'Critical priority'
+];
+
+const DEFAULT_IMPORTANCE_VALUE = 3;
+
+const CUSTOMER_NEEDS_FIELDS = [
+  { id: 'space', label: 'Space' },
+  { id: 'water-pressure', label: 'Water pressure' },
+  { id: 'efficiency', label: 'Efficiency' },
+  { id: 'parts-availability', label: 'Parts availability' },
+  { id: 'longevity', label: 'Longevity' },
+  { id: 'servicing-cost', label: 'Servicing cost' }
+];
+
+const PARKING_OPTIONS = [
+  {
+    id: 'parking-road-space',
+    label: 'Space on road',
+    description: 'Parking space directly outside the property.'
+  },
+  {
+    id: 'parking-off-road',
+    label: 'Space off road',
+    description: 'Driveway, garage, or private parking available.'
+  },
+  {
+    id: 'parking-road-limited',
+    label: 'Limited on road',
+    description: 'Restricted or narrow street parking.'
+  },
+  {
+    id: 'parking-permit',
+    label: 'Permit required',
+    description: 'Resident or visitor permit required to park.'
+  },
+  {
+    id: 'parking-none',
+    label: 'No legal parking',
+    description: 'No compliant parking spaces available nearby.'
+  }
+];
+
 const ACCESS_OPTIONS = [
   {
     id: 'scaffold-tower',
@@ -687,6 +734,9 @@ const FLUE_START_ICON = `<svg viewBox="0 0 80 80" role="img" aria-hidden="true">
 
 const state = {
   access: new Set(),
+  customerNeeds: new Map(CUSTOMER_NEEDS_FIELDS.map(field => [field.id, DEFAULT_IMPORTANCE_VALUE])),
+  parking: new Set(),
+  parkingNote: '',
   boilerType: '',
   flueType: '',
   flueExit: '',
@@ -747,6 +797,7 @@ const labelLookup = new Map([
   ...DOUBLE_LIFT_OPTIONS.map(option => [option.id, option.label]),
   ...PERMISSION_OPTIONS.map(option => [option.id, option.label]),
   ...HAZARD_OPTIONS.map(option => [option.id, option.label]),
+  ...PARKING_OPTIONS.map(option => [option.id, option.label]),
   ...PIPEWORK_OPTION_DETAILS.map(option => [option.id, `${option.code} – ${option.section}: ${option.label}`]),
   ...DISRUPTION_CODES.map(option => [option.id, `${option.code} – ${option.label}: ${option.description}`]),
   ...POWERFLUSH_OPTIONS.map(option => [option.id, option.code ? `${option.code} – ${option.label}` : option.label]),
@@ -916,6 +967,8 @@ document.addEventListener('DOMContentLoaded', () => {
   topBarElement = document.querySelector('.top-bar');
   updateTopBarHeightVar();
   window.addEventListener('resize', updateTopBarHeightVar);
+  renderCustomerNeedsControls();
+  renderParkingOptions();
   renderAccessOptions();
   renderBoilerOptions();
   renderFlueOptions();
@@ -945,6 +998,108 @@ document.addEventListener('DOMContentLoaded', () => {
   updateSummary();
   document.getElementById('resetSelections').addEventListener('click', resetSurvey);
 });
+
+function renderCustomerNeedsControls() {
+  const container = document.getElementById('customerNeedsControls');
+  if (!container) return;
+
+  container.innerHTML = '';
+  CUSTOMER_NEEDS_FIELDS.forEach(field => {
+    const control = document.createElement('div');
+    control.className = 'customer-need-control';
+    const inputId = `customer-need-${field.id}`;
+    const initialValue = normaliseImportanceValue(state.customerNeeds.get(field.id));
+    state.customerNeeds.set(field.id, initialValue);
+    control.innerHTML = `
+      <div class="customer-need-header">
+        <label for="${inputId}">${field.label}</label>
+        <span class="customer-need-value" data-need-display="${field.id}"></span>
+      </div>
+      <input type="range" id="${inputId}" class="customer-need-slider" min="1" max="5" step="1" data-need-id="${field.id}" value="${initialValue}">
+    `;
+    container.appendChild(control);
+  });
+
+  syncCustomerNeedsControls();
+
+  container.querySelectorAll('input[type="range"]').forEach(input => {
+    input.addEventListener('input', event => {
+      const needId = event.target.dataset.needId;
+      const value = normaliseImportanceValue(event.target.value);
+      state.customerNeeds.set(needId, value);
+      updateCustomerNeedDisplay(needId, value);
+      event.target.value = value;
+      updateSummary();
+    });
+  });
+}
+
+function syncCustomerNeedsControls() {
+  const container = document.getElementById('customerNeedsControls');
+  if (!container) return;
+
+  container.querySelectorAll('input[type="range"]').forEach(input => {
+    const needId = input.dataset.needId;
+    const value = normaliseImportanceValue(state.customerNeeds.get(needId));
+    input.value = value;
+    updateCustomerNeedDisplay(needId, value);
+  });
+}
+
+function updateCustomerNeedDisplay(needId, value) {
+  const display = document.querySelector(`[data-need-display="${needId}"]`);
+  if (display) {
+    display.textContent = describeImportance(value);
+  }
+}
+
+function normaliseImportanceValue(value) {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) {
+    return DEFAULT_IMPORTANCE_VALUE;
+  }
+  return Math.min(Math.max(Math.round(numericValue), 1), IMPORTANCE_SCALE_LABELS.length);
+}
+
+function formatImportanceValue(value) {
+  const normalised = normaliseImportanceValue(value);
+  return IMPORTANCE_SCALE_LABELS[normalised - 1] || IMPORTANCE_SCALE_LABELS[DEFAULT_IMPORTANCE_VALUE - 1];
+}
+
+function describeImportance(value) {
+  const normalised = normaliseImportanceValue(value);
+  return `${formatImportanceValue(normalised)} (${normalised}/5)`;
+}
+
+function renderParkingOptions() {
+  const container = document.getElementById('parkingChoices');
+  if (!container) return;
+
+  container.innerHTML = '';
+  PARKING_OPTIONS.forEach(option => {
+    const tile = createCheckboxTile('parking', option, (optionId, checked) => {
+      if (checked) {
+        state.parking.add(optionId);
+      } else {
+        state.parking.delete(optionId);
+      }
+      syncCheckboxTiles(container, state.parking);
+      updateSummary();
+    });
+    container.appendChild(tile);
+  });
+
+  syncCheckboxTiles(container, state.parking);
+
+  const noteField = document.getElementById('parkingOtherNote');
+  if (noteField) {
+    noteField.value = state.parkingNote;
+    noteField.addEventListener('input', event => {
+      state.parkingNote = event.target.value;
+      updateSummary();
+    });
+  }
+}
 
 function renderAccessOptions() {
   const container = document.getElementById('accessGrid');
@@ -1816,6 +1971,13 @@ function persistOutputState(payload) {
 }
 
 function updateSummary() {
+  const customerNeedsList = CUSTOMER_NEEDS_FIELDS.map(field => {
+    const value = state.customerNeeds.get(field.id);
+    return `${field.label}: ${describeImportance(value)}`;
+  });
+  const parkingList = PARKING_OPTIONS.filter(option => state.parking.has(option.id)).map(option => labelLookup.get(option.id));
+  const parkingNote = state.parkingNote && state.parkingNote.trim().length ? state.parkingNote.trim() : '';
+  const parkingSummaryItems = parkingNote ? [...parkingList, `Other: ${parkingNote}`] : [...parkingList];
   const accessList = Array.from(state.access).map(id => labelLookup.get(id));
   const routeList = state.flueRoute.map(id => {
     const component = FLUE_COMPONENT_MAP.get(id);
@@ -1870,6 +2032,14 @@ function updateSummary() {
   const awarenessSummaryList = awarenessSections.flatMap(section => section.items.map(item => `${section.heading}: ${item}`));
 
   const summaryItems = [
+    {
+      label: 'Customer needs',
+      value: customerNeedsList.length ? customerNeedsList.join(', ') : 'Not recorded'
+    },
+    {
+      label: 'Parking arrangements',
+      value: parkingSummaryItems.length ? parkingSummaryItems.join(', ') : 'Not recorded'
+    },
     {
       label: 'Access equipment',
       value: accessList.length ? accessList.join(', ') : 'Not recorded'
@@ -2006,11 +2176,13 @@ function updateSummary() {
   const restrictionsLines = [...permissionList, 'It is the customers responsibility to ensure these permissions are granted.'];
 
   const outputPayload = {
+    needs: buildOutputText(formatBulletList(customerNeedsList), 'No priorities recorded.'),
     workingAtHeights: buildOutputText(formatBulletList(accessList), 'No items recorded.'),
     systemCharacteristics: buildOutputText(formatBulletList(systemCharacteristicsLines), 'No items recorded.'),
     assistanceComponents: buildOutputText(formatBulletList(doubleLiftList), 'No items recorded.'),
     restrictions: buildOutputText(formatBulletList(restrictionsLines), 'It is the customers responsibility to ensure these permissions are granted.'),
     externalHazards: buildOutputText(formatBulletList(hazardList), 'No items recorded.'),
+    delivery: buildOutputText(formatBulletList(parkingSummaryItems), 'No items recorded.'),
     newBoilerAndControls: buildOutputText(formatBulletList(newBoilerLines), 'No items recorded.'),
     flue: buildOutputText(formatBulletList(flueLines), 'No items recorded.'),
     pipework: buildOutputText(formatSectionedList(pipeworkSections), 'No items recorded.'),
@@ -2024,6 +2196,9 @@ function updateSummary() {
 
 function resetSurvey() {
   state.access.clear();
+  state.customerNeeds = new Map(CUSTOMER_NEEDS_FIELDS.map(field => [field.id, DEFAULT_IMPORTANCE_VALUE]));
+  state.parking.clear();
+  state.parkingNote = '';
   state.boilerType = '';
   state.flueType = '';
   state.flueExit = '';
@@ -2055,6 +2230,12 @@ function resetSurvey() {
     persistPlannerValue(key, '');
   });
   syncAccessCards();
+  syncCustomerNeedsControls();
+  syncCheckboxTiles(document.getElementById('parkingChoices'), state.parking);
+  const parkingNoteField = document.getElementById('parkingOtherNote');
+  if (parkingNoteField) {
+    parkingNoteField.value = '';
+  }
   syncHotspots(document.getElementById('houseHotspots'), state.location);
   syncHotspots(document.getElementById('newHouseHotspots'), state.newBoilerLocation);
   syncHotspotMulti(document.getElementById('disruptionHotspots'), state.disruptionRooms);
