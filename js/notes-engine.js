@@ -239,11 +239,86 @@
       if (!Array.isArray(sections[key])) {
         sections[key] = [];
       }
-      if (sections[key].length === 0) {
-        sections[key].push(bullet("None recorded"));
-      }
     });
     return sections;
+  }
+
+  function ensureSentenceSemicolon(text) {
+    const safeText = String(text || "").trim();
+    if (!safeText) {
+      return "";
+    }
+    const withoutTrailing = safeText.replace(/;+$/, "");
+    return `${withoutTrailing};`;
+  }
+
+  function summariseEntries(entries) {
+    const cleaned = entries
+      .map((entry) =>
+        String(entry || "")
+          .replace(/^↘️\s*/, "")
+          .replace(/;+$/, "")
+          .replace(/\s+/g, " ")
+          .trim()
+      )
+      .filter(Boolean);
+
+    const fallback = [
+      "Key points selected: No selections recorded for this section;",
+      "Overall summary: No additional actions identified;",
+    ];
+
+    if (!cleaned.length) {
+      return fallback;
+    }
+
+    const MAX_SENTENCES = 4;
+    const MIN_SENTENCES = 2;
+    const sentencesNeeded = Math.min(
+      MAX_SENTENCES,
+      Math.max(MIN_SENTENCES, Math.ceil(cleaned.length / 2))
+    );
+    const chunkSize = Math.max(1, Math.ceil(cleaned.length / sentencesNeeded));
+    const sentences = [];
+
+    for (let index = 0; index < cleaned.length && sentences.length < sentencesNeeded; index += chunkSize) {
+      const chunk = cleaned.slice(index, index + chunkSize);
+      if (!chunk.length) {
+        continue;
+      }
+
+      let prefix = "Additional context: ";
+      if (sentences.length === 0) {
+        prefix = "Key points selected: ";
+      } else if (sentences.length === sentencesNeeded - 1) {
+        prefix = "Overall summary: ";
+      }
+
+      const body = chunk.join(", ");
+      sentences.push(ensureSentenceSemicolon(`${prefix}${body}`));
+    }
+
+    while (sentences.length < sentencesNeeded) {
+      const prefix = sentences.length === 0
+        ? "Key points selected: "
+        : sentences.length === sentencesNeeded - 1
+          ? "Overall summary: "
+          : "Additional context: ";
+      sentences.push(
+        ensureSentenceSemicolon(`${prefix}No further selections recorded`)
+      );
+    }
+
+    return sentences.slice(0, MAX_SENTENCES);
+  }
+
+  function summariseSections(sections) {
+    const result = {};
+    SECTION_KEYS.forEach((key) => {
+      const entries = Array.isArray(sections[key]) ? sections[key] : [];
+      result[key] = summariseEntries(entries);
+    });
+    return result;
   }
 
   function splitList(value) {
@@ -421,7 +496,8 @@
     applyDisruption(sections);
     applyCustomerActions(input, sections, scenario);
 
-    return ensureMinimum(sections);
+    const prepared = ensureMinimum(sections);
+    return summariseSections(prepared);
   }
 
   function normalise(value) {
