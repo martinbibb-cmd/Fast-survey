@@ -16,9 +16,13 @@ const LEGACY_KEY_MAP = {
   CustomerActions: 'customerAgreedActions'
 };
 
+const STORAGE_KEY = 'surveyOutput';
+
+let currentOutput = {};
+
 function loadOutput() {
   try {
-    const stored = window.localStorage.getItem('surveyOutput');
+    const stored = window.localStorage.getItem(STORAGE_KEY);
     if (!stored) {
       return {};
     }
@@ -26,6 +30,14 @@ function loadOutput() {
   } catch (error) {
     console.warn('Unable to read stored output', error);
     return {};
+  }
+}
+
+function saveOutput() {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(currentOutput));
+  } catch (error) {
+    console.warn('Unable to persist survey output', error);
   }
 }
 
@@ -39,7 +51,7 @@ function ensureSemicolons(text) {
       if (!trimmed) {
         return line;
       }
-      if (trimmed.endsWith(';') || trimmed.endsWith(':')) {
+      if (/[;:.!?]$/.test(trimmed)) {
         return line;
       }
       const leadingWhitespace = (line.match(/^\s*/) || [''])[0];
@@ -67,11 +79,56 @@ function getSanitizedValue(output, key) {
   return ensureSemicolons(value);
 }
 
-function writeOutputToPage(output) {
+function getRawValue(key) {
+  const resolvedKey = resolveOutputKey(currentOutput, key);
+  const rawValue = typeof currentOutput[resolvedKey] === 'string' ? currentOutput[resolvedKey] : '';
+  return rawValue.trim().length ? rawValue : '';
+}
+
+function writeOutputToPage() {
   document.querySelectorAll('[data-output-field]').forEach(element => {
     const key = element.dataset.outputField;
-    element.textContent = getSanitizedValue(output, key);
+    element.textContent = getSanitizedValue(currentOutput, key);
   });
+}
+
+function syncTextareas() {
+  document.querySelectorAll('textarea.notes-engine-output').forEach(textarea => {
+    const key = textarea.dataset.notesSection;
+    if (!key) {
+      return;
+    }
+    const value = getRawValue(key);
+    if (value) {
+      textarea.value = value;
+    }
+  });
+}
+
+function setOutputField(key, value) {
+  const resolvedKey = resolveOutputKey(currentOutput, key);
+  const finalValue = (() => {
+    if (value == null) {
+      return FALLBACK_TEXT;
+    }
+    const trimmed = String(value).trim();
+    return trimmed.length ? trimmed : FALLBACK_TEXT;
+  })();
+
+  currentOutput[resolvedKey] = finalValue;
+
+  const pre = document.querySelector(`[data-output-field="${key}"]`);
+  if (pre) {
+    pre.textContent = finalValue;
+  }
+
+  document
+    .querySelectorAll(`textarea.notes-engine-output[data-notes-section="${key}"]`)
+    .forEach(textarea => {
+      textarea.value = finalValue;
+    });
+
+  saveOutput();
 }
 
 async function copyText(text) {
@@ -93,11 +150,11 @@ async function copyText(text) {
   document.body.removeChild(temp);
 }
 
-function attachCopyHandlers(output) {
+function attachCopyHandlers() {
   document.querySelectorAll('[data-output-key]').forEach(button => {
     button.addEventListener('click', async () => {
       const key = button.dataset.outputKey;
-      const text = getSanitizedValue(output, key);
+      const text = getSanitizedValue(currentOutput, key);
       await copyText(text);
       button.classList.add('copied');
       const original = button.textContent;
@@ -111,7 +168,21 @@ function attachCopyHandlers(output) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const output = loadOutput();
-  writeOutputToPage(output);
-  attachCopyHandlers(output);
+  currentOutput = loadOutput();
+  writeOutputToPage();
+  attachCopyHandlers();
+  syncTextareas();
+  window.SurveyOutputPage = {
+    getState: () => ({ ...currentOutput }),
+    setField: setOutputField,
+    setFields: (entries) => {
+      if (!entries || typeof entries !== 'object') {
+        return;
+      }
+      Object.entries(entries).forEach(([key, value]) => {
+        setOutputField(key, value);
+      });
+    },
+    refreshTextareas: syncTextareas
+  };
 });
