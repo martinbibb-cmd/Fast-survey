@@ -7,6 +7,23 @@
     { key: "jobPack", heading: "Engineer Markdown Job Pack" }
   ];
 
+  const FIELD_ALIASES = {
+    depotNotes: [
+      "depotNotes",
+      "depot_notes",
+      "depotNotesMarkdown",
+      "depot_notes_markdown",
+      "depot_notes_output"
+    ],
+    jobPack: [
+      "jobPack",
+      "job_pack",
+      "engineerMarkdownJobPack",
+      "engineer_markdown_job_pack",
+      "jobPackMarkdown"
+    ]
+  };
+
   const GPT_RESPONSE_INSTRUCTIONS = String.raw`
 You are the **Depot Notes Generator**, designed to produce boiler survey outputs in two consistent parts, based on the provided screenshots or structured JSON input.
 
@@ -152,11 +169,31 @@ Professional, clear, copy-paste ready, no filler text.`;
     return `${instructions}\n\nINPUT JSON\n${JSON.stringify(data, null, 2)}\n\nRemember: respond with JSON using the schema {\"depotNotes\": string, \"jobPack\": string}.`;
   }
 
+  function hasStringField(source, aliases){
+    return aliases.some((name) => typeof source?.[name] === "string");
+  }
+
   function validateResponse(result){
     if (!result || typeof result !== "object") {
       return false;
     }
-    return OUTPUT_FIELDS.every(({ key }) => typeof result[key] === "string");
+    return OUTPUT_FIELDS.every(({ key }) => hasStringField(result, FIELD_ALIASES[key]));
+  }
+
+  function normaliseResponse(result){
+    const output = {};
+    OUTPUT_FIELDS.forEach(({ key }) => {
+      const aliases = FIELD_ALIASES[key];
+      const value = aliases.reduce((found, name) => {
+        if (found != null) {
+          return found;
+        }
+        const candidate = result?.[name];
+        return typeof candidate === "string" ? candidate : null;
+      }, null);
+      output[key] = typeof value === "string" ? value : "";
+    });
+    return output;
   }
 
   async function callCloudflare(input){
@@ -191,7 +228,7 @@ Professional, clear, copy-paste ready, no filler text.`;
     if (!validateResponse(candidate)) {
       throw new Error("Worker response missing depotNotes/jobPack fields");
     }
-    return candidate;
+    return normaliseResponse(candidate);
   }
 
   function findHeading(text){
@@ -288,7 +325,7 @@ Professional, clear, copy-paste ready, no filler text.`;
         if (!validateResponse(json)) {
           throw new Error("JSON missing depotNotes/jobPack fields");
         }
-        renderAll(json);
+        renderAll(normaliseResponse(json));
       } catch (error) {
         console.error(error);
         alert("Clipboard does not contain valid depot/job pack JSON.");
