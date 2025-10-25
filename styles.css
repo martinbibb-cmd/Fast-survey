@@ -1235,3 +1235,48 @@ button {
     padding: 1.1rem 1.2rem 1.25rem;
   }
 }
+/* --- Horizontal overflow fix + spacing tighten for step sections --- */
+html, body {
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+*, *::before, *::after { box-sizing: border-box; }
+
+:where(main, .page, .steps, .content) {
+  width: 100%;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+:where(section, .step, .step-section, .step-card) {
+  max-width: 880px;
+  width: 100%;
+  margin: 8px auto;
+  padding: 12px 16px;
+  overflow-x: clip;
+}
+
+img, svg, canvas, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+table, pre, code, input, select, textarea, button {
+  max-width: 100%;
+}
+
+h1, h2, h3 { margin: 0 0 .5rem; }
+fieldset { margin: 0; padding: 0; border: 0; }
+legend   { margin: 0 0 .5rem; }
+
+[class*="vw"], [style*="100vw"] { width: 100% !important; }
+
+@media (max-width: 480px) {
+  :where(section, .step, .step-section, .step-card) {
+    padding: 10px 12px;
+    margin: 6px auto;
+  }
+}
