@@ -131,6 +131,14 @@ class InMemorySurveyStore:
         survey = self.get(survey_id)
         answers: Dict[int, Dict[str, int]] = self._results[survey_id].answers
 
+        expected_indexes = set(range(len(survey.questions)))
+        unexpected = [idx for idx in submission.answers if idx not in expected_indexes]
+        if unexpected:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unexpected answer for question {unexpected[0]}",
+            )
+
         for idx, question in enumerate(survey.questions):
             if idx not in submission.answers:
                 raise HTTPException(
