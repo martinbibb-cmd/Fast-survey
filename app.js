@@ -895,6 +895,30 @@ function updateTopBarHeightVar() {
   document.documentElement.style.setProperty('--top-bar-height', `${height}px`);
 }
 
+function initScrollLockToggle() {
+  scrollLockToggleButton = document.getElementById('scrollLockToggle');
+  if (!scrollLockToggleButton) {
+    return;
+  }
+
+  scrollLockToggleButton.addEventListener('click', () => {
+    isScrollLockEnabled = !isScrollLockEnabled;
+    updateScrollLockToggle();
+  });
+
+  updateScrollLockToggle();
+}
+
+function updateScrollLockToggle() {
+  if (!scrollLockToggleButton) {
+    return;
+  }
+
+  scrollLockToggleButton.setAttribute('aria-pressed', isScrollLockEnabled ? 'true' : 'false');
+  scrollLockToggleButton.classList.toggle('is-active', isScrollLockEnabled);
+  scrollLockToggleButton.textContent = isScrollLockEnabled ? 'Scroll lock on' : 'Scroll lock off';
+}
+
 function persistPlannerValue(key, value) {
   try {
     if (value == null || value === '') {
@@ -967,6 +991,8 @@ let stepPagerNextButton = null;
 let stepProgressLabel = null;
 let currentStepIndex = 0;
 let topBarElement = null;
+let scrollLockToggleButton = null;
+let isScrollLockEnabled = false;
 
 function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) {
@@ -985,6 +1011,7 @@ document.addEventListener('DOMContentLoaded', () => {
   topBarElement = document.querySelector('.top-bar');
   updateTopBarHeightVar();
   window.addEventListener('resize', updateTopBarHeightVar);
+  initScrollLockToggle();
   renderCustomerNeedsControls();
   renderParkingOptions();
   renderAccessOptions();
@@ -1979,7 +2006,9 @@ function showStep(index, options = {}) {
     return;
   }
 
-  const { scroll = true, focus = true, smooth = true } = options;
+  const { scroll: scrollOption, focus = true, smooth = true } = options;
+  const shouldScroll =
+    typeof scrollOption === 'boolean' ? scrollOption : !isScrollLockEnabled;
   const targetIndex = Math.max(0, Math.min(index, stepSections.length - 1));
   currentStepIndex = targetIndex;
 
@@ -2016,7 +2045,7 @@ function showStep(index, options = {}) {
     }
   }
 
-  if (scroll) {
+  if (shouldScroll) {
     const offset = topBarElement ? topBarElement.offsetHeight + 24 : 16;
     const targetTop = window.scrollY + activeSection.getBoundingClientRect().top - offset;
     window.scrollTo({

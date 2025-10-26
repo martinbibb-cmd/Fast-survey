@@ -100,6 +100,11 @@ button {
   transition: border-color 0.2s ease, color 0.2s ease;
 }
 
+.ghost.is-active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .ghost:hover {
   border-color: var(--accent);
   color: var(--accent);
