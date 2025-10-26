@@ -1,0 +1,114 @@
+:root {
+  color-scheme: light dark;
+  --bg: #10131a;
+  --panel: #161b24;
+  --ink: #f1f5ff;
+  --muted: #b5c0d0;
+  --accent: #73c991;
+  --shadow: rgba(0, 0, 0, 0.2);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: "Inter", "Segoe UI", Roboto, system-ui, -apple-system, sans-serif;
+  background: radial-gradient(circle at top, rgba(67, 97, 238, 0.15), transparent 55%),
+    var(--bg);
+  color: var(--ink);
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 32px min(8vw, 72px) 48px;
+}
+
+.site-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+}
+
+.site-header h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+}
+
+.site-header .subtitle {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+.card-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.card {
+  background: linear-gradient(160deg, rgba(115, 201, 145, 0.18), rgba(35, 46, 75, 0.7));
+  border: 1px solid rgba(115, 201, 145, 0.35);
+  border-radius: 16px;
+  padding: 20px 22px;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 10px 24px -18px var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.card p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.card:hover,
+.card:focus-visible {
+  transform: translateY(-4px);
+  border-color: rgba(115, 201, 145, 0.9);
+  box-shadow: 0 16px 28px -18px rgba(67, 97, 238, 0.55);
+}
+
+.site-footer {
+  display: flex;
+  justify-content: center;
+}
+
+#reload-grow {
+  border: none;
+  border-radius: 999px;
+  background: rgba(67, 97, 238, 0.2);
+  color: #dde4ff;
+  font-size: 0.95rem;
+  padding: 12px 22px;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+#reload-grow:hover,
+#reload-grow:focus-visible {
+  transform: translateY(-1px) scale(1.02);
+  background: rgba(115, 201, 145, 0.28);
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 24px 18px 36px;
+  }
+}
