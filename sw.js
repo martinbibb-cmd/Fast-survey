@@ -2,6 +2,8 @@ const CACHE_NAME = 'depot-notes-picker-v1';
 const ASSETS = [
   '/',
   '/index.html',
+  '/standard.html',
+  '/index2.html',
   '/styles.css',
   '/app.js',
   '/manifest.webmanifest',

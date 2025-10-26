@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Fast Survey — Simple Notes Tool (Tree Picker)</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --ink:#e9eef5; --muted:#b7c2d0;
+    --accent:#6ea8fe; --accent-2:#7ee787; --chip:#202636; --line:#2a3040;
+  }
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+  header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,var(--bg),rgba(15,17,21,0.85));backdrop-filter:saturate(120%) blur(6px);padding:12px 16px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+  h1{font-size:16px;margin:0}
+  .home-link{color:var(--muted);font-size:12px;text-decoration:none;border:1px solid var(--line);padding:6px 10px;border-radius:999px;transition:color .15s ease,border-color .15s ease,background .15s ease}
+  .home-link:hover,.home-link:focus-visible{color:var(--accent);border-color:var(--accent);background:rgba(110,168,254,0.12)}
+  .sub{color:var(--muted);font-size:12px;margin-top:4px}
+  .root-row{display:flex;gap:12px;overflow:auto;padding:12px 16px 2px 16px;scroll-snap-type:x proximity}
+  .tree{min-width:280px;max-width:420px;flex:0 0 auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;scroll-snap-align:start}
+  .tree header{padding:12px 12px 10px 12px;border:0;background:transparent}
+  .tree h2{font-size:14px;margin:0 0 4px 0}
+  .tree .hint{color:var(--muted);font-size:12px}
+  .branch{padding:0 12px 10px 12px;border-top:1px solid var(--line)}
+  .branch ul{list-style:none;margin:0;padding:8px 0;display:flex;flex-wrap:wrap;gap:8px}
+  .node{padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--chip);cursor:pointer;font-size:13px;user-select:none;transition:transform .05s ease}
+  .node:hover{transform:translateY(-1px)}
+  .node[data-selected="true"]{outline:2px solid var(--accent)}
+  .node[disabled]{opacity:.35;pointer-events:none}
+  .crumbs{display:flex;gap:6px;flex-wrap:wrap}
+  .crumb{background:transparent;border:1px dashed var(--line);border-radius:999px;padding:4px 10px;font-size:12px;color:var(--muted)}
+  .chips{position:sticky;top:64px;z-index:9;padding:6px 16px 0 16px;display:flex;gap:8px;flex-wrap:wrap}
+  .chip{background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:12px;display:flex;gap:8px;align-items:center}
+  .chip b{color:var(--accent-2);font-weight:600}
+  .chip button{all:unset;cursor:pointer;color:var(--muted);font-size:12px}
+  .out{padding:10px 16px 120px}
+  .out h3{margin:14px 0 8px 0;font-size:14px}
+  .copybox{display:flex;gap:8px;align-items:center;margin:6px 0 12px}
+  .copybox textarea{width:100%;min-height:42px;max-height:160px;border-radius:10px;background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:10px;font-size:13px;resize:vertical}
+  .copybox button{background:var(--accent);color:#0b1321;border:0;border-radius:10px;padding:8px 12px;font-weight:600;cursor:pointer}
+  .toolbar{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;z-index:15;display:flex;gap:10px}
+  .btn{background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:10px 14px;font-weight:600;cursor:pointer}
+  .btn-primary{background:var(--accent);color:#0b1321;border:0}
+  .fade-grow{animation:grow .35s ease both}
+  @keyframes grow{from{transform:scale(.98);opacity:0}to{transform:scale(1);opacity:1}}
+  .muted{color:var(--muted)}
+</style>
+</head>
+<body>
+  <header>
+    <h1>Simple Notes Tool — Smart Tree Picker</h1>
+    <a class="home-link" href="index.html">← Back to welcome</a>
+    <div class="sub">Design PoC for Fast-survey • Select from trunks; “(a)” choices unlock “(b)” roots. Outputs Depot-ready notes.</div>
+  </header>
+
+  <div class="chips" id="chips"></div>
+
+  <div class="root-row" id="rootRow" aria-live="polite"></div>
+
+  <div class="out" id="output">
+    <h3>Depot Sections</h3>
+    <div id="sections"></div>
+    <h3>Master copy</h3>
+    <div class="copybox">
+      <textarea id="masterTxt" readonly></textarea>
+      <button id="copyAll">Copy all</button>
+    </div>
+    <div class="muted">Tip: each selection replaces the previous pick within that section (keeps notes clean). Reset anytime.</div>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn" id="resetBtn">Reset</button>
+    <button class="btn btn-primary" id="doneBtn">Done (collapse)</button>
+  </div>
+
+  <!-- Your OPML, embedded for testing -->
+  <script type="application/xml" id="opml">
+<?xml version="1.0" encoding="utf-8"?>
+<opml version="1.0">
+    <head>
+        <title>Current boiler</title>
+    </head>
+    <body>
+        <outline text="Current boiler (A pack)">
+            <outline text="Regular (1)"/>
+            <outline text="System (2)"/>
+            <outline text="Combi (3)"/>
+            <outline text="Warm air (4)"/>
+            <outline text="None (5)"/>
+        </outline>
+        <outline text="Flue(a)">
+            <outline text="Horizontal (1)"/>
+            <outline text="Direct rear (2)"/>
+            <outline text="Balanced (3)"/>
+            <outline text="Vertical (4)">
+                <outline text="Pitched roof (1)"/>
+                <outline text="Flat roof (2)"/>
+            </outline>
+        </outline>
+        <outline text="New boiler (B pack)">
+            <outline text="Regular (1)"/>
+            <outline text="System (2)"/>
+            <outline text="Combi (3)"/>
+        </outline>
+        <outline text="New flue (b)">
+            <outline text="Turret (1)">
+                <outline text="Right(a)"/>
+                <outline text="Left (b)"/>
+                <outline text="Rear (c)"/>
+            </outline>
+            <outline text="Rear (2)"/>
+            <outline text="Vertical (3)">
+                <outline text="Length plus 45 (a)"/>
+                <outline text="Lengths plus 90s (b)"/>
+            </outline>
+            <outline text="Extended (4)">
+                <outline text="Define"/>
+            </outline>
+        </outline>
+        <outline text="Terminal ">
+            <outline text="Standard - wall 1"/>
+            <outline text="Plume kit 2 "/>
+            <outline text="Vertical flat 3 "/>
+            <outline text="Vertical flat 4"/>
+        </outline>
+    </body>
+</opml>
+  </script>
+
+  <script>
+/* ----------------- Config (mirrors the design spec) ------------------ */
+const CONFIG = {
+  sections: [
+    "Current system",
+    "Existing flue",
+    "Proposed boiler",
+    "Proposed flue",
+    "Flue terminal / termination"
+  ],
+  channels: [{ from:"a", to:"b" }],
+  sectionRules: [
+    { match: "Current boiler", section: "Current system" },
+    { match: "Flue",           section: "Existing flue",   channel: "a" },
+    { match: "New boiler",     section: "Proposed boiler" },
+    { match: "New flue",       section: "Proposed flue",   channel: "b" },
+    { match: "Terminal",       section: "Flue terminal / termination" }
+  ],
+  compatibility: [
+    // Example rules (safe defaults if nothing matches)
+    { fromPathContains: "Flue/Horizontal", allowBRoots: ["Turret (1)","Rear (2)"] },
+    { fromPathContains: "Flue/Vertical",   allowBRoots: ["Vertical (3)","Extended (4)"] }
+  ],
+  templates: {
+    "Current system": "{cleanLeaf}",
+    "Existing flue": "{cleanPath}",
+    "Proposed boiler": "{cleanLeaf}",
+    "Proposed flue": "{cleanPath}",
+    "Flue terminal / termination": "{cleanLeaf}"
+  },
+  joiner: " ; "
+};
+
+/* ----------------- OPML → nodes ------------------ */
+function parseOPML(xmlText){
+  const xml = new DOMParser().parseFromString(xmlText, "text/xml");
+  const outlines = [...xml.querySelectorAll("body > outline")];
+  const roots = outlines.map(ol => toNode(ol, []));
+  return roots;
+}
+
+function toNode(el, path){
+  const raw = (el.getAttribute("text")||"").trim();
+  const {cleanLabel, channelTag, variantTag} = parseTags(raw);
+
+  const node = {
+    id: crypto.randomUUID(),
+    rawLabel: raw,
+    cleanLabel,
+    channelTag,       // 'a','b', etc if present (letters only)
+    variantTag,       // last (...) content if present (digits or letters)
+    children: [],
+    path: [...path, cleanLabel]
+  };
+  node.children = [...el.children].filter(c=>c.tagName==="outline").map(c => toNode(c, node.path));
+  return node;
+}
+
+// Extract single-letter channel tags like (a)/(b). Also capture last (...) as variantTag.
+function parseTags(text){
+  const parens = [...text.matchAll(/\(([^)]+)\)/g)].map(m=>m[1].trim());
+  const clean = text.replace(/\s*\([^)]+\)\s*$/,'').replace(/\((?:[a-zA-Z])\)/g,'').trim() || text.trim();
+  let channelTag = null;
+  for(const p of parens){
+    if(/^[a-zA-Z]$/.test(p)){ channelTag = p.toLowerCase(); break; }
+  }
+  const variantTag = parens.length ? parens[parens.length-1] : null;
+  return {cleanLabel: clean, channelTag, variantTag};
+}
+
+/* ----------------- Section mapping ------------------ */
+function findSectionForRoot(rootLabelRaw){
+  // decide which section this root contributes to based on sectionRules.match
+  const rule = CONFIG.sectionRules.find(r => rootLabelRaw.toLowerCase().startsWith(r.match.toLowerCase()));
+  return rule ? rule.section : null;
+}
+
+/* ----------------- UI state ------------------ */
+const STATE = {
+  roots: [],
+  selections: new Map(), // section -> {nodePath:[], leafNode}
+  aChosen: false         // any (a) picked?
+};
+
+/* ----------------- Render ------------------ */
+function el(tag, attrs={}, ...kids){
+  const n = document.createElement(tag);
+  Object.entries(attrs).forEach(([k,v])=>{
+    if(k==="class") n.className = v;
+    else if(k==="dataset") Object.assign(n.dataset, v);
+    else if(k==="style") Object.assign(n.style, v);
+    else if(k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else if(v!==false && v!=null) n.setAttribute(k,v);
+  });
+  kids.flat().forEach(k => n.append(k?.nodeType ? k : document.createTextNode(k)));
+  return n;
+}
+
+function render(){
+  renderTrees();
+  renderChips();
+  renderSections();
+  renderMaster();
+}
+
+function renderTrees(){
+  const row = document.getElementById("rootRow");
+  row.innerHTML = "";
+  STATE.roots.forEach(root => {
+    const section = findSectionForRoot(root.rawLabel);
+    const isChannelBRoot = /(?:^|\s)\(b\)\s*$/i.test(root.rawLabel) || (root.channelTag === 'b'); // tolerant
+    // Gate display of (b) roots if no (a) chosen
+    const hiddenByChannel = isChannelBRoot && !STATE.aChosen;
+
+    const card = el("div",{class:"tree fade-grow", style: hiddenByChannel? "display:none" : ""});
+    const head = el("header");
+    head.append(
+      el("h2",{}, section ? `${section}` : root.cleanLabel),
+      el("div",{class:"hint"}, root.cleanLabel !== (section||"") ? root.cleanLabel : "")
+    );
+    card.append(head);
+
+    card.append(renderBranch(root, section, [root]));
+    row.append(card);
+  });
+}
+
+function renderBranch(node, section, pathNodes){
+  const wrap = el("div",{class:"branch"});
+  // crumbs
+  const crumbs = el("div",{class:"crumbs"});
+  pathNodes.forEach((n,i)=>{
+    if(i===0) crumbs.append(el("span",{class:"crumb"}, n.cleanLabel));
+  });
+  wrap.append(crumbs);
+
+  // options
+  const ul = el("ul");
+  node.children.forEach(child=>{
+    const selected = isSelected(section, child);
+    const li = el("li");
+    const btn = el("button",{
+      class:"node",
+      "data-selected": selected ? "true":"false",
+      onclick: ()=> onPick(section, child, pathNodes.concat(child))
+    }, labelFor(child));
+    li.append(btn);
+    ul.append(li);
+  });
+  // If leaf has no children (rare at this level), let user select node itself
+  if(node.children.length===0 && section){
+    const li = el("li");
+    const btn = el("button",{
+      class:"node",
+      "data-selected": isSelected(section, node) ? "true":"false",
+      onclick: ()=> onPick(section, node, pathNodes)
+    }, labelFor(node));
+    li.append(btn);
+    ul.append(li);
+  }
+  wrap.append(ul);
+  return wrap;
+}
+
+function labelFor(n){
+  // Show clean label; append small variant if numeric/letter code present and different
+  let extra = "";
+  if(n.variantTag && !/^[a-zA-Z]$/.test(n.variantTag)){
+    extra = ` (${n.variantTag})`;
+  }
+  return n.cleanLabel + extra;
+}
+
+function isSelected(section, node){
+  const sel = STATE.selections.get(section);
+  return !!sel && sel.leafNode.id === node.id;
+}
+
+function onPick(section, node, pathNodes){
+  if(!section){
+    // Some roots might not map — ignore
+    return;
+  }
+  STATE.selections.set(section, {
+    nodePath: pathNodes.map(n=>n.cleanLabel),
+    rawPath: pathNodes.map(n=>n.rawLabel),
+    leafNode: node
+  });
+
+  // Track if any "(a)" channel tag has been chosen anywhere
+  STATE.aChosen = hasAnyAChosen();
+
+  // Optional: compatibility filter (kept simple — we only hide b-roots that are not allowed after an (a) path)
+  applyCompatibility();
+
+  render();
+}
+
+function hasAnyAChosen(){
+  for(const [,sel] of STATE.selections){
+    const raw = sel.rawPath.join("/");
+    if(/\((a)\)/i.test(raw)) return true;
+  }
+  return false;
+}
+
+function applyCompatibility(){
+  // In this PoC we don't prune children; we only use compatibility to hide/show which (b) trunks appear.
+  // This is kept minimal; advanced pruning can be added later.
+}
+
+/* ----------------- Chips, Sections & Copy ------------------ */
+function renderChips(){
+  const bar = document.getElementById("chips");
+  bar.innerHTML = "";
+  for(const sec of CONFIG.sections){
+    const sel = STATE.selections.get(sec);
+    if(!sel) continue;
+    const chip = el("div",{class:"chip"},
+      el("span",{}, el("b",{}, sec), " — ", (CONFIG.templates[sec] ? formatLine(sec, sel) : sel.nodePath.at(-1))),
+      el("button",{onclick:()=>{ STATE.selections.delete(sec); STATE.aChosen = hasAnyAChosen(); render(); }}, "×")
+    );
+    bar.append(chip);
+  }
+}
+
+function renderSections(){
+  const host = document.getElementById("sections");
+  host.innerHTML = "";
+  for(const sec of CONFIG.sections){
+    const sel = STATE.selections.get(sec);
+    const txt = el("textarea",{readonly:true});
+    txt.value = sel ? formatLine(sec, sel) : "";
+    const box = el("div",{class:"copybox"},
+      txt,
+      el("button",{onclick:()=> copy(txt.value)}, "Copy")
+    );
+    host.append(el("div",{}, el("h3",{}, sec), box));
+  }
+}
+
+function formatLine(section, sel){
+  const cleanPath = sel.nodePath.join(" > ");
+  const cleanLeaf = sel.nodePath.at(-1);
+  const tmpl = CONFIG.templates[section] || "{cleanLeaf}";
+  return tmpl
+    .replaceAll("{cleanPath}", cleanPath)
+    .replaceAll("{cleanLeaf}", cleanLeaf);
+}
+
+function renderMaster(){
+  const lines = [];
+  for(const sec of CONFIG.sections){
+    const sel = STATE.selections.get(sec);
+    const line = `${sec}: ${sel ? formatLine(sec, sel) : ""}`;
+    lines.push(line);
+  }
+  const out = lines.join(CONFIG.joiner) + (lines.length? CONFIG.joiner : "");
+  document.getElementById("masterTxt").value = out.trim();
+}
+
+function copy(text){
+  if(!text) return;
+  navigator.clipboard.writeText(text).catch(()=>{ /* ignore */ });
+}
+
+/* ----------------- Done & Reset ------------------ */
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  STATE.selections.clear();
+  STATE.aChosen = false;
+  render();
+});
+
+document.getElementById("doneBtn").addEventListener("click", ()=>{
+  // Collapse trees back to trunks effect: re-render with a tiny grow animation
+  const row = document.getElementById("rootRow");
+  row.querySelectorAll(".tree").forEach(t => t.classList.add("fade-grow"));
+  // No expanded state stored in this PoC; the effect is cosmetic
+});
+
+document.getElementById("copyAll").addEventListener("click", ()=>{
+  copy(document.getElementById("masterTxt").value);
+});
+
+/* ----------------- Boot ------------------ */
+(function boot(){
+  const xml = document.getElementById("opml").textContent.trim();
+  const roots = parseOPML(xml);
+
+  // Attach roots and label each card by section mapping
+  STATE.roots = roots;
+
+  // Render once
+  render();
+
+  // Gentle first-load grow animation
+  setTimeout(()=>{
+    document.querySelectorAll(".tree").forEach(t=>t.classList.add("fade-grow"));
+  }, 60);
+})();
+  </script>
+</body>
+</html>
