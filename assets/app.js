@@ -138,8 +138,6 @@
     host.className = 'tree';
     let layer = 0;
     let current = [{node: rootNode, parent:null}];
-    const allNodes = [];
-
     while(current.length){
       const layerEl = document.createElement('div');
       layerEl.className = 'layer';
@@ -150,7 +148,6 @@
         nodeEl.dataset.depth = node.depth;
         nodeEl.dataset.trunk = trunkKey;
         layerEl.appendChild(nodeEl);
-        allNodes.push(nodeEl);
       });
 
       host.appendChild(layerEl);
@@ -161,11 +158,6 @@
       current = next;
       layer++;
     }
-
-    // finish growth overlay timer calculation (for both trunks combined it’s fine to just compute here)
-    const total = allNodes.length;
-    const lastDelay = 90 * total; // ms (faster than before for snappier feel)
-    setTimeout(() => overlay.classList.remove('hidden'), lastDelay + 300);
 
     return host;
   }
@@ -300,6 +292,11 @@
     nodes.forEach((n, i) => {
       setTimeout(() => n.classList.add('grown'), 60 * i);
     });
+
+    if(nodes.length){
+      const totalDelay = 60 * (nodes.length - 1) + 350;
+      setTimeout(() => overlay.classList.remove('hidden'), totalDelay);
+    }
   }
 
   function scrollIntoView(sel){
