@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<opml version="1.0">
+  <head>
+    <title>Cylinder – Current vs Proposed</title>
+  </head>
+  <body>
+    <outline text="Cylinder a">
+      <outline text="Open vented 1" />
+      <outline text="Unvented 2" />
+      <outline text="Combi 3" />
+      <outline text="Thermal store 4" />
+      <outline text="NA" />
+    </outline>
+    <outline text="Cylinder b">
+      <outline text="Use existing 1" />
+      <outline text="Replace open vented 2">
+        <outline text="Open vented same size 1" />
+        <outline text="Open vented different size 2" />
+        <outline text="Open vented Mixergy 3" />
+        <outline text="Unvented 4" />
+        <outline text="Unvented Mixergy 5" />
+      </outline>
+      <outline text="Replace unvented 3">
+        <outline text="Unvented" />
+        <outline text="Mixergy" />
+      </outline>
+      <outline text="NA" />
+    </outline>
+  </body>
+</opml>

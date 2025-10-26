@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<opml version="1.0">
+  <head>
+    <title>Condensate – Current vs Proposed</title>
+  </head>
+  <body>
+    <outline text="Condensate a">
+      <outline text="None" />
+      <outline text="Compliant" />
+      <outline text="Not compliant" />
+    </outline>
+    <outline text="Condensate b">
+      <outline text="Internal">
+        <outline text="Under sink" />
+        <outline text="Soil" />
+        <outline text="Appliance" />
+        <outline text="Pump">
+          <outline text="Under sink" />
+          <outline text="Soil" />
+        </outline>
+      </outline>
+      <outline text="External">
+        <outline text="Pump">
+          <outline text="Soil" />
+          <outline text="Gully" />
+          <outline text="Hopper" />
+        </outline>
+        <outline text="Soil" />
+        <outline text="Gully" />
+        <outline text="Hopper" />
+        <outline text="Soak away">
+          <outline text="Engineer installed" />
+          <outline text="Specialist builder" />
+        </outline>
+      </outline>
+    </outline>
+  </body>
+</opml>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<opml version="1.0">
+  <head>
+    <title>Flue – Current vs Proposed</title>
+  </head>
+  <body>
+    <outline text="Flue(a)">
+      <outline text="Horizontal (1)" />
+      <outline text="Direct rear (2)" />
+      <outline text="Balanced (3)" />
+      <outline text="Vertical (4)">
+        <outline text="Pitched roof (1)" />
+        <outline text="Flat roof (2)" />
+      </outline>
+    </outline>
+    <outline text="New flue (b)">
+      <outline text="Turret (1)">
+        <outline text="Right(a)" />
+        <outline text="Left (b)" />
+        <outline text="Rear (c)" />
+      </outline>
+      <outline text="Rear (2)" />
+      <outline text="Vertical (3)">
+        <outline text="Length plus 45 (a)" />
+        <outline text="Lengths plus 90s (b)" />
+      </outline>
+      <outline text="Extended (4)">
+        <outline text="Define" />
+      </outline>
+    </outline>
+  </body>
+</opml>
