@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<opml version="1.0">
+  <head>
+    <title>System Controls</title>
+  </head>
+  <body>
+    <outline text="System controls">
+      <outline text="Combi only" />
+      <outline text="S plan">
+        <outline text="Use existing controls" />
+        <outline text="Reconfigure">
+          <outline text="Existing controls" />
+          <outline text="Replace">
+            <outline text="2 port" />
+            <outline text="Pump" />
+            <outline text="Wiring centre" />
+          </outline>
+        </outline>
+        <outline text="Replace components">
+          <outline text="2 port" />
+          <outline text="Pump" />
+          <outline text="Wiring" />
+        </outline>
+      </outline>
+      <outline text="Y plan">
+        <outline text="Existing controls" />
+        <outline text="Reconfigure">
+          <outline text="Y plan">
+            <outline text="New valve" />
+            <outline text="Existing valve" />
+          </outline>
+          <outline text="S plan">
+            <outline text="New valves and wiring centre" />
+            <outline text="New pump" />
+          </outline>
+        </outline>
+      </outline>
+      <outline text="S plan additional zone(s)">
+        <outline text="Retain" />
+        <outline text="Replace">
+          <outline text="Pump" />
+          <outline text="Valves" />
+        </outline>
+      </outline>
+    </outline>
+  </body>
+</opml>

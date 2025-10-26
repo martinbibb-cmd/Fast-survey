@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<opml version="1.0">
+  <head>
+    <title>Controls – Current vs Proposed</title>
+  </head>
+  <body>
+    <outline text="Controls a">
+      <outline text="Simple" />
+      <outline text="Smart" />
+      <outline text="Boiler plus" />
+    </outline>
+    <outline text="Controls b">
+      <outline text="Simple" />
+      <outline text="Hive" />
+      <outline text="Boiler plus" />
+    </outline>
+  </body>
+</opml>

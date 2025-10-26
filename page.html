@@ -1,185 +1,83 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Fast Survey – OPML Trees</title>
-<style>
-:root{--bg:#0b0d10;--ink:#eaf1f8;--muted:#a7b6c7;--line:#324252;--node:#1a2129;--hover:#222a33}
-*{box-sizing:border-box} html,body{height:100%} body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial}
-.topbar{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #18202a}
-.topbar .meta{color:var(--muted);font-size:12px}
-.stage{position:relative;display:flex;gap:16px;height:calc(100vh - 56px);padding:16px}
-#forest{position:relative;display:flex;gap:40px;align-items:flex-start;overflow:auto;padding:12px;min-width:800px;background:#0f141a;border:1px solid #18202a;border-radius:12px;flex:1}
-.connect{position:absolute;inset:56px 16px 16px 16px;pointer-events:none}
-.tree-col{display:flex;flex-direction:column;align-items:flex-start}
-.node{background:var(--node);border:1px solid #223142;border-radius:12px;min-width:180px;max-width:260px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
-.node .head{display:flex;gap:8px;align-items:center;padding:10px 12px;cursor:pointer}
-.node .chev{border:1px solid #2a3b4d;border-radius:8px;width:18px;height:18px;display:grid;place-items:center;color:var(--muted)}
-.node .meta{color:var(--muted);font-size:12px;padding:0 12px 10px}
-.node .tools{display:flex;gap:8px;flex-wrap:wrap;padding:0 12px 12px}
-.chip{font:600 11px/1 ui-sans-serif;padding:6px 8px;border-radius:999px;border:1px solid #2a3b4d;color:var(--muted)}
-.lane{display:flex;gap:24px;align-items:flex-start;margin-left:24px;margin-top:16px;padding-left:24px;border-left:2px dashed #223142}
-.lane.collapsed{display:none}
-a.back{color:var(--muted);text-decoration:none;border:1px solid #223142;padding:6px 10px;border-radius:8px;margin-right:8px}
-.filter{display:flex;gap:8px;align-items:center}
-select{background:#0f141a;color:var(--ink);border:1px solid #223142;border-radius:8px;padding:6px 8px}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fast Survey – Tree</title>
+  <link rel="stylesheet" href="./assets/app.css">
+  <style>
+    /* Lightweight layout additions for sidebar + selection styling */
+    .layout { display: grid; grid-template-columns: 1fr 340px; gap: 14px; padding: 14px; }
+    .panel { background: var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px; }
+    .panel h3 { margin: 0 0 8px 0; font-size: 16px; }
+    .panel .muted { color: var(--muted); font-size: 13px; }
+    .summary { display: grid; gap: 8px; }
+    .summary .card { border:1px solid var(--line); border-radius:10px; padding:8px; }
+    .summary .title { font-weight: 600; margin-bottom: 4px; }
+    textarea.notes { width: 100%; min-height: 120px; border-radius: 10px; background: #0d0f15; border:1px solid var(--line); color: var(--text); padding: 8px; }
+    .btn { background: var(--panel); border:1px solid var(--line); color: var(--text); padding:8px 12px; border-radius:10px; cursor:pointer }
+    .btn:hover { border-color: var(--accent); }
+    .node.selected { outline: 2px solid var(--accent); box-shadow: 0 0 0 2px rgba(124,217,146,.15) inset; }
+    .stack { display: grid; gap: 8px; }
+    .micro { font-size: 12px; color: var(--muted); }
+    .pill { display:inline-block; padding:2px 8px; border:1px solid var(--line); border-radius:999px; font-size:12px; color: var(--muted); }
+    .sep { height:1px; background: var(--line); margin:8px 0; }
+    .scroll-hint { font-size: 12px; color: var(--muted); }
+    .section-title { display:flex; align-items:center; gap:8px; margin: 6px 0 10px 0; }
+  </style>
 </head>
 <body>
-<header class="topbar">
-  <div>🌳 Fast Survey – OPML Trees</div>
-  <div class="filter">
-    <a class="back" href="index2.html">← Back</a>
-    <label>Section:</label>
-    <select id="section"></select>
-    <button id="expand">Expand</button>
-    <button id="collapse">Collapse</button>
+  <header class="page-header">
+    <nav><a href="./index2.html" class="back">← All Trees</a></nav>
+    <h1 id="tree-title">Loading…</h1>
+    <div class="controls">
+      <button id="expand-all" class="btn">Expand all</button>
+      <button id="collapse-all" class="btn">Collapse all</button>
+      <button id="reset-growth" class="btn">Reload & Grow 🌱</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- Left: tree content -->
+    <section id="tree-root" class="tree-container" aria-live="polite"></section>
+
+    <!-- Right: live notes -->
+    <aside class="panel">
+      <h3>Selections & Notes</h3>
+      <div class="summary">
+        <div class="card">
+          <div class="title">A (Current)</div>
+          <div id="selA" class="stack micro">
+            <span class="muted">Nothing selected yet.</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="title">B (Proposed)</div>
+          <div id="selB" class="stack micro">
+            <span class="muted">Select from B after choosing A.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+      <div class="section-title"><span class="pill">Depot text</span><span class="scroll-hint" id="flowHint"></span></div>
+      <textarea id="notesBox" class="notes" spellcheck="false"></textarea>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button id="copyNotes" class="btn">Copy</button>
+        <button id="clearSel" class="btn">Clear selections</button>
+      </div>
+    </aside>
+  </main>
+
+  <div id="done-overlay" class="overlay hidden">
+    <div class="overlay-content">
+      <h2>All branches grown 🌳</h2>
+      <p>Tap “Done” to collapse back to the roots.</p>
+      <button id="overlay-done" class="btn">Done</button>
+    </div>
   </div>
-  <div class="meta"><span id="meta"></span></div>
-</header>
 
-<main class="stage">
-  <svg class="connect" id="wires" aria-hidden="true"></svg>
-  <section id="forest"></section>
-</main>
-
-<script>
-const wiresEl = document.getElementById('wires');
-const forestEl = document.getElementById('forest');
-const metaEl = document.getElementById('meta');
-const sectionSel = document.getElementById('section');
-
-const QS = new URLSearchParams(location.search);
-const requestedSection = QS.get('section'); // optional: ?section=Cylinder (A/B)
-
-/* -------- OPML PARSER -------- */
-async function loadOPML(){
-  const res = await fetch('data/survey.opml');
-  const text = await res.text();
-  const xml = new DOMParser().parseFromString(text, 'text/xml');
-  const outlines = [...xml.querySelectorAll('body > outline')];
-  const sections = outlines.map(o => convertOutline(o));
-  return { sections, title: xml.querySelector('head>title')?.textContent || 'Survey Trees' };
-}
-function convertOutline(outEl){
-  const title = outEl.getAttribute('text') || 'Untitled';
-  const children = [...outEl.children].filter(n=>n.tagName.toLowerCase()==='outline').map(n => convertNode(n));
-  return { title, nodes: children.length ? children : [] };
-}
-function convertNode(nodeEl){
-  const title = nodeEl.getAttribute('text') || 'Untitled';
-  const id = slug(title);
-  const kids = [...nodeEl.children].filter(n=>n.tagName.toLowerCase()==='outline').map(n => convertNode(n));
-  return { id, title, children: kids };
-}
-function slug(s){
-  return s.toLowerCase().replace(/[^\w]+/g,'_').replace(/^_+|_+$/g,'').slice(0,64);
-}
-
-/* -------- RENDERER -------- */
-function renderSections(sections, filterTitle=null){
-  forestEl.innerHTML=''; wiresEl.innerHTML='';
-  const usable = filterTitle ? sections.filter(s => s.title === filterTitle) : sections;
-  // populate dropdown
-  sectionSel.innerHTML='';
-  const optAll = document.createElement('option'); optAll.value=''; optAll.textContent='(All sections)'; sectionSel.appendChild(optAll);
-  sections.forEach(s=>{ const o=document.createElement('option'); o.value=s.title; o.textContent=s.title; if (s.title===filterTitle) o.selected=true; sectionSel.appendChild(o); });
-
-  for(const sec of usable){
-    const col = document.createElement('div'); col.className='tree-col'; col.setAttribute('aria-label', sec.title);
-    // optional section label node
-    const labelNode = { id: slug(sec.title), title: sec.title, children: sec.nodes };
-    const rendered = renderTree(labelNode, 0);
-    col.appendChild(rendered.nodeEl);
-    if (rendered.lane) col.appendChild(rendered.lane);
-    forestEl.appendChild(col);
-  }
-  drawAllWires();
-}
-function renderTree(tree, depth){
-  const root = renderNode(tree, depth);
-  if (tree.children?.length){
-    const lane = document.createElement('div'); lane.className='lane'; lane.dataset.parent = tree.id;
-    for(const child of tree.children){
-      const c = renderSubtree(child, depth+1);
-      lane.appendChild(c.nodeEl);
-      if (c.lane) lane.appendChild(c.lane);
-    }
-    return { nodeEl: root.nodeEl, lane };
-  }
-  return { nodeEl: root.nodeEl, lane: null };
-}
-function renderSubtree(node, depth){
-  const n = renderNode(node, depth);
-  if (node.children?.length){
-    const lane = document.createElement('div'); lane.className = 'lane'; lane.dataset.parent = node.id;
-    for(const ch of node.children){
-      const c = renderSubtree(ch, depth+1);
-      lane.appendChild(c.nodeEl);
-      if (c.lane) lane.appendChild(c.lane);
-    }
-    return { nodeEl: n.nodeEl, lane };
-  }
-  return { nodeEl: n.nodeEl, lane: null };
-}
-function renderNode(data, depth){
-  const node = document.createElement('article'); node.className='node'; node.id=`node-${data.id}`; node.dataset.depth=depth;
-  const head = document.createElement('div'); head.className='head';
-  const chev = document.createElement('span'); chev.className='chev'; chev.textContent='↘';
-  const title = document.createElement('div'); title.className='title'; title.textContent=data.title;
-  head.appendChild(chev); head.appendChild(title); node.appendChild(head);
-  let lane=null;
-  if (data.children?.length){ lane=document.createElement('div'); lane.className='lane'; lane.dataset.parent=data.id; }
-  head.onclick = ()=>{ if (!lane) return; lane.classList.toggle('collapsed'); chev.textContent = lane.classList.contains('collapsed') ? '↗' : '↘'; drawAllWires(); };
-  return { nodeEl: node, lane };
-}
-function drawAllWires(){
-  const r = forestEl.getBoundingClientRect();
-  wiresEl.setAttribute('width', r.width);
-  wiresEl.setAttribute('height', r.height);
-  wiresEl.innerHTML='';
-  const lanes = [...forestEl.querySelectorAll('.lane:not(.collapsed)')];
-  for(const lane of lanes){
-    const parentId = lane.dataset.parent;
-    const parent = forestEl.querySelector(`#node-${parentId}`);
-    if (!parent) continue;
-    const p = parent.getBoundingClientRect();
-    const base = wiresEl.getBoundingClientRect();
-    const x1 = p.right - base.left, y1 = p.top + p.height/2 - base.top;
-    const kids = [...lane.children].filter(el=>el.classList.contains('node'));
-    for(const kid of kids){
-      const kb = kid.getBoundingClientRect();
-      const x2 = kb.left - base.left, y2 = kb.top + kb.height/2 - base.top;
-      const dx = Math.max(24, Math.min(120, (x2 - x1)/2));
-      const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-      const d = `M ${x1} ${y1} C ${x1+dx} ${y1}, ${x2-dx} ${y2}, ${x2} ${y2}`;
-      path.setAttribute('d', d); path.setAttribute('stroke','#324252'); path.setAttribute('fill','none'); path.setAttribute('stroke-width','2');
-      wiresEl.appendChild(path);
-    }
-  }
-}
-
-/* -------- Boot -------- */
-(async function(){
-  const {sections, title} = await loadOPML();
-  document.title = `Fast Survey – ${title}`;
-  metaEl.textContent = `${sections.length} section(s)`;
-  renderSections(sections, requestedSection);
-
-  // controls
-  document.getElementById('expand').onclick = ()=>{ document.querySelectorAll('.lane').forEach(l=>l.classList.remove('collapsed')); drawAllWires(); };
-  document.getElementById('collapse').onclick = ()=>{ document.querySelectorAll('.lane').forEach(l=>l.classList.add('collapsed')); drawAllWires(); };
-  sectionSel.onchange = ()=> {
-    const v = sectionSel.value;
-    const url = new URL(location.href);
-    if (v) url.searchParams.set('section', v); else url.searchParams.delete('section');
-    history.replaceState(null,'',url.toString());
-    renderSections(sections, v || null);
-  };
-  window.addEventListener('resize', ()=> requestAnimationFrame(drawAllWires));
-  document.querySelector('.stage').addEventListener('scroll', ()=> requestAnimationFrame(drawAllWires), {passive:true});
-})();
-</script>
+  <script src="./assets/trees.js"></script>
+  <script src="./assets/app.js"></script>
 </body>
 </html>

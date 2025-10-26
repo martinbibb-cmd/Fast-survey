@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<opml version="1.0">
+  <head>
+    <title>Terminal Options</title>
+  </head>
+  <body>
+    <outline text="Terminal">
+      <outline text="Standard - wall 1" />
+      <outline text="Plume kit 2" />
+      <outline text="Vertical flat 3" />
+      <outline text="Vertical flat 4" />
+    </outline>
+  </body>
+</opml>

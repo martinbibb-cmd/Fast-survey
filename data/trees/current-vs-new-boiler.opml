@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<opml version="1.0">
+  <head>
+    <title>Current vs New Boiler</title>
+  </head>
+  <body>
+    <outline text="Current boiler (A pack)">
+      <outline text="Regular (1)" />
+      <outline text="System (2)" />
+      <outline text="Combi (3)" />
+      <outline text="Warm air (4)" />
+      <outline text="None (5)" />
+      <outline text="Storage combi (6)" />
+    </outline>
+    <outline text="New boiler (B pack)">
+      <outline text="Regular (1)" />
+      <outline text="System (2)" />
+      <outline text="Combi (3)" />
+    </outline>
+  </body>
+</opml>

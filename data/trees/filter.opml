@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<opml version="1.0">
+  <head>
+    <title>Filter</title>
+  </head>
+  <body>
+    <outline text="Filter">
+      <outline text="Fernox tf1 fitted" />
+      <outline text="Filter other than Fernox tf-1 to be replaced" />
+      <outline text="No space" />
+      <outline text="Customer declined" />
+    </outline>
+  </body>
+</opml>

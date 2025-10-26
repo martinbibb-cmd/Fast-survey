@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Fast Survey – Trees (index2)</title>
+  <title>Fast Survey – Trees</title>
   <link rel="stylesheet" href="./assets/app.css">
 </head>
 <body>
@@ -12,72 +12,46 @@
     <p class="subtitle">Pick a survey tree to explore its branches.</p>
   </header>
 
-  <main class="card-grid">
-    <a class="card" href="./page.html?section=Current%20boiler%20(A%20pack)">
-      <h2>Current boiler (A pack)</h2>
-      <p>Existing appliance types on site.</p>
-    </a>
-    <a class="card" href="./page.html?section=Flue(a)">
-      <h2>Flue (a)</h2>
-      <p>Document the current flue configuration.</p>
-    </a>
-    <a class="card" href="./page.html?section=New%20boiler%20(B%20pack)">
-      <h2>New boiler (B pack)</h2>
-      <p>Options for the proposed boiler.</p>
-    </a>
-    <a class="card" href="./page.html?section=New%20flue%20(b)">
-      <h2>New flue (b)</h2>
-      <p>Select the required replacement flue setup.</p>
-    </a>
-    <a class="card" href="./page.html?section=Terminal">
-      <h2>Terminal</h2>
-      <p>Specify the terminal finish.</p>
-    </a>
-    <a class="card" href="./page.html?section=Cylinder%20a">
-      <h2>Cylinder A</h2>
-      <p>Identify the present hot water cylinder.</p>
-    </a>
-    <a class="card" href="./page.html?section=Cylinder%20b">
-      <h2>Cylinder B</h2>
-      <p>Plan the future cylinder works.</p>
-    </a>
-    <a class="card" href="./page.html?section=Controls%20a">
-      <h2>Controls A</h2>
-      <p>Record the existing control type.</p>
-    </a>
-    <a class="card" href="./page.html?section=Controls%20b">
-      <h2>Controls B</h2>
-      <p>Choose the upgraded controls package.</p>
-    </a>
-    <a class="card" href="./page.html?section=Condensate%20a">
-      <h2>Condensate A</h2>
-      <p>Note the current condensate provision.</p>
-    </a>
-    <a class="card" href="./page.html?section=Condensate%20b">
-      <h2>Condensate B</h2>
-      <p>Define the proposed condensate routing.</p>
-    </a>
-    <a class="card" href="./page.html?section=Powerflush">
-      <h2>Powerflush</h2>
-      <p>Confirm system cleanliness requirements.</p>
-    </a>
-    <a class="card" href="./page.html?section=Filter">
-      <h2>Filter</h2>
-      <p>Specify magnetic filtration needs.</p>
-    </a>
-    <a class="card" href="./page.html?section=System%20controls">
-      <h2>System controls</h2>
-      <p>Describe the heating control layout.</p>
-    </a>
+  <main class="card-grid" id="treeGrid" aria-live="polite">
+    <p class="subtitle" id="treeLoading">Loading tree index…</p>
   </main>
 
   <footer class="site-footer">
     <button id="reload-grow">Reload &amp; Grow 🌳</button>
   </footer>
 
+  <script src="./assets/trees.js"></script>
   <script>
+    const grid = document.getElementById('treeGrid');
+    const loading = document.getElementById('treeLoading');
+
+    if (typeof TREE_ORDER === 'undefined' || typeof TREE_INDEX === 'undefined') {
+      loading.textContent = 'Tree index failed to load.';
+    } else {
+      grid.innerHTML = '';
+      TREE_ORDER.forEach((key) => {
+        const meta = TREE_INDEX[key];
+        if (!meta) return;
+        const card = document.createElement('a');
+        card.className = 'card';
+        card.href = `./page.html?tree=${encodeURIComponent(key)}`;
+        const title = document.createElement('h2');
+        title.textContent = meta.title;
+        const summary = document.createElement('p');
+        summary.textContent = meta.summary || '';
+        card.appendChild(title);
+        card.appendChild(summary);
+        grid.appendChild(card);
+      });
+      if (!grid.children.length) {
+        const empty = document.createElement('p');
+        empty.className = 'subtitle';
+        empty.textContent = 'No trees registered yet.';
+        grid.appendChild(empty);
+      }
+    }
+
     document.getElementById('reload-grow').addEventListener('click', () => {
-      // Soft visual: reload the page to see the growth animation on open.
       location.reload();
     });
   </script>
