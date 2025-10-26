@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<opml version="1.0">
+  <head><title>Survey Trees</title></head>
+  <body>
+    <outline text="Current boiler (A pack)">
+      <outline text="Regular (1)"/>
+      <outline text="System (2)"/>
+      <outline text="Combi (3)"/>
+      <outline text="Warm air (4)"/>
+      <outline text="None (5)"/>
+    </outline>
+
+    <outline text="Flue (a)">
+      <outline text="Horizontal (1)"/>
+      <outline text="Direct rear (2)"/>
+      <outline text="Balanced (3)"/>
+      <outline text="Vertical (4)">
+        <outline text="Pitched roof (1)"/>
+        <outline text="Flat roof (2)"/>
+      </outline>
+    </outline>
+
+    <outline text="New boiler (B pack)">
+      <outline text="Regular (1)"/>
+      <outline text="System (2)"/>
+      <outline text="Combi (3)"/>
+    </outline>
+
+    <outline text="New flue (b)">
+      <outline text="Turret (1)">
+        <outline text="Right (a)"/>
+        <outline text="Left (b)"/>
+        <outline text="Rear (c)"/>
+      </outline>
+      <outline text="Rear (2)"/>
+      <outline text="Vertical (3)">
+        <outline text="Length plus 45 (a)"/>
+        <outline text="Lengths plus 90s (b)"/>
+      </outline>
+      <outline text="Extended (4)">
+        <outline text="Define"/>
+      </outline>
+    </outline>
+
+    <outline text="Terminal">
+      <outline text="Standard - wall 1"/>
+      <outline text="Plume kit 2"/>
+      <outline text="Vertical flat 3"/>
+      <outline text="Vertical flat 4"/>
+    </outline>
+
+    <!-- Example: cylinder section; replace/extend with your full set -->
+    <outline text="Cylinder (A/B)">
+      <outline text="Current">
+        <outline text="Open-vented"/>
+        <outline text="Unvented"/>
+        <outline text="None"/>
+      </outline>
+      <outline text="New">
+        <outline text="Keep existing"/>
+        <outline text="Replace (Unvented)"/>
+        <outline text="Replace (Open-vented)"/>
+      </outline>
+    </outline>
+  </body>
+</opml>
