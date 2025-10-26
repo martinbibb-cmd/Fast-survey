@@ -225,17 +225,17 @@ const CONFIG = {
     { fromPathContains: "Flue/Vertical",   allowBRoots: ["Vertical (3)","Extended (4)"] }
   ],
   templates: {
-    "Current system": "{cleanLeaf}",
-    "Existing flue": "{cleanPath}",
-    "Proposed boiler": "{cleanLeaf}",
-    "Proposed flue": "{cleanPath}",
-    "Flue terminal / termination": "{cleanLeaf}",
-    "Cylinder (existing)": "{cleanLeaf}",
-    "Cylinder (plan)": "{cleanPath}",
-    "Controls (existing)": "{cleanLeaf}",
-    "Controls (plan)": "{cleanLeaf}",
-    "Condensate (existing)": "{cleanLeaf}",
-    "Condensate (plan)": "{cleanPath}"
+    "Current system": "{displayLeaf}",
+    "Existing flue": "{displayPath}",
+    "Proposed boiler": "{displayLeaf}",
+    "Proposed flue": "{displayPath}",
+    "Flue terminal / termination": "{displayLeaf}",
+    "Cylinder (existing)": "{displayLeaf}",
+    "Cylinder (plan)": "{displayPath}",
+    "Controls (existing)": "{displayLeaf}",
+    "Controls (plan)": "{displayLeaf}",
+    "Condensate (existing)": "{displayLeaf}",
+    "Condensate (plan)": "{displayPath}"
   },
   joiner: " ; "
 };
@@ -267,14 +267,35 @@ function toNode(el, path){
 
 // Extract single-letter channel tags like (a)/(b). Also capture last (...) as variantTag.
 function parseTags(text){
-  const parens = [...text.matchAll(/\(([^)]+)\)/g)].map(m=>m[1].trim());
-  const clean = text.replace(/\s*\([^)]+\)\s*$/,'').replace(/\((?:[a-zA-Z])\)/g,'').trim() || text.trim();
+  const trimmed = text.trim();
+  const parens = [...trimmed.matchAll(/\(([^)]+)\)/g)].map(m=>m[1].trim());
   let channelTag = null;
   for(const p of parens){
     if(/^[a-zA-Z]$/.test(p)){ channelTag = p.toLowerCase(); break; }
   }
+
+  // Start from trimmed text and progressively remove helper markers.
+  let clean = trimmed
+    .replace(/\s*\([^)]+\)\s*$/,'') // drop final (...) group (typically numbering)
+    .replace(/\((?:[a-zA-Z])\)/g,'') // drop embedded single-letter channel hints like (a)
+    .trim();
+
+  if(!clean){
+    clean = trimmed;
+  }
+
+  // Support channel markers expressed as trailing " a" / " b" instead of parentheses.
+  const suffixMatch = clean.match(/\s([a-zA-Z])$/);
+  if(suffixMatch){
+    const suffix = suffixMatch[1].toLowerCase();
+    if(!channelTag){
+      channelTag = suffix;
+    }
+    clean = clean.slice(0, -suffixMatch[0].length).trim();
+  }
+
   const variantTag = parens.length ? parens[parens.length-1] : null;
-  return {cleanLabel: clean, channelTag, variantTag};
+  return {cleanLabel: clean || trimmed, channelTag, variantTag};
 }
 
 /* ----------------- Section mapping ------------------ */
@@ -340,7 +361,7 @@ function renderBranch(node, section, pathNodes, selection){
   // crumbs
   const crumbs = el("div",{class:"crumbs"});
   pathNodes.forEach(n=>{
-    crumbs.append(el("span",{class:"crumb"}, n.cleanLabel));
+    crumbs.append(el("span",{class:"crumb"}, labelFor(n)));
   });
   wrap.append(crumbs);
 
@@ -408,6 +429,8 @@ function onPick(section, node, pathNodes){
     nodePath: pathNodes.map(n=>n.cleanLabel),
     rawPath: pathNodes.map(n=>n.rawLabel),
     pathIds: pathNodes.map(n=>n.id),
+    channelPath: pathNodes.map(n=>n.channelTag),
+    displayPath: pathNodes.map(n=>labelFor(n)),
     leafNode: node
   });
 
@@ -422,6 +445,7 @@ function onPick(section, node, pathNodes){
 
 function hasAnyAChosen(){
   for(const [,sel] of STATE.selections){
+    if(sel.channelPath?.some(tag => tag === 'a')) return true;
     const raw = sel.rawPath.join("/");
     if(/\((a)\)/i.test(raw)) return true;
   }
@@ -440,8 +464,9 @@ function renderChips(){
   for(const sec of CONFIG.sections){
     const sel = STATE.selections.get(sec);
     if(!sel) continue;
+    const fallbackLabel = sel.displayPath?.at(-1) ?? sel.nodePath.at(-1);
     const chip = el("div",{class:"chip"},
-      el("span",{}, el("b",{}, sec), " — ", (CONFIG.templates[sec] ? formatLine(sec, sel) : sel.nodePath.at(-1))),
+      el("span",{}, el("b",{}, sec), " — ", (CONFIG.templates[sec] ? formatLine(sec, sel) : fallbackLabel)),
       el("button",{onclick:()=>{ STATE.selections.delete(sec); STATE.aChosen = hasAnyAChosen(); render(); }}, "×")
     );
     bar.append(chip);
@@ -466,10 +491,14 @@ function renderSections(){
 function formatLine(section, sel){
   const cleanPath = sel.nodePath.join(" > ");
   const cleanLeaf = sel.nodePath.at(-1);
+  const displayPath = (sel.displayPath||sel.nodePath).join(" > ");
+  const displayLeaf = (sel.displayPath||sel.nodePath).at(-1);
   const tmpl = CONFIG.templates[section] || "{cleanLeaf}";
   return tmpl
     .replaceAll("{cleanPath}", cleanPath)
-    .replaceAll("{cleanLeaf}", cleanLeaf);
+    .replaceAll("{cleanLeaf}", cleanLeaf)
+    .replaceAll("{displayPath}", displayPath)
+    .replaceAll("{displayLeaf}", displayLeaf);
 }
 
 function renderMaster(){

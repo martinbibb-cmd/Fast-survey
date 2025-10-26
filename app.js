@@ -994,6 +994,8 @@ let topBarElement = null;
 let scrollLockToggleButton = null;
 let isScrollLockEnabled = false;
 
+const SERVICE_WORKER_VERSION = 'v2';
+
 function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) {
     return;
@@ -1001,7 +1003,7 @@ function registerServiceWorker() {
 
   window.addEventListener('load', () => {
     navigator.serviceWorker
-      .register('./sw.js')
+      .register(`./sw.js?v=${SERVICE_WORKER_VERSION}`)
       .catch(error => console.warn('Service worker registration failed', error));
   });
 }

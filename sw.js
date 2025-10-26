@@ -1,4 +1,5 @@
-const CACHE_NAME = 'depot-notes-picker-v1';
+const CACHE_VERSION = 'v2';
+const CACHE_NAME = `depot-notes-picker-${CACHE_VERSION}`;
 const ASSETS = [
   '/',
   '/index.html',
