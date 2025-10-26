@@ -1,0 +1,23 @@
+{
+  "version": "1.0",
+  "tiles": [
+    {
+      "id": "gas",
+      "title": "Gas",
+      "href": "page.html?tree=gas",
+      "desc": "Supply, runs & upgrades"
+    },
+    {
+      "id": "wah",
+      "title": "Working at Heights",
+      "href": "page.html?tree=wah",
+      "desc": "Ladders, towers, scaffold"
+    },
+    {
+      "id": "misc",
+      "title": "Misc",
+      "href": "page.html?tree=misc",
+      "desc": "Filter, inhibitor, electrics"
+    }
+  ]
+}
