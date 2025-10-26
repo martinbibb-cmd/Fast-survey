@@ -1,0 +1,186 @@
+{
+  "id": "wah",
+  "title": "Working at Heights & Access",
+  "meta": {
+    "version": "0.1",
+    "category": "access",
+    "outputTargets": [
+      "depot",
+      "quote",
+      "customer"
+    ]
+  },
+  "steps": [
+    {
+      "id": "flue_pos",
+      "kind": "existing",
+      "prompt": "Flue/termination position",
+      "choices": [
+        {
+          "id": "at_ground",
+          "label": "At ground level (ladder not required)"
+        },
+        {
+          "id": "first_floor",
+          "label": "First floor elevation"
+        },
+        {
+          "id": "roof",
+          "label": "Roof level (vertical/terminal)"
+        }
+      ]
+    },
+    {
+      "id": "roof_type",
+      "kind": "existing",
+      "prompt": "Roof type (if roof level work)",
+      "conditions": [
+        {
+          "if": {
+            "flue_pos": [
+              "roof"
+            ]
+          },
+          "then": "show"
+        }
+      ],
+      "choices": [
+        {
+          "id": "pitched",
+          "label": "Pitched roof"
+        },
+        {
+          "id": "flat",
+          "label": "Flat roof"
+        }
+      ]
+    },
+    {
+      "id": "access_need",
+      "kind": "check",
+      "prompt": "Primary access requirement",
+      "choices": [
+        {
+          "id": "ladder_std",
+          "label": "Extension ladder (standard)",
+          "effects": [
+            {
+              "action": "addNote",
+              "value": "Ladder access required \u2014 standard extension",
+              "target": "depot"
+            }
+          ]
+        },
+        {
+          "id": "roof_ladder",
+          "label": "Roof ladder / cat ladder",
+          "effects": [
+            {
+              "action": "addCode",
+              "value": "ACC_ROOF_LADDER",
+              "target": "quote"
+            },
+            {
+              "action": "addNote",
+              "value": "Roof ladder required for safe access",
+              "target": "depot"
+            }
+          ]
+        },
+        {
+          "id": "tower",
+          "label": "Access tower / podium",
+          "effects": [
+            {
+              "action": "addCode",
+              "value": "ACC_TOWER",
+              "target": "quote"
+            },
+            {
+              "action": "setFlag",
+              "value": "wah_complex"
+            }
+          ]
+        },
+        {
+          "id": "scaffold",
+          "label": "Scaffold required",
+          "effects": [
+            {
+              "action": "addCode",
+              "value": "SCAFF_STD",
+              "target": "quote"
+            },
+            {
+              "action": "addNote",
+              "value": "Scaffold required for safe working at height",
+              "target": "depot"
+            },
+            {
+              "action": "setFlag",
+              "value": "wah_scaffold"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "loft_access",
+      "kind": "check",
+      "prompt": "Loft access (if applicable)",
+      "choices": [
+        {
+          "id": "loft_good",
+          "label": "Good access, boarded & lit"
+        },
+        {
+          "id": "loft_basic",
+          "label": "Basic hatch, limited boarding"
+        },
+        {
+          "id": "loft_poor",
+          "label": "Poor access \u2014 needs boards/lighting",
+          "effects": [
+            {
+              "action": "addCode",
+              "value": "LOFT_BOARD_LIGHT",
+              "target": "quote"
+            },
+            {
+              "action": "addNote",
+              "value": "Loft requires safe access provisions (boarding/lighting)",
+              "target": "depot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "two_person",
+      "kind": "check",
+      "prompt": "Two-person lift required?",
+      "choices": [
+        {
+          "id": "2p_no",
+          "label": "No"
+        },
+        {
+          "id": "2p_yes",
+          "label": "Yes (weight/awkward access)",
+          "effects": [
+            {
+              "action": "addCode",
+              "value": "LAB_TWO_PERSON",
+              "target": "quote"
+            },
+            {
+              "action": "addNote",
+              "value": "Two-person lift required due to access/weight",
+              "target": "depot"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

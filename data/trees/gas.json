@@ -1,0 +1,238 @@
+{
+  "id": "gas",
+  "title": "Gas Supply & Upgrades",
+  "meta": {
+    "version": "0.2",
+    "category": "gas",
+    "outputTargets": [
+      "depot",
+      "quote",
+      "customer"
+    ]
+  },
+  "steps": [
+    {
+      "id": "gas_meter_loc",
+      "kind": "existing",
+      "prompt": "Where is the gas meter?",
+      "choices": [
+        {
+          "id": "int_cupb",
+          "label": "Internal (cupboard)"
+        },
+        {
+          "id": "ext_box",
+          "label": "External meter box"
+        },
+        {
+          "id": "cellar",
+          "label": "Cellar / basement"
+        }
+      ]
+    },
+    {
+      "id": "gas_pipe_size",
+      "kind": "existing",
+      "prompt": "Existing pipe size to boiler?",
+      "choices": [
+        {
+          "id": "15mm",
+          "label": "15 mm"
+        },
+        {
+          "id": "22mm",
+          "label": "22 mm"
+        },
+        {
+          "id": "28mm",
+          "label": "28 mm"
+        },
+        {
+          "id": "unk",
+          "label": "Unknown (measure later)",
+          "effects": [
+            {
+              "action": "addNote",
+              "value": "Gas pipe size to boiler unknown at survey \u2014 measure on site",
+              "target": "depot"
+            },
+            {
+              "action": "setFlag",
+              "value": "risk_gas_unknown"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "proposed_input",
+      "kind": "proposed",
+      "prompt": "Proposed boiler input (approx kW)?",
+      "choices": [
+        {
+          "id": "12kW",
+          "label": "\u2248 12 kW"
+        },
+        {
+          "id": "15kW",
+          "label": "\u2248 15 kW"
+        },
+        {
+          "id": "18kW",
+          "label": "\u2248 18 kW"
+        },
+        {
+          "id": "24plus",
+          "label": "24 kW or larger",
+          "effects": [
+            {
+              "action": "setFlag",
+              "value": "high_input"
+            },
+            {
+              "action": "addNote",
+              "value": "Higher input appliance \u2014 confirm gas run sizing for pressure drop",
+              "target": "depot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run_category",
+      "kind": "check",
+      "prompt": "Gas run (length & fittings)",
+      "help": "Rough banding to estimate pressure drop/upgrade need.",
+      "choices": [
+        {
+          "id": "short_few",
+          "label": "Short + few bends"
+        },
+        {
+          "id": "med_some",
+          "label": "Medium + some bends"
+        },
+        {
+          "id": "long_many",
+          "label": "Long + many bends",
+          "effects": [
+            {
+              "action": "addNote",
+              "value": "Long gas run with multiple fittings \u2014 likely upsizing required",
+              "target": "depot"
+            },
+            {
+              "action": "setFlag",
+              "value": "risk_gas_pressure_drop"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "upgrade_req",
+      "kind": "check",
+      "prompt": "Is gas pipe upgrade required?",
+      "choices": [
+        {
+          "id": "yes",
+          "label": "Yes",
+          "effects": [
+            {
+              "action": "addCode",
+              "value": "GAS_UPSIZE_STD",
+              "target": "quote"
+            },
+            {
+              "action": "addNote",
+              "value": "Gas pipe upsizing required to achieve permissible pressure drop",
+              "target": "depot"
+            }
+          ]
+        },
+        {
+          "id": "no",
+          "label": "No"
+        },
+        {
+          "id": "tbc",
+          "label": "TBC (test on day)",
+          "effects": [
+            {
+              "action": "addNote",
+              "value": "Gas upgrade to be confirmed by tightness & working pressure on day",
+              "target": "depot"
+            },
+            {
+              "action": "setFlag",
+              "value": "risk_gas_upgrade_tbc"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "entry_type",
+      "kind": "check",
+      "prompt": "Property entry/route considerations",
+      "choices": [
+        {
+          "id": "surface_clip",
+          "label": "Surface run & clip"
+        },
+        {
+          "id": "underfloor",
+          "label": "Under-floor route (boards lifted)",
+          "effects": [
+            {
+              "action": "addCode",
+              "value": "GAS_FLOOR_LIFT",
+              "target": "quote"
+            }
+          ]
+        },
+        {
+          "id": "external_alt",
+          "label": "External reroute (alt path)",
+          "effects": [
+            {
+              "action": "addCode",
+              "value": "GAS_EXT_REROUTE",
+              "target": "quote"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bonding_chk",
+      "kind": "check",
+      "prompt": "Main bonding present?",
+      "choices": [
+        {
+          "id": "bond_ok",
+          "label": "Yes \u2014 present"
+        },
+        {
+          "id": "bond_na",
+          "label": "Not applicable (installer to verify)"
+        },
+        {
+          "id": "bond_miss",
+          "label": "Missing / suspect",
+          "effects": [
+            {
+              "action": "addNote",
+              "value": "Main protective bonding appears missing/suspect \u2014 raise on day",
+              "target": "depot"
+            },
+            {
+              "action": "setFlag",
+              "value": "risk_bonding"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

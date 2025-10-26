@@ -1,0 +1,188 @@
+{
+  "id": "misc",
+  "title": "Misc Items & Housekeeping",
+  "meta": {
+    "version": "0.1",
+    "category": "misc",
+    "outputTargets": [
+      "depot",
+      "quote",
+      "customer"
+    ]
+  },
+  "steps": [
+    {
+      "id": "rads_band",
+      "kind": "existing",
+      "prompt": "Approx. number of radiators",
+      "choices": [
+        {
+          "id": "lt8",
+          "label": "\u2264 8"
+        },
+        {
+          "id": "9to12",
+          "label": "9\u201312"
+        },
+        {
+          "id": "13to16",
+          "label": "13\u201316"
+        },
+        {
+          "id": "gt16",
+          "label": "17+"
+        }
+      ]
+    },
+    {
+      "id": "filter_status",
+      "kind": "check",
+      "prompt": "System filter",
+      "choices": [
+        {
+          "id": "fernox_tf1",
+          "label": "Fernox TF1 fitted"
+        },
+        {
+          "id": "other_replace",
+          "label": "Other filter to be replaced",
+          "effects": [
+            {
+              "action": "addCode",
+              "value": "FLT_REPLACE",
+              "target": "quote"
+            }
+          ]
+        },
+        {
+          "id": "no_space",
+          "label": "No space",
+          "effects": [
+            {
+              "action": "addNote",
+              "value": "No space to fit inline filter \u2014 record on job",
+              "target": "depot"
+            },
+            {
+              "action": "setFlag",
+              "value": "filter_not_possible"
+            }
+          ]
+        },
+        {
+          "id": "declined",
+          "label": "Customer declined",
+          "effects": [
+            {
+              "action": "addNote",
+              "value": "Customer declined filter after explanation",
+              "target": "depot"
+            },
+            {
+              "action": "setFlag",
+              "value": "filter_declined"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "inhibitor",
+      "kind": "check",
+      "prompt": "Inhibitor dosing",
+      "choices": [
+        {
+          "id": "dose_yes",
+          "label": "Dose inhibitor",
+          "effects": [
+            {
+              "action": "addCode",
+              "value": "CHEM_INHIB",
+              "target": "quote"
+            }
+          ]
+        },
+        {
+          "id": "dose_no",
+          "label": "No (explain in notes)"
+        }
+      ]
+    },
+    {
+      "id": "scale_reducer",
+      "kind": "check",
+      "prompt": "Scale reducer (if hard water / combi)",
+      "choices": [
+        {
+          "id": "scale_yes",
+          "label": "Include scale reducer",
+          "effects": [
+            {
+              "action": "addCode",
+              "value": "SCALE_REDUCER",
+              "target": "quote"
+            }
+          ]
+        },
+        {
+          "id": "scale_no",
+          "label": "No / not applicable"
+        }
+      ]
+    },
+    {
+      "id": "elec_spur",
+      "kind": "check",
+      "prompt": "Boiler electrical isolation (FCU)",
+      "choices": [
+        {
+          "id": "spur_ok",
+          "label": "Present & suitable"
+        },
+        {
+          "id": "spur_new",
+          "label": "New spur/isolator required",
+          "effects": [
+            {
+              "action": "addCode",
+              "value": "ELEC_FCU",
+              "target": "quote"
+            },
+            {
+              "action": "addNote",
+              "value": "Provide FCU/isolator at boiler position",
+              "target": "depot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "condensate_wrap",
+      "kind": "check",
+      "prompt": "External condensate insulation required?",
+      "choices": [
+        {
+          "id": "wrap_yes",
+          "label": "Yes",
+          "effects": [
+            {
+              "action": "addCode",
+              "value": "COND_WRAP",
+              "target": "quote"
+            },
+            {
+              "action": "addNote",
+              "value": "Insulate external condensate per guidance",
+              "target": "depot"
+            }
+          ]
+        },
+        {
+          "id": "wrap_no",
+          "label": "No / internal route"
+        }
+      ]
+    }
+  ]
+}
