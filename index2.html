@@ -329,17 +329,18 @@ function renderTrees(){
     );
     card.append(head);
 
-    card.append(renderBranch(root, section, [root]));
+    const selection = section ? STATE.selections.get(section) : null;
+    card.append(renderBranch(root, section, [root], selection));
     row.append(card);
   });
 }
 
-function renderBranch(node, section, pathNodes){
+function renderBranch(node, section, pathNodes, selection){
   const wrap = el("div",{class:"branch"});
   // crumbs
   const crumbs = el("div",{class:"crumbs"});
-  pathNodes.forEach((n,i)=>{
-    if(i===0) crumbs.append(el("span",{class:"crumb"}, n.cleanLabel));
+  pathNodes.forEach(n=>{
+    crumbs.append(el("span",{class:"crumb"}, n.cleanLabel));
   });
   wrap.append(crumbs);
 
@@ -368,6 +369,13 @@ function renderBranch(node, section, pathNodes){
     ul.append(li);
   }
   wrap.append(ul);
+
+  if(selection){
+    const activeChild = node.children.find(child => isPathActive(selection, pathNodes.concat(child)));
+    if(activeChild){
+      wrap.append(renderBranch(activeChild, section, pathNodes.concat(activeChild), selection));
+    }
+  }
   return wrap;
 }
 
@@ -385,6 +393,12 @@ function isSelected(section, node){
   return !!sel && sel.leafNode.id === node.id;
 }
 
+function isPathActive(selection, pathNodes){
+  if(!selection?.pathIds) return false;
+  if(selection.pathIds.length < pathNodes.length) return false;
+  return pathNodes.every((node, idx) => selection.pathIds[idx] === node.id);
+}
+
 function onPick(section, node, pathNodes){
   if(!section){
     // Some roots might not map — ignore
@@ -393,6 +407,7 @@ function onPick(section, node, pathNodes){
   STATE.selections.set(section, {
     nodePath: pathNodes.map(n=>n.cleanLabel),
     rawPath: pathNodes.map(n=>n.rawLabel),
+    pathIds: pathNodes.map(n=>n.id),
     leafNode: node
   });
 
