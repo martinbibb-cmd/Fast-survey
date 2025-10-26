@@ -86,6 +86,7 @@
             <outline text="Combi (3)"/>
             <outline text="Warm air (4)"/>
             <outline text="None (5)"/>
+            <outline text="Storage combi (6)"/>
         </outline>
         <outline text="Flue(a)">
             <outline text="Horizontal (1)"/>
@@ -122,6 +123,68 @@
             <outline text="Vertical flat 3 "/>
             <outline text="Vertical flat 4"/>
         </outline>
+        <outline text="Cylinder a">
+            <outline text="Open vented 1"/>
+            <outline text="Unvented 2"/>
+            <outline text="Combi 3"/>
+            <outline text="Thermal store 4"/>
+            <outline text="NA"/>
+        </outline>
+        <outline text="Cylinder b">
+            <outline text="Use existing 1"/>
+            <outline text="Replace open vented 2">
+                <outline text="Open vented same size 1"/>
+                <outline text="Open vented different size 2"/>
+                <outline text="Open vented Mixergy 3"/>
+                <outline text="Unvented 4"/>
+                <outline text="Unvented Mixergy 5"/>
+            </outline>
+            <outline text="Replace unvented 3">
+                <outline text="Unvented "/>
+                <outline text="Mixergy"/>
+            </outline>
+            <outline text="NA"/>
+        </outline>
+        <outline text="Controls a ">
+            <outline text="Simple"/>
+            <outline text="Smart"/>
+            <outline text="Boiler plus"/>
+        </outline>
+        <outline text="Controls b">
+            <outline text="Simple"/>
+            <outline text="Hive"/>
+            <outline text="Boiler plus"/>
+        </outline>
+        <outline text="Condensate a">
+            <outline text="None"/>
+            <outline text="Compliant "/>
+            <outline text="Not compliant"/>
+        </outline>
+        <outline text="Condensate b">
+            <outline text="Internal ">
+                <outline text="Under sink"/>
+                <outline text="Soil"/>
+                <outline text="Appliance"/>
+                <outline text="Pump">
+                    <outline text="Under sink"/>
+                    <outline text="Soil"/>
+                </outline>
+            </outline>
+            <outline text="External">
+                <outline text="Pump">
+                    <outline text="Soil"/>
+                    <outline text="Gully"/>
+                    <outline text="Hopper"/>
+                </outline>
+                <outline text="Soil"/>
+                <outline text="Gully"/>
+                <outline text="Hopper"/>
+                <outline text="Soak away">
+                    <outline text="Engineer installed"/>
+                    <outline text="Specialist builder"/>
+                </outline>
+            </outline>
+        </outline>
     </body>
 </opml>
   </script>
@@ -134,7 +197,13 @@ const CONFIG = {
     "Existing flue",
     "Proposed boiler",
     "Proposed flue",
-    "Flue terminal / termination"
+    "Flue terminal / termination",
+    "Cylinder (existing)",
+    "Cylinder (plan)",
+    "Controls (existing)",
+    "Controls (plan)",
+    "Condensate (existing)",
+    "Condensate (plan)"
   ],
   channels: [{ from:"a", to:"b" }],
   sectionRules: [
@@ -142,7 +211,13 @@ const CONFIG = {
     { match: "Flue",           section: "Existing flue",   channel: "a" },
     { match: "New boiler",     section: "Proposed boiler" },
     { match: "New flue",       section: "Proposed flue",   channel: "b" },
-    { match: "Terminal",       section: "Flue terminal / termination" }
+    { match: "Terminal",       section: "Flue terminal / termination" },
+    { match: "Cylinder a",     section: "Cylinder (existing)" },
+    { match: "Cylinder b",     section: "Cylinder (plan)" },
+    { match: "Controls a",     section: "Controls (existing)" },
+    { match: "Controls b",     section: "Controls (plan)" },
+    { match: "Condensate a",   section: "Condensate (existing)" },
+    { match: "Condensate b",   section: "Condensate (plan)" }
   ],
   compatibility: [
     // Example rules (safe defaults if nothing matches)
@@ -154,7 +229,13 @@ const CONFIG = {
     "Existing flue": "{cleanPath}",
     "Proposed boiler": "{cleanLeaf}",
     "Proposed flue": "{cleanPath}",
-    "Flue terminal / termination": "{cleanLeaf}"
+    "Flue terminal / termination": "{cleanLeaf}",
+    "Cylinder (existing)": "{cleanLeaf}",
+    "Cylinder (plan)": "{cleanPath}",
+    "Controls (existing)": "{cleanLeaf}",
+    "Controls (plan)": "{cleanLeaf}",
+    "Condensate (existing)": "{cleanLeaf}",
+    "Condensate (plan)": "{cleanPath}"
   },
   joiner: " ; "
 };
