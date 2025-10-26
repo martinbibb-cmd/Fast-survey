@@ -57,3 +57,21 @@ const TREE_ORDER = [
   'filter',
   'systemControls'
 ];
+
+const TREE_ALIASES = {
+  'boiler-a-b': 'boiler',
+  'flue-a-b': 'flue',
+  'cylinder-a-b': 'cylinder',
+  'controls-a-b': 'controls',
+  'condensate-a-b': 'condensate',
+  'terminal-options': 'terminal',
+  'powerflush-options': 'powerflush',
+  'filter-options': 'filter',
+  'system-controls': 'systemControls'
+};
+
+Object.entries(TREE_ALIASES).forEach(([alias, key]) => {
+  if (TREE_INDEX[key]) {
+    TREE_INDEX[alias] = { ...TREE_INDEX[key], aliasFor: key };
+  }
+});
