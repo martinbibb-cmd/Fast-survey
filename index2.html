@@ -1,59 +1,290 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Fast Survey – Trees</title>
-  <link rel="stylesheet" href="./assets/app.css">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Fast Survey — Tiles</title>
+<style>
+  :root{
+    --bg:#0f1117;--panel:#161a22;--text:#e6e8ee;--muted:#9aa3b2;
+    --accent:#7cd992;--line:#2a3140;--tile:#1a1f2b;--tileHover:#222937
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+  header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--line)}
+  h1{font-size:18px;margin:0}
+  .muted{color:var(--muted)}
+  .btn{background:var(--panel);border:1px solid var(--line);color:var(--text);padding:8px 12px;border-radius:10px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{border-color:var(--accent)}
+  main{max-width:980px;margin:0 auto;padding:16px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+  .tile{display:flex;flex-direction:column;justify-content:center;gap:6px;background:var(--tile);border:1px solid var(--line);border-radius:14px;padding:14px;min-height:88px;cursor:pointer;text-decoration:none;color:var(--text)}
+  .tile:hover{background:var(--tileHover);border-color:var(--accent)}
+  .tile .title{font-weight:600}
+  .tile .desc{color:var(--muted);font-size:12px;line-height:1.35}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .pill{display:inline-block;padding:2px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+  textarea{width:100%;min-height:120px;background:#0d0f15;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px}
+  .hidden{display:none}
+</style>
 </head>
 <body>
-  <header class="site-header">
-    <h1>Fast Survey – Tree Grove</h1>
-    <p class="subtitle">Pick a survey tree to explore its branches.</p>
-  </header>
+<header>
+  <div class="row">
+    <a class="btn" href="./">⟵ Home</a>
+    <span id="hdrTitle" class="pill">Loading…</span>
+    <span id="hdrStep" class="pill"></span>
+  </div>
+  <div class="row">
+    <button id="btnBack" class="btn">Back</button>
+    <button id="btnClear" class="btn">Clear</button>
+  </div>
+</header>
 
-  <main class="card-grid" id="treeGrid" aria-live="polite">
-    <p class="subtitle" id="treeLoading">Loading tree index…</p>
-  </main>
+<main>
+  <section id="stepCard" class="card">
+    <div class="row" style="margin-bottom:10px">
+      <span id="stepKind" class="pill"></span>
+      <strong id="stepPrompt"></strong>
+    </div>
+    <div id="tiles" class="grid"></div>
+  </section>
 
-  <footer class="site-footer">
-    <button id="reload-grow">Reload &amp; Grow 🌳</button>
-  </footer>
+  <section id="summaryCard" class="card hidden">
+    <div class="row" style="margin-bottom:8px"><span class="pill">Summary</span></div>
+    <div id="summary" style="display:grid;gap:6px"></div>
+    <div class="row" style="margin-top:10px"><span class="pill">Depot Classic</span><button id="copyClassic" class="btn">Copy</button></div>
+    <textarea id="txtClassic" spellcheck="false"></textarea>
+    <div class="row" style="margin-top:10px"><span class="pill">Smart-Paste</span><button id="copySmart" class="btn">Copy</button></div>
+    <textarea id="txtSmart" spellcheck="false"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button id="btnEdit" class="btn">Edit answers</button>
+      <a class="btn" href="./">Done → Home</a>
+    </div>
+  </section>
 
-  <script src="./assets/trees.js"></script>
-  <script>
-    const grid = document.getElementById('treeGrid');
-    const loading = document.getElementById('treeLoading');
+  <section id="error" class="card hidden"></section>
+</main>
 
-    if (typeof TREE_ORDER === 'undefined' || typeof TREE_INDEX === 'undefined') {
-      loading.textContent = 'Tree index failed to load.';
-    } else {
-      grid.innerHTML = '';
-      TREE_ORDER.forEach((key) => {
-        const meta = TREE_INDEX[key];
-        if (!meta) return;
-        const card = document.createElement('a');
-        card.className = 'card';
-        card.href = `./page.html?tree=${encodeURIComponent(key)}`;
-        const title = document.createElement('h2');
-        title.textContent = meta.title;
-        const summary = document.createElement('p');
-        summary.textContent = meta.summary || '';
-        card.appendChild(title);
-        card.appendChild(summary);
-        grid.appendChild(card);
-      });
-      if (!grid.children.length) {
-        const empty = document.createElement('p');
-        empty.className = 'subtitle';
-        empty.textContent = 'No trees registered yet.';
-        grid.appendChild(empty);
+<script>
+(function(){
+  const qs = new URLSearchParams(location.search);
+  const treeId = qs.get('tree');
+  const hdrTitle = document.getElementById('hdrTitle');
+  const hdrStep  = document.getElementById('hdrStep');
+  const stepCard = document.getElementById('stepCard');
+  const summaryCard = document.getElementById('summaryCard');
+  const stepKind = document.getElementById('stepKind');
+  const stepPrompt = document.getElementById('stepPrompt');
+  const tiles = document.getElementById('tiles');
+  const btnBack = document.getElementById('btnBack');
+  const btnClear = document.getElementById('btnClear');
+  const errorEl = document.getElementById('error');
+  const txtClassic = document.getElementById('txtClassic');
+  const txtSmart = document.getElementById('txtSmart');
+  const copyClassic = document.getElementById('copyClassic');
+  const copySmart = document.getElementById('copySmart');
+  const btnEdit = document.getElementById('btnEdit');
+
+  const STORE_KEY = (id)=>`fs:${id}:selections`;
+  const FX_KEY = (id)=>`fs:${id}:effects`;
+  const IDX_KEY = (id)=>`fs:${id}:index`;
+
+  const DEPOT = {
+    boxes:{
+      existing_path:{format:"Existing: {path};"},
+      proposed_path:{format:"Proposed: {path};"},
+      codes:{format:"Codes: {list};"},
+      flags:{format:"Flags: {list};"},
+      auto_notes:{format:"Auto-notes: {joined};"}
+    },
+    smart:{format:"::existing::{path_existing}\n::proposed::{path_proposed}\n::codes::{codes}\n::flags::{flags}\n::notes::{notes}\n"}
+  };
+
+  if(!treeId){ return fail("Missing ?tree=<id>"); }
+
+  let TREE=null;
+  const state={ i:0, sel:{}, notes:[], codes:[], flags:[] };
+
+  fetch(`/data/trees/${encodeURIComponent(treeId)}.json`, {cache:'no-store'})
+    .then(r=>r.ok?r.json():Promise.reject(r.statusText))
+    .then(json=>{
+      TREE=json; hdrTitle.textContent=TREE.title||treeId;
+      restore();
+      render();
+    })
+    .catch(e=>fail("Failed to load tree JSON: "+e));
+
+  function restore(){
+    try{
+      const s = JSON.parse(localStorage.getItem(STORE_KEY(treeId))||'{}');
+      const fx= JSON.parse(localStorage.getItem(FX_KEY(treeId))||'{}');
+      const idx= Number(localStorage.getItem(IDX_KEY(treeId))||'0');
+      if (s && typeof s==='object') state.sel = s;
+      if (fx && typeof fx==='object'){ state.notes=fx.notes||[]; state.codes=fx.codes||[]; state.flags=fx.flags||[]; }
+      if (!Number.isNaN(idx)) state.i = idx;
+    }catch(e){}
+  }
+  function persist(){
+    localStorage.setItem(STORE_KEY(treeId), JSON.stringify(state.sel));
+    localStorage.setItem(FX_KEY(treeId), JSON.stringify({notes:state.notes,codes:state.codes,flags:state.flags}));
+    localStorage.setItem(IDX_KEY(treeId), String(state.i));
+  }
+  btnClear.onclick = ()=>{ if(confirm('Clear saved progress for this tree?')){ state.i=0; state.sel={}; state.notes=[]; state.codes=[]; state.flags=[]; persist(); render(); } };
+
+  btnBack.onclick = ()=>{
+    const steps = visSteps();
+    state.i = Math.max(0, state.i-1);
+    // if we moved back across a step, drop later selections/effects and recompute up to new index
+    pruneDownstream(steps[state.i]?.id);
+    render();
+  };
+
+  function fail(msg){
+    errorEl.innerHTML = `<strong>Error</strong><div class="muted" style="margin-top:6px">${msg}</div>`;
+    errorEl.classList.remove('hidden');
+    stepCard.classList.add('hidden'); summaryCard.classList.add('hidden');
+  }
+
+  function visSteps(){
+    const steps = TREE.steps||[];
+    return steps.filter(step=>{
+      const conds = step.conditions||[];
+      if(!conds.length) return true;
+      let anyMatch=false;
+      for(const rule of conds){
+        const key = Object.keys(rule.if||{})[0];
+        const exp = rule.if[key];
+        const got = state.sel[key];
+        const match = Array.isArray(exp) ? exp.includes(got) : (exp===got);
+        if (match){ anyMatch=true; if(rule.then==='hide') return false; }
       }
-    }
-
-    document.getElementById('reload-grow').addEventListener('click', () => {
-      location.reload();
+      return anyMatch ? true : false;
     });
-  </script>
+  }
+
+  function render(){
+    const steps = visSteps();
+    const step = steps[state.i];
+    hdrStep.textContent = `Step ${Math.min(state.i+1, steps.length)}/${steps.length}`;
+    if (!step){ return showSummary(steps); }
+
+    // step tiles
+    summaryCard.classList.add('hidden');
+    stepCard.classList.remove('hidden');
+
+    stepKind.textContent = step.kind ? `(${step.kind})` : '';
+    stepPrompt.textContent = step.prompt||'';
+    tiles.innerHTML = '';
+
+    (step.choices||[]).forEach(ch=>{
+      const a=document.createElement('a');
+      a.className='tile';
+      a.href='javascript:void(0)';
+      a.innerHTML = `<div class="title">${ch.label}</div>${ch.description?`<div class="desc">${ch.description}</div>`:''}`;
+      a.onclick = ()=> choose(step, ch);
+      tiles.appendChild(a);
+    });
+  }
+
+  function choose(step, choice){
+    // reset and re-apply effects deterministically up to here
+    const steps = visSteps();
+    state.notes=[]; state.codes=[]; state.flags=[];
+    // set selection
+    state.sel[step.id] = choice.id;
+    // apply effects for ALL already selected choices up to current step
+    const upto = steps.findIndex(s=>s.id===step.id);
+    for (let k=0;k<=upto;k++){
+      const s=steps[k]; const cid=state.sel[s.id];
+      const ch=(s.choices||[]).find(c=>c.id===cid);
+      if (ch) applyEffects(ch);
+    }
+    // apply current choice (already in loop, but safe if just selected)
+    applyEffects(choice);
+
+    // next step (tiles again)
+    const v = visSteps();
+    state.i = Math.min(upto+1, v.length); // advance 1
+    persist();
+    render();
+  }
+
+  function pruneDownstream(anchorStepId){
+    // drop selections AFTER the given stepId
+    const steps = visSteps();
+    const keepIds = steps.slice(0, steps.findIndex(s=>s.id===anchorStepId)+1).map(s=>s.id);
+    Object.keys(state.sel).forEach(k=>{ if(!keepIds.includes(k)) delete state.sel[k]; });
+    state.notes=[]; state.codes=[]; state.flags=[];
+    // reapply effects for kept steps
+    keepIds.forEach(id=>{
+      const s = steps.find(x=>x.id===id);
+      const ch = (s.choices||[]).find(c=>c.id===state.sel[id]);
+      if (ch) applyEffects(ch);
+    });
+    persist();
+  }
+
+  function applyEffects(choice){
+    (choice.effects||[]).forEach(e=>{
+      if (e.action==='addNote' && e.value) state.notes.push(e.value);
+      if (e.action==='addCode' && e.value) state.codes.push(e.value);
+      if (e.action==='setFlag' && e.value) state.flags.push(e.value);
+    });
+  }
+
+  function showSummary(steps){
+    stepCard.classList.add('hidden');
+    summaryCard.classList.remove('hidden');
+
+    const existing = steps.filter(s=>s.kind==='existing').map(s=>labelFor(s.id)).filter(Boolean);
+    const proposed = steps.filter(s=>s.kind==='proposed').map(s=>labelFor(s.id)).filter(Boolean);
+
+    document.getElementById('summary').innerHTML = `
+      <div><strong>Existing:</strong> ${existing.join(' > ')||'-'}</div>
+      <div><strong>Proposed:</strong> ${proposed.join(' > ')||'-'}</div>
+      <div><strong>Codes:</strong> ${state.codes.join(', ')||'-'}</div>
+      <div><strong>Flags:</strong> ${state.flags.join(', ')||'-'}</div>
+      <div><strong>Auto-notes:</strong> ${state.notes.join(' | ')||'-'}</div>
+    `;
+
+    const classic = [
+      DEPOT.boxes.existing_path.format.replace('{path}', existing.join(' > ')),
+      DEPOT.boxes.proposed_path.format.replace('{path}', proposed.join(' > ')),
+      DEPOT.boxes.codes.format.replace('{list}', state.codes.join(', ')),
+      DEPOT.boxes.flags.format.replace('{list}', state.flags.join(', ')),
+      DEPOT.boxes.auto_notes.format.replace('{joined}', state.notes.join(' | '))
+    ].join('\n');
+
+    const smart = DEPOT.smart.format
+      .replace('{path_existing}', existing.join(' > '))
+      .replace('{path_proposed}', proposed.join(' > '))
+      .replace('{codes}', state.codes.join(','))
+      .replace('{flags}', state.flags.join(','))
+      .replace('{notes}', state.notes.join(' | '));
+
+    txtClassic.value = classic; txtSmart.value = smart;
+
+    const copy = (ta)=>{ ta.focus(); ta.select(); document.execCommand('copy'); };
+    copyClassic.onclick = ()=>copy(txtClassic);
+    copySmart.onclick  = ()=>copy(txtSmart);
+
+    btnEdit.onclick = ()=>{
+      // jump back to last step
+      const vs = visSteps();
+      state.i = Math.max(0, vs.length-1);
+      persist();
+      render();
+    };
+  }
+
+  function labelFor(stepId){
+    const s=(TREE.steps||[]).find(x=>x.id===stepId);
+    const ch=s && (s.choices||[]).find(c=>c.id===state.sel[stepId]);
+    return ch && ch.label || '';
+  }
+})();
+</script>
 </body>
 </html>
