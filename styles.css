@@ -216,6 +216,14 @@ button {
   outline: none;
 }
 
+.planner-scale section[id^="step-section-"] {
+  display: none;
+}
+
+.planner-scale section[id^="step-section-"]:target {
+  display: block;
+}
+
 .step-section {
   display: none;
   opacity: 0;

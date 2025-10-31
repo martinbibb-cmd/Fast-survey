@@ -127,18 +127,63 @@
     ensureHash();
     applyFallbackVisibility(getCurrentIndex());
 
+    const NEXT_PATTERN = /^(next|next step)$/i;
+    const PREV_PATTERN = /^(previous|previous step|back)$/i;
+
+    const isNextControl = (element) => {
+      if (!element) {
+        return false;
+      }
+
+      const datasetNav = (element.dataset.nav || '').toLowerCase();
+      if (datasetNav === 'next') {
+        return true;
+      }
+
+      if (
+        element.matches(
+          '[data-step-next], [aria-label="Next step"], [title="Next step"]'
+        )
+      ) {
+        return true;
+      }
+
+      const text = element.textContent ? element.textContent.trim() : '';
+      return NEXT_PATTERN.test(text);
+    };
+
+    const isPrevControl = (element) => {
+      if (!element) {
+        return false;
+      }
+
+      const datasetNav = (element.dataset.nav || '').toLowerCase();
+      if (datasetNav === 'prev' || datasetNav === 'previous' || datasetNav === 'back') {
+        return true;
+      }
+
+      if (
+        element.matches(
+          '[data-step-prev], [aria-label="Previous step"], [title="Previous step"]'
+        )
+      ) {
+        return true;
+      }
+
+      const text = element.textContent ? element.textContent.trim() : '';
+      return PREV_PATTERN.test(text);
+    };
+
     document.addEventListener('click', (event) => {
-      const control = event.target.closest('button[data-nav], a[data-nav]');
+      const control = event.target.closest('button, a');
       if (!control) {
         return;
       }
 
-      const action = (control.dataset.nav || '').toLowerCase();
-
-      if (action === 'next') {
+      if (isNextControl(control)) {
         event.preventDefault();
         goTo(getCurrentIndex() + 1);
-      } else if (action === 'prev' || action === 'previous' || action === 'back') {
+      } else if (isPrevControl(control)) {
         event.preventDefault();
         goTo(getCurrentIndex() - 1);
       }
