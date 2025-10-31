@@ -6,104 +6,229 @@
   <meta name="theme-color" content="#1e3a8a">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css">
-  <!-- 🔧 Fast-survey: viewport framing, dead-space & scrolling fix (drop this near end of <head>) -->
+  <!-- 🔧 Fast-survey: one-step-at-a-time + framing + sticky nav -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
   <style>
-    /* ===== Reset & base ===== */
-    *, *::before, *::after { box-sizing: border-box; }
-    html, body { height: 100%; overflow-x: hidden; }
-    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      min-height: 100svh;                 /* safe viewport on iOS */
-      overflow: hidden;                   /* lock page scroll; inner sections will scroll */
-      font: 400 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: #0b0b0c;
-      color: #f5f6f7;
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{height:100%;overflow-x:hidden}
+    html{-webkit-text-size-adjust:100%}
+    body{
+      margin:0;min-height:100svh;overflow:hidden;
+      font:400 16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:#0b0b0c;color:#f5f6f7;
     }
-    img, canvas, svg, video { max-width: 100%; height: auto; display: block; }
+    img,canvas,svg,video{max-width:100%;height:auto;display:block}
 
-    /* ===== Tighten default spacing ===== */
-    :where(h1,h2,h3,h4,p,ul,ol){ margin: 0; }
-    :where(h1,h2,h3,h4)+:where(p,ul,ol){ margin-top:.5rem; }
+    :where(h1,h2,h3,h4,p,ul,ol){margin:0}
+    :where(h1,h2,h3,h4)+:where(p,ul,ol){margin-top:.5rem}
 
-    /* ===== App shell (adjust selector if your main wrapper differs) ===== */
-    main, .steps, .app {
-      height: 100%;
-      display: grid;
-      grid-template-rows: 1fr auto;       /* step content + sticky nav (if present) */
-      max-width: 1000px;
-      margin: 0 auto;
+    .fs-app{
+      height:100%;
+      display:grid;
+      grid-template-rows:1fr auto;
+      max-width:1000px;margin:0 auto;
     }
 
-    /* ===== Each step section fills viewport; only its content scrolls ===== */
-    [id^="step-section-"]{
-      min-height: 100%;
-      display: grid;
-      grid-template-rows: auto 1fr;       /* heading + scrolling content */
-      gap: clamp(8px, 1.6vw, 14px);
-      padding: clamp(12px, 2.4vw, 20px);
-      overflow: hidden;                   /* block rubber-band glow */
+    .fs-step{
+      min-height:100%;
+      padding:clamp(12px,2.4vw,20px);
+      overflow:hidden;
+      display:none;
+      grid-template-rows:auto 1fr;
+      gap:clamp(8px,1.6vw,14px);
     }
-    /* Make the last child the scroller (put your content wrapper last in each section) */
-    [id^="step-section-"] > *:last-child{
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
-      padding-right: 2px;                 /* avoid scrollbar overlaying text */
+    .fs-step.is-active{display:grid}
+
+    .fs-step > *:last-child{
+      overflow:auto;-webkit-overflow-scrolling:touch;padding-right:2px;
+      min-height:0;
     }
 
-    /* ===== Headings scale nicely ===== */
-    [id^="step-section-"] h1{ font-size: clamp(22px,3.6vw,28px); line-height:1.2; letter-spacing:.2px; }
-    [id^="step-section-"] h2{ font-size: clamp(18px,2.8vw,22px); line-height:1.25; letter-spacing:.2px; opacity:.92; }
+    .fs-step h1{font-size:clamp(22px,3.6vw,28px);line-height:1.2;letter-spacing:.2px}
+    .fs-step h2{font-size:clamp(18px,2.8vw,22px);line-height:1.25;letter-spacing:.2px;opacity:.92}
 
-    /* ===== Sticky nav band (use .step-nav on your Back/Next row) ===== */
-    .step-nav, .nav-band{
-      position: sticky; bottom: 0; z-index: 9;
-      display: flex; gap: .6rem; justify-content: space-between; align-items: center;
-      padding: clamp(8px,2vw,12px);
-      background: linear-gradient(180deg, rgba(11,11,12,0) 0%, rgba(11,11,12,.85) 35%, rgba(11,11,12,.95) 100%);
-      border-top: 1px solid rgba(255,255,255,.06);
-      backdrop-filter: blur(6px);
+    .fs-nav{
+      position:sticky;bottom:0;z-index:9;
+      display:flex;gap:.6rem;align-items:center;justify-content:space-between;
+      padding:clamp(8px,2vw,12px);
+      background:linear-gradient(180deg,rgba(11,11,12,0) 0%,rgba(11,11,12,.85) 35%,rgba(11,11,12,.95) 100%);
+      border-top:1px solid rgba(255,255,255,.06);
+      backdrop-filter:blur(6px);
     }
-    .step-nav > * { flex: 1; }
-    .step-nav .left { display:flex; gap:.5rem; }
-    .step-nav .right{ display:flex; gap:.5rem; justify-content:flex-end; }
-
-    /* ===== Buttons (optional nicety) ===== */
-    button, .btn{
-      font: inherit;
-      padding: .7rem 1rem;
-      border-radius: .6rem;
-      border: 1px solid rgba(255,255,255,.14);
-      background: #1a1b1e; color:#fff; cursor:pointer;
+    .fs-nav .left,.fs-nav .right{display:flex;gap:.5rem;align-items:center}
+    .fs-btn{
+      font:inherit;padding:.7rem 1rem;border-radius:.6rem;
+      border:1px solid rgba(255,255,255,.14);background:#1a1b1e;color:#fff;cursor:pointer;
     }
-    button:disabled{ opacity:.5; cursor:not-allowed; }
-
-    /* ===== Avoid accidental horizontal drift in inner grids ===== */
-    .grid, .row { min-width: 0; }
+    .fs-btn[disabled]{opacity:.5;cursor:not-allowed}
+    .fs-counter{opacity:.8;font-size:.95rem}
   </style>
 
   <script>
-  /* 🔩 Smooth hash entry & iOS overscroll containment for step sections */
-  (function () {
-    // If page opens with #step-section-X, ensure the target is in view without double-scroll jump
-    if (location.hash && location.hash.startsWith('#step-section-')) {
-      const target = document.querySelector(location.hash);
-      if (target) requestAnimationFrame(() => target.scrollIntoView({ block: 'start' }));
-    }
+    (function () {
+      function init() {
+        const steps = Array.from(document.querySelectorAll('[id^="step-section-"]'));
+        if (!steps.length) {
+          return;
+        }
 
-    // Prevent body rubber-band; allow touch scroll only on the step content scroller
-    document.addEventListener('touchmove', function (e) {
-      const scroller = e.target.closest('[id^="step-section-"] > *:last-child');
-      if (!scroller) { e.preventDefault(); return; }
-      const atTop    = scroller.scrollTop <= 0;
-      const atBottom = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight;
-      const goingUp  = e.touches[0]?.clientY > (e._lastY || e.touches[0].clientY);
-      e._lastY = e.touches[0]?.clientY;
-      if ((atTop && goingUp) || (atBottom && !goingUp)) e.preventDefault();
-    }, { passive: false });
-  })();
+        let app = document.querySelector('.fs-app');
+        if (!app) {
+          app = document.createElement('div');
+          app.className = 'fs-app';
+          const bodyChildren = Array.from(document.body.childNodes);
+          document.body.innerHTML = '';
+          document.body.appendChild(app);
+          bodyChildren.forEach(node => app.appendChild(node));
+        }
+
+        steps.forEach(section => section.classList.add('fs-step'));
+
+        const nav = document.createElement('div');
+        nav.className = 'fs-nav';
+        nav.innerHTML = `
+          <div class="left">
+            <button class="fs-btn" id="fs-back" type="button">Back</button>
+          </div>
+          <div class="fs-counter" id="fs-counter"></div>
+          <div class="right">
+            <button class="fs-btn" id="fs-next" type="button">Next</button>
+          </div>`;
+        app.appendChild(nav);
+
+        const backBtn = nav.querySelector('#fs-back');
+        const nextBtn = nav.querySelector('#fs-next');
+        const counterEl = nav.querySelector('#fs-counter');
+        const totalSteps = steps.length;
+        let lastTouchY = null;
+
+        const clampIndex = idx => Math.min(Math.max(idx, 1), totalSteps);
+
+        const readIndexFromHash = () => {
+          const match = (location.hash || '').match(/#step-section-(\d+)/);
+          if (match) {
+            const parsed = Number.parseInt(match[1], 10);
+            if (!Number.isNaN(parsed)) {
+              return clampIndex(parsed);
+            }
+          }
+          return 1;
+        };
+
+        const getCurrentIndex = () => {
+          const api = window.FastSurveyStepNav;
+          if (api && typeof api.getCurrentStepIndex === 'function') {
+            return clampIndex(api.getCurrentStepIndex() + 1);
+          }
+          return readIndexFromHash();
+        };
+
+        const focusActiveScroller = idx => {
+          const active = steps[idx - 1];
+          if (!active) {
+            return;
+          }
+          const scroller = active.lastElementChild;
+          if (scroller && typeof scroller.scrollTo === 'function') {
+            scroller.scrollTo({ top: 0, behavior: 'instant' });
+          }
+        };
+
+        const updateNav = idx => {
+          const current = clampIndex(idx);
+          counterEl.textContent = `Step ${current} of ${totalSteps}`;
+          backBtn.disabled = current <= 1;
+          nextBtn.disabled = current >= totalSteps;
+
+          const api = window.FastSurveyStepNav;
+          if (!api || typeof api.getCurrentStepIndex !== 'function') {
+            steps.forEach((section, position) => {
+              section.classList.toggle('is-active', position === current - 1);
+            });
+          }
+
+          focusActiveScroller(current);
+        };
+
+        const goTo = idx => {
+          const target = clampIndex(idx);
+          const api = window.FastSurveyStepNav;
+          if (api && typeof api.goToStep === 'function') {
+            api.goToStep(target - 1, { scroll: true });
+            return;
+          }
+
+          const targetId = steps[target - 1]?.id;
+          if (!targetId) {
+            return;
+          }
+
+          if (window.history && typeof window.history.replaceState === 'function') {
+            window.history.replaceState(null, '', `#${targetId}`);
+          } else {
+            window.location.hash = targetId;
+          }
+
+          updateNav(target);
+        };
+
+        const handleExternalStepChange = event => {
+          const detailIndex =
+            event && typeof event.detail?.index === 'number'
+              ? event.detail.index + 1
+              : getCurrentIndex();
+          updateNav(detailIndex);
+        };
+
+        backBtn.addEventListener('click', () => goTo(getCurrentIndex() - 1));
+        nextBtn.addEventListener('click', () => goTo(getCurrentIndex() + 1));
+
+        window.addEventListener('hashchange', () => updateNav(getCurrentIndex()));
+        window.addEventListener('fastsurvey:stepchange', handleExternalStepChange);
+
+        document.addEventListener(
+          'touchmove',
+          event => {
+            const current = getCurrentIndex();
+            const active = steps[current - 1];
+            const scroller = active?.lastElementChild;
+            if (!scroller || !scroller.contains(event.target)) {
+              event.preventDefault();
+              return;
+            }
+
+            const touch = event.touches[0];
+            if (!touch) {
+              return;
+            }
+
+            const atTop = scroller.scrollTop <= 0;
+            const atBottom =
+              scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight;
+            const goingUp = lastTouchY !== null ? touch.clientY > lastTouchY : false;
+            lastTouchY = touch.clientY;
+
+            if ((atTop && goingUp) || (atBottom && !goingUp)) {
+              event.preventDefault();
+            }
+          },
+          { passive: false }
+        );
+
+        document.addEventListener('touchend', () => {
+          lastTouchY = null;
+        });
+
+        updateNav(getCurrentIndex());
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
   </script>
 </head>
 <body>
