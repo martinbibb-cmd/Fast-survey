@@ -994,6 +994,7 @@ let topBarElement = null;
 let scrollLockToggleButton = null;
 let isScrollLockEnabled = false;
 
+const STEP_CHANGE_EVENT = 'fastsurvey:stepchange';
 const SERVICE_WORKER_VERSION = 'v2';
 
 function registerServiceWorker() {
@@ -1905,6 +1906,9 @@ function buildOutputText(value, fallback) {
 function initStepNavigation() {
   const container = document.getElementById('survey-container');
   if (!container) {
+    if (typeof window !== 'undefined') {
+      delete window.FastSurveyStepNav;
+    }
     return;
   }
 
@@ -1917,6 +1921,9 @@ function initStepNavigation() {
     const pager = document.getElementById('stepPager');
     if (pager) {
       pager.hidden = true;
+    }
+    if (typeof window !== 'undefined') {
+      delete window.FastSurveyStepNav;
     }
     return;
   }
@@ -1980,6 +1987,8 @@ function initStepNavigation() {
     }
   });
 
+  ensureStepNavigationAPI();
+
   const initialHash = window.location.hash.replace(/^#/, '');
   if (initialHash) {
     const initialIndex = stepSections.findIndex(section => section.id === initialHash);
@@ -2001,6 +2010,44 @@ function initStepNavigation() {
       showStep(targetIndex, { scroll: false, focus: false, smooth: false });
     }
   });
+}
+
+function emitStepChangeEvent() {
+  if (typeof window === 'undefined' || typeof window.dispatchEvent !== 'function') {
+    return;
+  }
+
+  const detail = {
+    index: currentStepIndex,
+    total: stepSections.length,
+    id: stepSections[currentStepIndex]?.id || null
+  };
+
+  window.dispatchEvent(new CustomEvent(STEP_CHANGE_EVENT, { detail }));
+}
+
+function ensureStepNavigationAPI() {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.FastSurveyStepNav = {
+    goToStep(stepIndex, options = {}) {
+      showStep(stepIndex, options);
+    },
+    getCurrentStepIndex() {
+      return currentStepIndex;
+    },
+    getTotalSteps() {
+      return stepSections.length;
+    },
+    getStepId(stepIndex) {
+      return stepSections[stepIndex]?.id || null;
+    },
+    getStepIds() {
+      return stepSections.map(section => section.id || null);
+    }
+  };
 }
 
 function showStep(index, options = {}) {
@@ -2062,6 +2109,8 @@ function showStep(index, options = {}) {
       heading.focus();
     }
   }
+
+  emitStepChangeEvent();
 }
 
 function updateStepNavigationUI() {
