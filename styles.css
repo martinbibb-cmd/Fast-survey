@@ -10,6 +10,9 @@
   --border: #dbeafe;
   --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
   --top-bar-height: 0px;
+  --planner-base-width: 1120px;
+  --planner-base-height: 720px;
+  --planner-scale: 1;
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
@@ -25,6 +28,32 @@ body {
   display: flex;
   justify-content: center;
   padding: 3rem 1.5rem;
+}
+
+body.planner-scale {
+  --planner-safe-gap-x: clamp(32px, 8vw, 96px);
+  --planner-safe-gap-y: clamp(24px, 6vh, 96px);
+  --planner-scale-width: calc((100vw - var(--planner-safe-gap-x)) / var(--planner-base-width));
+  --planner-scale-height: calc((100vh - var(--planner-safe-gap-y)) / var(--planner-base-height));
+  --planner-scale: clamp(0.25, min(var(--planner-scale-width), var(--planner-scale-height)), 1);
+}
+
+body.planner-scale .fs-app {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+body.planner-scale .planner-scale-frame {
+  width: var(--planner-base-width);
+  transform: scale(var(--planner-scale));
+  transform-origin: top center;
+  will-change: transform;
+  margin: 0 auto;
+}
+
+body.planner-scale .planner-scale-frame > .app-shell {
+  width: 100%;
 }
 
 body.output-page {
@@ -47,7 +76,8 @@ button {
 }
 
 .app-shell {
-  width: min(1120px, 100%);
+  width: 100%;
+  max-width: var(--planner-base-width);
   display: grid;
   grid-template-columns: minmax(0, 2.5fr) minmax(260px, 1fr);
   gap: 2rem;
