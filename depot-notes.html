@@ -1,366 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Depot Notes – POC</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root {
-      --bg: #f6f8fb;
-      --card: #fff;
-      --blue: #0c6cf2;
-      --blue-soft: rgba(12,108,242,0.1);
-      --text: #222;
-      --radius-big: 18px;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
-      display: flex;
-      justify-content: center;
-    }
-    .frame {
-      width: min(1100px, 100%);
-      min-height: 100vh;
-      background: var(--bg);
-      padding: 20px 20px 90px;
-      position: relative;
-    }
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
-    .title-block {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-    .title-block h1 {
-      font-size: 20px;
-      margin: 0;
-    }
-    .pill {
-      background: #fff;
-      border: 1px solid rgba(0,0,0,0.03);
-      border-radius: 999px;
-      padding: 4px 12px;
-      font-size: 12px;
-      color: #666;
-    }
-    .top-actions {
-      display: flex;
-      gap: 8px;
-    }
-    button {
-      border: none;
-      background: var(--blue);
-      color: #fff;
-      border-radius: 12px;
-      padding: 6px 12px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    button.secondary {
-      background: #fff;
-      border: 1px solid rgba(12,108,242,0.1);
-      color: #0c6cf2;
-    }
-    .page {
-      background: var(--card);
-      border-radius: 20px;
-      padding: 18px 18px 85px;
-      box-shadow: 0 12px 40px rgba(15,23,42,0.04);
-      min-height: calc(100vh - 160px);
-    }
-    .section-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-    }
-    .section-title h2 {
-      margin: 0;
-      font-size: 18px;
-    }
-    .tiles {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 14px;
-    }
-    .tile {
-      background: #fff;
-      border: 1.5px solid rgba(12,108,242,0.08);
-      border-radius: 16px;
-      padding: 16px 14px;
-      text-align: left;
-      cursor: pointer;
-      transition: 0.15s ease-out;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .tile:hover {
-      border-color: rgba(12,108,242,0.6);
-      box-shadow: 0 8px 26px rgba(12,108,242,0.06);
-    }
-    .tile small {
-      color: #8091a9;
-      font-size: 12px;
-    }
-    /* floating time pad */
-    .time-pad {
-      position: fixed;
-      right: 20px;
-      bottom: 20px;
-      background: #fff;
-      border: 1px solid rgba(12,108,242,0.1);
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px 6px 14px;
-      box-shadow: 0 12px 30px rgba(15,23,42,0.12);
-      min-width: 210px;
-      z-index: 50;
-    }
-    .time-pad-label {
-      font-size: 12px;
-      line-height: 1.1;
-    }
-    .time-pad-qty {
-      font-weight: 600;
-      min-width: 42px;
-      text-align: center;
-    }
-    .time-btn {
-      width: 26px;
-      height: 26px;
-      border-radius: 999px;
-      border: none;
-      font-size: 16px;
-      background: var(--blue);
-      color: #fff;
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-    }
-    .time-btn:active {
-      transform: scale(.96);
-    }
-    /* export panel */
-    .export-panel {
-      position: fixed;
-      left: 20px;
-      bottom: 20px;
-      display: flex;
-      gap: 6px;
-    }
-    .hidden { display: none; }
-    @media (max-width: 700px){
-      .time-pad { left: 20px; right: 20px; justify-content: space-between; }
-      .export-panel { right: 20px; left: auto; }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Quick Depot Notes</title>
+<style>
+:root {
+  --bg:#f7f8fa; --fg:#0f172a; --card:#fff; --accent:#0284c7;
+  --border:#d1d5db; --pad:12px;
+}
+body {
+  font-family:-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--bg); color:var(--fg); margin:0; padding:0;
+}
+header {
+  text-align:center; padding:1rem; background:var(--accent); color:white;
+  font-size:1.2rem; font-weight:600;
+}
+main { display:flex; flex-direction:column; align-items:center; padding:1rem; }
+.grid {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px; width:100%; max-width:700px;
+}
+.tile {
+  background:var(--card); border:1px solid var(--border); border-radius:12px;
+  padding:var(--pad); text-align:center; font-weight:500; cursor:pointer;
+  box-shadow:0 1px 3px rgba(0,0,0,0.05);
+  transition:all .15s ease;
+}
+.tile.selected { border-color:var(--accent); background:#e0f2fe; }
+#modal {
+  position:fixed; inset:0; background:rgba(0,0,0,0.45);
+  display:none; align-items:center; justify-content:center; z-index:100;
+}
+#modalContent {
+  background:var(--card); border-radius:14px; width:90%; max-width:400px;
+  padding:1rem;
+}
+#modalContent h2 { margin-top:0; }
+.option {
+  border:1px solid var(--border); border-radius:10px; padding:.6rem;
+  margin:.4rem 0; cursor:pointer; text-align:center;
+}
+.option:hover { background:#f1f5f9; }
+#summaryBox {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:12px; padding:1rem; width:100%; max-width:700px;
+  margin-top:1rem; white-space:pre-wrap;
+}
+button {
+  background:var(--accent); color:white; border:none; border-radius:8px;
+  padding:.8rem 1.2rem; font-size:1rem; cursor:pointer; margin-top:1rem;
+}
+button:hover { opacity:.9; }
+</style>
 </head>
 <body>
-  <div class="frame">
-    <header>
-      <div class="title-block">
-        <h1 id="app-title">Depot notes</h1>
-        <span class="pill" id="current-page-pill">Home</span>
-      </div>
-      <div class="top-actions">
-        <button class="secondary" onclick="goHome()">Home</button>
-        <button onclick="exportJSON()">Export JSON</button>
-      </div>
-    </header>
-    <div id="page-container" class="page">
-      <!-- content injected by JS -->
-    </div>
+<header>Quick Depot Notes</header>
+<main>
+  <div class="grid" id="tiles"></div>
+  <div id="summaryBox">Start selecting notes to build your summary…</div>
+  <button onclick="generateSummary()">Generate Summary</button>
+</main>
+
+<div id="modal">
+  <div id="modalContent">
+    <h2 id="modalTitle"></h2>
+    <div id="modalOptions"></div>
   </div>
+</div>
 
-  <!-- floating time pad -->
-  <div class="time-pad" id="time-pad">
-    <div>
-      <div class="time-pad-label">Extra time for:</div>
-      <div class="time-pad-label" id="time-pad-section" style="font-weight:600">—</div>
-    </div>
-    <button class="time-btn" onclick="adjustTime(-0.5)">−</button>
-    <div class="time-pad-qty" id="time-pad-qty">0h</div>
-    <button class="time-btn" onclick="adjustTime(+0.5)">+</button>
-  </div>
+<script>
+const sections = {
+  "Needs":["Better water pressure","Faster hot water","More space","Lower running costs"],
+  "Working at heights":["Ladder access","Scaffold – tower","Scaffold – bridging","Roof permit required"],
+  "System characteristics":["Regular","System","Combi","Mixergy","Heat pump-ready"],
+  "Components that require assistance":["Cylinder","Flue","Controls","Gas run"],
+  "Restrictions to work":["Limited access","Customer objects","Time restrictions","Pets/children"],
+  "External hazards":["Uneven ground","Vehicles","Public access","Weather exposure"],
+  "Delivery notes":["Standard delivery","Tight access","Customer to move items"],
+  "Office notes":["Electrical check needed","Permit required","Quote variation"],
+  "New boiler and controls":["Combi","System","Regular","Mixergy"],
+  "Flue":["Rear","Side","Vertical","Reroute required"],
+  "Pipe work":["Minor reroute","Major reroute","Condensate","Gas run"],
+  "Disruption":["Minimal","Moderate","High – kitchen/bathroom"],
+  "Customer actions":["Customer informed about making good","Customer aware of downtime","Customer supplied fittings"]
+};
 
-  <!-- export -->
-  <div class="export-panel">
-    <button class="secondary" onclick="copyJSON()">Copy JSON</button>
-  </div>
+let selections = {};
+const tilesDiv = document.getElementById('tiles');
+const modal = document.getElementById('modal');
+const modalTitle = document.getElementById('modalTitle');
+const modalOptions = document.getElementById('modalOptions');
+const summaryBox = document.getElementById('summaryBox');
 
-  <script>
-    // Define pages & their purposes
-    const pages = {
-      home: {
-        title: "Depot notes",
-        tiles: [
-          { id: "customer", label: "Customer", desc: "Occupants, access, contact" },
-          { id: "system-current", label: "System", desc: "Current layout" },
-          { id: "system-new", label: "System – New", desc: "What we’re fitting" },
-          { id: "flue", label: "Flue", desc: "Maker-specific clearances" },
-          { id: "boiler", label: "Boiler", desc: "Worcester / Vaillant / Ideal" },
-          { id: "condensate", label: "Condensate", desc: "Routes, guarding, soakaway" },
-          { id: "safety", label: "Safety", desc: "WAH, asbestos, electrics" },
-        ]
-      },
-      "customer": {
-        title: "Customer",
-        tiles: [
-          { id: "cust-people", label: "Occupants" },
-          { id: "cust-access", label: "Access" },
-          { id: "cust-actions", label: "Customer actions" },
-        ]
-      },
-      "system-current": {
-        title: "System – Current",
-        tiles: [
-          { id: "curr-regular", label: "Regular" },
-          { id: "curr-system", label: "System" },
-          { id: "curr-combi", label: "Combi" },
-          { id: "curr-store", label: "Thermal / Store" }
-        ]
-      },
-      "system-new": {
-        title: "System – New",
-        tiles: [
-          { id: "new-combi", label: "New combi" },
-          { id: "new-system", label: "New system" },
-          { id: "new-regular", label: "New regular" },
-          { id: "new-cylinder", label: "Cylinder work" }
-        ]
-      },
-      "flue": {
-        title: "Flue",
-        tiles: [
-          { id: "flue-worcester", label: "Worcester" },
-          { id: "flue-vaillant", label: "Vaillant" },
-          { id: "flue-ideal", label: "Ideal" },
-          { id: "flue-other", label: "Glow-worm / Viessmann" }
-        ]
-      },
-      "boiler": {
-        title: "Boiler",
-        tiles: [
-          { id: "boiler-worcester", label: "Worcester" },
-          { id: "boiler-vaillant", label: "Vaillant" },
-          { id: "boiler-ideal", label: "Ideal" },
-          { id: "boiler-other", label: "Glow-worm / Viessmann" }
-        ]
-      },
-      "condensate": {
-        title: "Condensate",
-        tiles: [
-          { id: "cond-route", label: "Route" },
-          { id: "cond-frost", label: "Frost / 32mm ext" },
-          { id: "cond-pump", label: "Pump / lift" }
-        ]
-      },
-      "safety": {
-        title: "Safety",
-        tiles: [
-          { id: "saf-wah", label: "Working at heights" },
-          { id: "saf-asb", label: "Asbestos" },
-          { id: "saf-elec", label: "Electrical" },
-          { id: "saf-gas", label: "Gas route" }
-        ]
-      }
-    };
+Object.keys(sections).forEach(sec=>{
+  const t=document.createElement('div');
+  t.className='tile';
+  t.textContent=sec;
+  t.onclick=()=>openModal(sec);
+  tilesDiv.appendChild(t);
+});
 
-    // time store – this is what we export
-    const extraTime = {}; // { 'condensate': 1, 'safety': 0.5, ... }
-    let currentPage = "home";
+function openModal(section){
+  modalTitle.textContent=section;
+  modalOptions.innerHTML='';
+  sections[section].forEach(opt=>{
+    const o=document.createElement('div');
+    o.className='option';
+    o.textContent=opt;
+    o.onclick=()=>selectOption(section,opt);
+    modalOptions.appendChild(o);
+  });
+  modal.style.display='flex';
+}
 
-    function renderPage(id){
-      currentPage = id;
-      const page = pages[id];
-      const container = document.getElementById("page-container");
-      document.getElementById("current-page-pill").textContent = page.title || "Page";
-      document.getElementById("time-pad-section").textContent = page.title || id;
-      // ensure key exists
-      if (extraTime[id] == null) extraTime[id] = 0;
-      document.getElementById("time-pad-qty").textContent = extraTime[id].toFixed(1) + "h";
+function selectOption(section,option){
+  selections[section]=option;
+  modal.style.display='none';
+  document.querySelectorAll('.tile').forEach(t=>{
+    if(t.textContent===section) t.classList.add('selected');
+  });
+  updateSummary();
+}
 
-      let html = `<div class="section-title">
-        <h2>${page.title || id}</h2>
-      </div>`;
+function updateSummary(){
+  let lines=[];
+  for(let [sec,opt] of Object.entries(selections)){
+    lines.push(`${sec}: ${opt}`);
+  }
+  summaryBox.textContent = lines.length ? lines.join('\n') : "Start selecting notes to build your summary…";
+}
 
-      if (page.tiles && page.tiles.length){
-        html += `<div class="tiles">`;
-        html += page.tiles.map(t => `
-          <div class="tile" onclick="handleTile('${t.id}')">
-            <strong>${t.label}</strong>
-            ${t.desc ? `<small>${t.desc}</small>` : ``}
-          </div>
-        `).join("");
-        html += `</div>`;
-      } else {
-        html += `<p>No content yet.</p>`;
-      }
-
-      container.innerHTML = html;
-    }
-
-    function handleTile(tileId){
-      // for now just show an alert – you can swap in sub-pages later
-      alert("Selected: " + tileId + "\n(plug in your sub-page / notes logic here)");
-    }
-
-    function adjustTime(delta){
-      if (extraTime[currentPage] == null) extraTime[currentPage] = 0;
-      extraTime[currentPage] = Math.max(0, extraTime[currentPage] + delta);
-      document.getElementById("time-pad-qty").textContent = extraTime[currentPage].toFixed(1) + "h";
-    }
-
-    function goHome(){
-      renderPage("home");
-    }
-
-    function exportJSON(){
-      const payload = {
-        pages: Object.keys(pages).map(k => ({
-          id: k,
-          title: pages[k].title || k,
-          extra_hours: extraTime[k] || 0
-        })),
-        generated_at: new Date().toISOString()
-      };
-      const blob = new Blob([JSON.stringify(payload, null, 2)], {type: "application/json"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "depot-notes-extra-time.json";
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function copyJSON(){
-      const payload = {
-        pages: Object.keys(pages).map(k => ({
-          id: k,
-          title: pages[k].title || k,
-          extra_hours: extraTime[k] || 0
-        })),
-        generated_at: new Date().toISOString()
-      };
-      navigator.clipboard.writeText(JSON.stringify(payload, null, 2))
-        .then(() => alert("JSON copied – paste into Shortcut / Notes-Elite"))
-        .catch(() => alert("Couldn’t copy – use Export JSON instead."));
-    }
-
-    // init
-    renderPage("home");
-  </script>
+function generateSummary(){
+  let s="Job summary:\n";
+  for(let [sec,opt] of Object.entries(selections)){
+    s+=`- ${opt} (${sec.toLowerCase()})\n`;
+  }
+  summaryBox.textContent=s.trim();
+}
+</script>
 </body>
 </html>
